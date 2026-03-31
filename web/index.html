@@ -363,14 +363,7 @@ const sideWallL = mkMesh(new THREE.BoxGeometry(0.3, wallH, totalDepth+16), wallM
 scene.add(sideWallL);
 const sideWallR = mkMesh(new THREE.BoxGeometry(0.3, wallH, totalDepth+16), wallMat, 40.5, wallH/2, -(totalDepth/2-5));
 scene.add(sideWallR);
-// Ceiling — only render from below so it doesn't block top-down view
-const ceiling = new THREE.Mesh(
-  new THREE.PlaneGeometry(52, totalDepth+16),
-  new THREE.MeshStandardMaterial({ color: 0x263238, roughness: 0.9, side: THREE.BackSide })
-);
-ceiling.rotation.x = Math.PI/2;
-ceiling.position.set(15, wallH, -(totalDepth/2-5));
-scene.add(ceiling);
+// Ceiling removed — was blocking the view
 
 // ── Dock doors + outside truck ──────────────────────────────────────────────
 for (let i = 0; i < 3; i++) {
