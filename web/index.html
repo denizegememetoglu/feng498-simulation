@@ -143,8 +143,8 @@ C.LV_H = C.RACK_H / C.LEVELS;
 
 // ── Scene ───────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0f0f1a);
-scene.fog = new THREE.FogExp2(0x0f0f1a, 0.0006);
+scene.background = new THREE.Color(0x1a1a2e);
+// No fog — was making everything disappear
 
 const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.1, 500);
 camera.position.set(20, 30, 50);
@@ -154,8 +154,8 @@ renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 2.0;
+renderer.toneMapping = THREE.LinearToneMapping;
+renderer.toneMappingExposure = 1.0;
 document.body.appendChild(renderer.domElement);
 
 // CSS2D for labels
@@ -187,35 +187,16 @@ controls.dampingFactor = 0.05;
 controls.maxPolarAngle = Math.PI * 0.48;
 controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
 
-// Lights — bright indoor warehouse lighting
-scene.add(new THREE.AmbientLight(0xffffff, 1.2));
-const sun = new THREE.DirectionalLight(0xfff8e1, 1.0);
-sun.position.set(40, 50, 30);
+// Lights — bright, even warehouse lighting
+scene.add(new THREE.AmbientLight(0xffffff, 2.0));
+const sun = new THREE.DirectionalLight(0xffffff, 1.5);
+sun.position.set(15, 40, 10);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
 sun.shadow.camera.left = -60; sun.shadow.camera.right = 60;
 sun.shadow.camera.top = 60; sun.shadow.camera.bottom = -60;
 scene.add(sun);
-scene.add(new THREE.HemisphereLight(0x4fc3f7, 0x1a1a2e, 0.5));
-// Fill light from below to counteract ceiling shadow
-const fill = new THREE.DirectionalLight(0xffffff, 0.4);
-fill.position.set(15, -5, -20);
-scene.add(fill);
-
-// Ceiling lights (industrial fluorescent feel)
-for (let x = 5; x < 30; x += 10) {
-  for (let z = -5; z > -45; z -= 8) {
-    const strip = new THREE.Mesh(
-      new THREE.BoxGeometry(4, 0.05, 0.3),
-      new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.2 })
-    );
-    strip.position.set(x, 9.5, z);
-    scene.add(strip);
-    const pl = new THREE.PointLight(0xfff8e1, 1.2, 30);
-    pl.position.set(x, 8, z);
-    scene.add(pl);
-  }
-}
+scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 0.8));
 
 // Floor
 const floorTex = (() => {
@@ -353,7 +334,7 @@ for (let m = 0; m < C.NUM_MODULES; m++) {
 const totalDepth = zCur;
 
 // ── Walls ───────────────────────────────────────────────────────────────────
-const wallMat = new THREE.MeshStandardMaterial({ color: 0x37474f, roughness: 0.85 });
+const wallMat = new THREE.MeshStandardMaterial({ color: 0x78909c, roughness: 0.7 });
 const wallH = 10;
 // Back
 const backWall = mkMesh(new THREE.BoxGeometry(52, wallH, 0.3), wallMat, 15, wallH/2, -(totalDepth+1));
