@@ -115,11 +115,20 @@ canvas { display: block; }
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
-import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+let EffectComposer, RenderPass, UnrealBloomPass, SMAAPass, CSS2DRenderer, CSS2DObject;
+let useComposer = false, useLabels = false;
+try {
+  ({ EffectComposer } = await import('three/addons/postprocessing/EffectComposer.js'));
+  ({ RenderPass } = await import('three/addons/postprocessing/RenderPass.js'));
+  ({ UnrealBloomPass } = await import('three/addons/postprocessing/UnrealBloomPass.js'));
+  ({ SMAAPass } = await import('three/addons/postprocessing/SMAAPass.js'));
+  useComposer = true;
+} catch(e) { console.warn('Post-processing not available:', e); }
+try {
+  ({ CSS2DRenderer, CSS2DObject } = await import('three/addons/renderers/CSS2DRenderer.js'));
+  useLabels = true;
+} catch(e) { console.warn('CSS2D labels not available:', e); }
 
 // ── Config ──────────────────────────────────────────────────────────────────
 const C = {
@@ -150,20 +159,26 @@ renderer.toneMappingExposure = 1.1;
 document.body.appendChild(renderer.domElement);
 
 // CSS2D for labels
-const labelRenderer = new CSS2DRenderer();
-labelRenderer.setSize(innerWidth, innerHeight);
-labelRenderer.domElement.style.position = 'absolute';
-labelRenderer.domElement.style.top = '0';
-labelRenderer.domElement.style.pointerEvents = 'none';
-document.body.appendChild(labelRenderer.domElement);
+let labelRenderer = null;
+if (useLabels) {
+  labelRenderer = new CSS2DRenderer();
+  labelRenderer.setSize(innerWidth, innerHeight);
+  labelRenderer.domElement.style.position = 'absolute';
+  labelRenderer.domElement.style.top = '0';
+  labelRenderer.domElement.style.pointerEvents = 'none';
+  document.body.appendChild(labelRenderer.domElement);
+}
 
 // Post-processing
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.15, 0.4, 0.9);
-composer.addPass(bloom);
-const smaa = new SMAAPass(innerWidth, innerHeight);
-composer.addPass(smaa);
+let composer = null;
+if (useComposer) {
+  composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.15, 0.4, 0.9);
+  composer.addPass(bloom);
+  const smaa = new SMAAPass(innerWidth, innerHeight);
+  composer.addPass(smaa);
+}
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(15, 2, -18);
@@ -226,6 +241,7 @@ function makeLabel(text, pos, color = '#fff', fontSize = '11px') {
   const div = document.createElement('div');
   div.textContent = text;
   div.style.cssText = `color:${color};font-size:${fontSize};font-family:'Segoe UI',sans-serif;font-weight:600;text-shadow:0 0 6px rgba(0,0,0,0.8);pointer-events:none;`;
+  if (!useLabels) return null;
   const lbl = new CSS2DObject(div);
   lbl.position.copy(pos);
   scene.add(lbl);
@@ -857,8 +873,8 @@ function animate() {
   requestAnimationFrame(animate);
   update();
   controls.update();
-  composer.render();
-  labelRenderer.render(scene, camera);
+  if (composer) composer.render(); else renderer.render(scene, camera);
+  if (labelRenderer) labelRenderer.render(scene, camera);
 }
 animate();
 
@@ -892,8 +908,8 @@ window.addEventListener('resize', () => {
   camera.aspect = innerWidth/innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
-  labelRenderer.setSize(innerWidth, innerHeight);
-  composer.setSize(innerWidth, innerHeight);
+  if (labelRenderer) labelRenderer.setSize(innerWidth, innerHeight);
+  if (composer) composer.setSize(innerWidth, innerHeight);
 });
 // Init audio on first click
 document.addEventListener('click', () => { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }, { once: true });
