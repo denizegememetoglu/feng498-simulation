@@ -53,11 +53,12 @@ canvas { display: block; }
 @media (max-width: 768px) {
   #hud { font-size: 10px; padding: 8px 10px; min-width: 130px; }
   #hud h2 { font-size: 11px; }
-  #controls { font-size: 10px; padding: 6px 8px; gap: 6px; }
-  #controls input[type=range] { width: 50px; }
+  #controls { font-size: 10px; padding: 6px 8px; gap: 4px; bottom: 6px; max-width: 98vw; }
+  #controls button { padding: 5px 8px; font-size: 10px; }
+  #controls input[type=range] { width: 45px; }
   #controls .desktop-only { display: none; }
   #legend { display: none; }
-  #policy-select { top: auto; bottom: 50px; right: 10px; left: 10px; text-align: center; }
+  #policy-select { top: auto; bottom: 52px; right: 10px; left: 10px; text-align: center; }
 }
 .ld { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
 </style>
