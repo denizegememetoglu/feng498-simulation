@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Warehouse Simulation 3D — FENG 498</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { overflow: hidden; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; touch-action: none; }
+canvas { display: block; }
+#hud {
+  position: absolute; top: 10px; left: 10px;
+  background: rgba(0,0,0,0.8); color: #fff; padding: 12px 14px;
+  border-radius: 10px; font-size: 12px; line-height: 1.5;
+  backdrop-filter: blur(8px); min-width: 180px; z-index: 10;
+}
+@media (max-width: 768px) {
+  #hud { font-size: 10px; padding: 8px 10px; min-width: 140px; }
+  #hud h2 { font-size: 12px; }
+}
+#hud h2 { font-size: 15px; margin-bottom: 8px; color: #4fc3f7; }
+#hud .label { color: #aaa; }
+#hud .val { color: #fff; font-weight: 600; }
+#controls {
+  position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.8); color: #fff; padding: 8px 14px;
+  border-radius: 10px; font-size: 11px; display: flex; gap: 10px; align-items: center;
+  backdrop-filter: blur(8px); z-index: 10; flex-wrap: wrap; justify-content: center;
+  max-width: 95vw;
+}
+#controls button {
+  background: #4fc3f7; color: #000; border: none; padding: 6px 12px;
+  border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 11px;
+}
+#controls button:hover { background: #81d4fa; }
+#controls input[type=range] { width: 80px; }
+#policy-select {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(0,0,0,0.8); color: #fff; padding: 8px 12px;
+  border-radius: 10px; backdrop-filter: blur(8px); z-index: 10;
+}
+#policy-select select {
+  background: #333; color: #fff; border: 1px solid #555;
+  padding: 4px 8px; border-radius: 4px; font-size: 12px;
+}
+#legend {
+  position: absolute; bottom: 60px; right: 10px;
+  background: rgba(0,0,0,0.8); color: #fff; padding: 10px 12px;
+  border-radius: 10px; font-size: 10px; line-height: 1.7;
+  backdrop-filter: blur(8px); z-index: 10;
+}
+@media (max-width: 768px) {
+  #controls { font-size: 10px; padding: 6px 10px; gap: 6px; }
+  #controls input[type=range] { width: 60px; }
+  #controls .desktop-only { display: none; }
+  #legend { display: none; }
+  #policy-select { top: auto; bottom: 55px; right: 10px; left: 10px; text-align: center; }
+  #policy-select select { width: 100%; font-size: 14px; padding: 6px; }
+}
+.legend-dot {
+  display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle;
+}
+</style>
+</head>
+<body>
+
+<div id="hud">
+  <h2>Warehouse Simulation</h2>
+  <div><span class="label">Time: </span><span class="val" id="hud-time">00:00</span></div>
+  <div><span class="label">Orders: </span><span class="val" id="hud-orders">0</span></div>
+  <div><span class="label">RT Busy: </span><span class="val" id="hud-rt">0 / 7</span></div>
+  <div><span class="label">Picks: </span><span class="val" id="hud-picks">0</span></div>
+  <div><span class="label">Avg Prep: </span><span class="val" id="hud-prep">-</span></div>
+</div>
+
+<div id="policy-select">
+  <label>Policy: </label>
+  <select id="policy">
+    <option value="baseline">Baseline (Schneider)</option>
+    <option value="usage" selected>Usage-based ABC</option>
+    <option value="double">Double ABC</option>
+    <option value="travel">Travel-distance Optimized</option>
+  </select>
+</div>
+
+<div id="legend">
+  <div><span class="legend-dot" style="background:#4fc3f7"></span>Operator</div>
+  <div><span class="legend-dot" style="background:#ff9800"></span>Reach Truck</div>
+  <div><span class="legend-dot" style="background:#4caf50"></span>Kitting Area</div>
+  <div><span class="legend-dot" style="background:#ffeb3b"></span>Fast Mover Rack</div>
+  <div><span class="legend-dot" style="background:#78909c"></span>Standard Rack</div>
+  <div><span class="legend-dot" style="background:#f44336"></span>Active Pick</div>
+</div>
+
+<div id="controls">
+  <button id="btn-play">Pause</button>
+  <span>Speed:</span>
+  <input type="range" id="speed" min="1" max="100" value="30">
+  <span id="speed-label">30x</span>
+  <span class="desktop-only">|</span>
+  <span class="desktop-only" style="color:#aaa">Scroll: zoom · Drag: rotate · Right-drag: pan</span>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ── Config ──────────────────────────────────────────────────────────────────
+const C = {
+  NUM_MODULES: 11, LEVELS: 9, COMPARTMENTS: 12, PALLETS_PER_COMP: 3,
+  AISLE_W: 3.0, KIT_CORRIDOR_W: 1.6, RACK_DEPTH: 1.3, RACK_HEIGHT: 7.5, RACK_WIDTH: 30.0,
+  FAST_MOVER_MAX_LEVEL: 3,
+  NUM_RT: 7, NUM_OPS: 8,
+  WALK_SPEED: 50/60, RT_SPEED: 100/60, RT_LIFT_PER_LEVEL: 15, RT_PICK_PLACE: 30,
+  OP_PICK_TIME: 18, SHIFT: 28800, ORDERS_PER_DAY: 300,
+  ITEMS_MIN: 5, ITEMS_MAX: 15,
+};
+C.COMP_W = C.RACK_WIDTH / C.COMPARTMENTS;
+C.LEVEL_H = C.RACK_HEIGHT / C.LEVELS;
+
+// ── Scene setup ─────────────────────────────────────────────────────────────
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a1a2e);
+scene.fog = new THREE.FogExp2(0x1a1a2e, 0.006);
+
+const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.1, 500);
+camera.position.set(15, 35, 55);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(15, 3, -20);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.maxPolarAngle = Math.PI * 0.48;
+controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
+
+// Lights
+const amb = new THREE.AmbientLight(0xffffff, 0.4);
+scene.add(amb);
+const dir = new THREE.DirectionalLight(0xffffff, 0.8);
+dir.position.set(30, 40, 20);
+dir.castShadow = true;
+dir.shadow.mapSize.set(2048, 2048);
+dir.shadow.camera.left = -50; dir.shadow.camera.right = 50;
+dir.shadow.camera.top = 50; dir.shadow.camera.bottom = -50;
+scene.add(dir);
+
+const hemi = new THREE.HemisphereLight(0x4fc3f7, 0x1a1a2e, 0.3);
+scene.add(hemi);
+
+// Floor
+const floorGeo = new THREE.PlaneGeometry(120, 120);
+const floorMat = new THREE.MeshStandardMaterial({ color: 0x2c2c3e, roughness: 0.9 });
+const floor = new THREE.Mesh(floorGeo, floorMat);
+floor.rotation.x = -Math.PI/2;
+floor.position.set(15, 0, -25);
+floor.receiveShadow = true;
+scene.add(floor);
+
+// ── Warehouse geometry ──────────────────────────────────────────────────────
+const rackGroup = new THREE.Group();
+scene.add(rackGroup);
+
+const moduleYs = [];    // z positions of each module (Three.js z = warehouse y)
+const moduleHasKit = []; // which modules have kit corridor access
+
+let zCursor = 0;
+for (let m = 0; m < C.NUM_MODULES; m++) {
+  // Kit corridor logic: gap (m-1) odd => kit on left, gap m odd => kit on right
+  let hasKit = false;
+  if (m > 0 && (m-1)%2 === 1) hasKit = true;
+  if (m < C.NUM_MODULES-1 && m%2 === 1) hasKit = true;
+  moduleHasKit.push(hasKit);
+  moduleYs.push(zCursor);
+
+  // Build rack shelves
+  const rackMat = new THREE.MeshStandardMaterial({
+    color: hasKit ? 0xf9a825 : 0x607d8b,
+    roughness: 0.7, metalness: 0.2,
+  });
+
+  // Uprights
+  for (let c = 0; c <= C.COMPARTMENTS; c++) {
+    const x = c * C.COMP_W;
+    const upright = new THREE.Mesh(
+      new THREE.BoxGeometry(0.08, C.RACK_HEIGHT, C.RACK_DEPTH),
+      new THREE.MeshStandardMaterial({ color: 0x37474f, metalness: 0.6, roughness: 0.3 })
+    );
+    upright.position.set(x, C.RACK_HEIGHT/2, -(zCursor + C.RACK_DEPTH/2));
+    upright.castShadow = true;
+    rackGroup.add(upright);
+  }
+
+  // Shelf planes per level
+  for (let lv = 0; lv < C.LEVELS; lv++) {
+    const y = lv * C.LEVEL_H + 0.05;
+    const shelf = new THREE.Mesh(
+      new THREE.BoxGeometry(C.RACK_WIDTH, 0.04, C.RACK_DEPTH),
+      rackMat
+    );
+    shelf.position.set(C.RACK_WIDTH/2, y, -(zCursor + C.RACK_DEPTH/2));
+    shelf.receiveShadow = true;
+    rackGroup.add(shelf);
+
+    // Pallets (small boxes on shelves) — only show a few for perf
+    if (lv < 4 && m % 2 === 0) {
+      for (let c = 0; c < C.COMPARTMENTS; c += 2) {
+        const px = c * C.COMP_W + C.COMP_W/2;
+        const pallet = new THREE.Mesh(
+          new THREE.BoxGeometry(0.8, 0.3, 0.6),
+          new THREE.MeshStandardMaterial({ color: 0x8d6e63, roughness: 0.8 })
+        );
+        pallet.position.set(px, y + 0.2, -(zCursor + C.RACK_DEPTH/2));
+        rackGroup.add(pallet);
+      }
+    }
+  }
+
+  // Module label
+  const labelZ = -(zCursor + C.RACK_DEPTH/2);
+
+  zCursor += C.RACK_DEPTH;
+  if (m < C.NUM_MODULES - 1) {
+    // Draw aisle floor marking
+    const isRT = (m % 2 === 0);
+    const gapW = isRT ? C.AISLE_W : C.KIT_CORRIDOR_W;
+    const lineColor = isRT ? 0xf44336 : 0x2196f3;
+    const lineGeo = new THREE.PlaneGeometry(C.RACK_WIDTH, gapW);
+    const lineMat = new THREE.MeshStandardMaterial({
+      color: lineColor, transparent: true, opacity: 0.15
+    });
+    const line = new THREE.Mesh(lineGeo, lineMat);
+    line.rotation.x = -Math.PI/2;
+    line.position.set(C.RACK_WIDTH/2, 0.01, -(zCursor + gapW/2));
+    scene.add(line);
+
+    zCursor += gapW;
+  }
+}
+
+// ── Warehouse walls (outline) ───────────────────────────────────────────────
+const wallMat = new THREE.MeshStandardMaterial({ color: 0x455a64, roughness: 0.8 });
+const wallH = 9;
+// Back wall
+const backWall = new THREE.Mesh(new THREE.BoxGeometry(50, wallH, 0.3), wallMat);
+backWall.position.set(15, wallH/2, -(zCursor + 2));
+scene.add(backWall);
+// Left wall
+const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.3, wallH, zCursor + 18), wallMat);
+leftWall.position.set(-10, wallH/2, -(zCursor/2 - 6));
+scene.add(leftWall);
+// Right wall
+const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.3, wallH, zCursor + 18), wallMat);
+rightWall.position.set(40, wallH/2, -(zCursor/2 - 6));
+scene.add(rightWall);
+// Front wall (partial — opening for receiving)
+const frontWallL = new THREE.Mesh(new THREE.BoxGeometry(15, wallH, 0.3), wallMat);
+frontWallL.position.set(-2.5, wallH/2, 10);
+scene.add(frontWallL);
+const frontWallR = new THREE.Mesh(new THREE.BoxGeometry(15, wallH, 0.3), wallMat);
+frontWallR.position.set(32.5, wallH/2, 10);
+scene.add(frontWallR);
+
+// ── Kardex units (left side, blue cabinets) ─────────────────────────────────
+const kardexMat = new THREE.MeshStandardMaterial({ color: 0x1565c0, roughness: 0.4, metalness: 0.3 });
+for (let i = 0; i < 4; i++) {
+  const kardex = new THREE.Mesh(
+    new THREE.BoxGeometry(2.5, 4, 1.8),
+    kardexMat
+  );
+  kardex.position.set(-6, 2, -(8 + i * 5));
+  kardex.castShadow = true;
+  scene.add(kardex);
+  // Small light on top
+  const kLight = new THREE.Mesh(
+    new THREE.BoxGeometry(0.3, 0.1, 0.3),
+    new THREE.MeshStandardMaterial({ color: 0x4fc3f7, emissive: 0x4fc3f7, emissiveIntensity: 0.8 })
+  );
+  kLight.position.set(-6, 4.1, -(8 + i * 5));
+  scene.add(kLight);
+}
+// Kardex label area
+const kardexLabel = new THREE.Mesh(
+  new THREE.PlaneGeometry(4, 1.5),
+  new THREE.MeshStandardMaterial({ color: 0x1565c0, transparent: true, opacity: 0.3 })
+);
+kardexLabel.rotation.x = -Math.PI/2;
+kardexLabel.position.set(-6, 0.02, -16);
+scene.add(kardexLabel);
+
+// ── Trolley area (bottom/front area) ────────────────────────────────────────
+const trolleyAreaMat = new THREE.MeshStandardMaterial({ color: 0x6d4c41, transparent: true, opacity: 0.3 });
+const trolleyArea = new THREE.Mesh(
+  new THREE.PlaneGeometry(12, 6),
+  trolleyAreaMat
+);
+trolleyArea.rotation.x = -Math.PI/2;
+trolleyArea.position.set(25, 0.02, 6);
+scene.add(trolleyArea);
+// Trolley carts
+const trolleyMat = new THREE.MeshStandardMaterial({ color: 0x5d4037, roughness: 0.6 });
+for (let i = 0; i < 6; i++) {
+  const trolley = new THREE.Group();
+  const tBase = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.1, 1.2), trolleyMat);
+  tBase.position.y = 0.3;
+  trolley.add(tBase);
+  const tHandle = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.8, 0.06),
+    new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.8 }));
+  tHandle.position.set(0, 0.7, -0.55);
+  trolley.add(tHandle);
+  // Wheels
+  for (let dx of [-0.3, 0.3]) {
+    for (let dz of [-0.4, 0.4]) {
+      const wh = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.08, 0.08, 0.05, 8),
+        new THREE.MeshStandardMaterial({ color: 0x222 })
+      );
+      wh.rotation.z = Math.PI/2;
+      wh.position.set(dx, 0.08, dz);
+      trolley.add(wh);
+    }
+  }
+  trolley.position.set(21 + (i % 3) * 2.5, 0, 4 + Math.floor(i/3) * 2.5);
+  scene.add(trolley);
+}
+
+// ── Production line exits (right side, green zones) ─────────────────────────
+const prodMat = new THREE.MeshStandardMaterial({ color: 0x2e7d32, transparent: true, opacity: 0.4 });
+// SM6-36 Line
+const sm6Zone = new THREE.Mesh(new THREE.PlaneGeometry(4, 10), prodMat);
+sm6Zone.rotation.x = -Math.PI/2;
+sm6Zone.position.set(37, 0.02, -(zCursor * 0.3));
+scene.add(sm6Zone);
+const sm6Sign = new THREE.Mesh(
+  new THREE.BoxGeometry(0.1, 2, 3),
+  new THREE.MeshStandardMaterial({ color: 0x2e7d32, emissive: 0x2e7d32, emissiveIntensity: 0.2 })
+);
+sm6Sign.position.set(39, 1, -(zCursor * 0.3));
+scene.add(sm6Sign);
+
+// F400 Line
+const f400Zone = new THREE.Mesh(new THREE.PlaneGeometry(4, 10), prodMat);
+f400Zone.rotation.x = -Math.PI/2;
+f400Zone.position.set(37, 0.02, -(zCursor * 0.6));
+scene.add(f400Zone);
+
+// ── Structural columns (green, like in 3D PDF) ─────────────────────────────
+const colMat = new THREE.MeshStandardMaterial({ color: 0x00897b, metalness: 0.4, roughness: 0.5 });
+const colPositions = [
+  [0, -8], [0, -20], [0, -32],
+  [15, -8], [15, -20], [15, -32],
+  [30, -8], [30, -20], [30, -32],
+];
+for (const [cx, cz] of colPositions) {
+  const col = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.2, 0.2, wallH, 8),
+    colMat
+  );
+  col.position.set(cx, wallH/2, cz);
+  col.castShadow = true;
+  scene.add(col);
+}
+
+// ── Receiving / Shipping area (top, near back wall) ─────────────────────────
+const recvMat = new THREE.MeshStandardMaterial({ color: 0x78909c, transparent: true, opacity: 0.25 });
+const recvArea = new THREE.Mesh(new THREE.PlaneGeometry(20, 4), recvMat);
+recvArea.rotation.x = -Math.PI/2;
+recvArea.position.set(15, 0.02, -(zCursor + 0.5));
+scene.add(recvArea);
+// Dock doors
+for (let i = 0; i < 3; i++) {
+  const door = new THREE.Mesh(
+    new THREE.BoxGeometry(3, 3.5, 0.2),
+    new THREE.MeshStandardMaterial({ color: 0xb0bec5, metalness: 0.3 })
+  );
+  door.position.set(8 + i * 7, 1.75, -(zCursor + 1.8));
+  scene.add(door);
+}
+
+// ── Kitting area ────────────────────────────────────────────────────────────
+const kitGeo = new THREE.BoxGeometry(8, 0.3, 5);
+const kitMat = new THREE.MeshStandardMaterial({ color: 0x4caf50, roughness: 0.5 });
+const kitArea = new THREE.Mesh(kitGeo, kitMat);
+kitArea.position.set(8, 0.15, 3);
+kitArea.castShadow = true;
+scene.add(kitArea);
+// Kitting table
+const kitTable = new THREE.Mesh(
+  new THREE.BoxGeometry(5, 0.8, 1.5),
+  new THREE.MeshStandardMaterial({ color: 0x795548, roughness: 0.7 })
+);
+kitTable.position.set(8, 0.5, 3);
+scene.add(kitTable);
+
+// ── Operators and Reach Trucks ──────────────────────────────────────────────
+const opColors = [0x4fc3f7, 0x81c784, 0xffb74d, 0xf06292, 0xba68c8, 0x4dd0e1, 0xaed581, 0xff8a65];
+
+function createOperator(color) {
+  const group = new THREE.Group();
+  // Body
+  const body = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.2, 0.25, 1.2, 8),
+    new THREE.MeshStandardMaterial({ color, roughness: 0.5 })
+  );
+  body.position.y = 0.9;
+  body.castShadow = true;
+  group.add(body);
+  // Head
+  const head = new THREE.Mesh(
+    new THREE.SphereGeometry(0.18, 8, 8),
+    new THREE.MeshStandardMaterial({ color: 0xffccbc })
+  );
+  head.position.y = 1.65;
+  group.add(head);
+  // Hard hat
+  const hat = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.2, 0.22, 0.1, 8),
+    new THREE.MeshStandardMaterial({ color: 0xfdd835 })
+  );
+  hat.position.y = 1.8;
+  group.add(hat);
+  return group;
+}
+
+function createReachTruck() {
+  const group = new THREE.Group();
+  // Base
+  const base = new THREE.Mesh(
+    new THREE.BoxGeometry(0.8, 0.4, 1.4),
+    new THREE.MeshStandardMaterial({ color: 0xff9800, metalness: 0.3, roughness: 0.5 })
+  );
+  base.position.y = 0.3;
+  base.castShadow = true;
+  group.add(base);
+  // Mast
+  const mast = new THREE.Mesh(
+    new THREE.BoxGeometry(0.1, 3, 0.1),
+    new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.8 })
+  );
+  mast.position.set(0, 1.7, -0.5);
+  group.add(mast);
+  // Forks
+  for (let s = -1; s <= 1; s += 2) {
+    const fork = new THREE.Mesh(
+      new THREE.BoxGeometry(0.06, 0.06, 1.0),
+      new THREE.MeshStandardMaterial({ color: 0x666666, metalness: 0.9 })
+    );
+    fork.position.set(s * 0.2, 0.15, -1.0);
+    group.add(fork);
+  }
+  // Wheel indicators
+  for (let dx of [-0.35, 0.35]) {
+    for (let dz of [-0.5, 0.5]) {
+      const wheel = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.12, 0.12, 0.08, 8),
+        new THREE.MeshStandardMaterial({ color: 0x222222 })
+      );
+      wheel.rotation.z = Math.PI/2;
+      wheel.position.set(dx, 0.08, dz);
+      group.add(wheel);
+    }
+  }
+  // Light
+  const light = new THREE.Mesh(
+    new THREE.SphereGeometry(0.06, 6, 6),
+    new THREE.MeshStandardMaterial({ color: 0xff9800, emissive: 0xff9800, emissiveIntensity: 0.5 })
+  );
+  light.position.set(0, 0.55, 0.7);
+  group.add(light);
+  return group;
+}
+
+const operators = [];
+for (let i = 0; i < C.NUM_OPS; i++) {
+  const op = createOperator(opColors[i % opColors.length]);
+  op.position.set(6 + i * 0.6, 0, 3);
+  scene.add(op);
+  operators.push({ mesh: op, state: 'idle', target: null, from: null, progress: 0, pickList: [], pickIdx: 0, waitingRT: false, orderStart: 0 });
+}
+
+const reachTrucks = [];
+for (let i = 0; i < C.NUM_RT; i++) {
+  const rt = createReachTruck();
+  rt.position.set(-3, 0, -(i * 5 + 3));
+  scene.add(rt);
+  reachTrucks.push({ mesh: rt, busy: false, targetPos: null, returnPos: null, timer: 0 });
+}
+
+// ── Simulation logic ────────────────────────────────────────────────────────
+// Simplified material placement per policy
+let simTime = 0;
+let totalPicks = 0;
+let totalOrders = 0;
+let totalPrepTime = 0;
+let orderQueue = [];
+let paused = false;
+let speedMult = 30;
+let pickFlashes = []; // {mesh, timer}
+
+// Material positions: generate positions for top materials
+function posToWorld(module, compartment, level) {
+  const x = compartment * C.COMP_W + C.COMP_W/2;
+  const y = level * C.LEVEL_H + 0.3;
+  const z = -(moduleYs[module] + C.RACK_DEPTH/2);
+  return new THREE.Vector3(x, y, z);
+}
+
+const KITTING = new THREE.Vector3(8, 0, 3);
+
+// Generate some material locations based on policy
+let materialPositions = []; // [{module, comp, level, freq}]
+
+function generatePlacements(policy) {
+  materialPositions = [];
+  const rng = mulberry32(42);
+
+  if (policy === 'usage' || policy === 'baseline') {
+    // High freq -> low modules, low levels (near kitting)
+    for (let m = 0; m < C.NUM_MODULES; m++) {
+      for (let lv = 0; lv < C.LEVELS; lv++) {
+        for (let c = 0; c < C.COMPARTMENTS; c++) {
+          let freq;
+          if (policy === 'usage') {
+            // Usage-based: heavily weighted to low modules + low levels
+            freq = Math.max(0, 1.0 - (m * 0.08 + lv * 0.1)) * (1 + rng() * 0.3);
+          } else {
+            // Baseline: SE classification, more scattered
+            const isFM = moduleHasKit[m] && lv < C.FAST_MOVER_MAX_LEVEL;
+            freq = isFM ? (0.5 + rng() * 0.5) : (rng() * 0.3);
+          }
+          materialPositions.push({ module: m, comp: c, level: lv, freq });
+        }
+      }
+    }
+  } else if (policy === 'double') {
+    for (let m = 0; m < C.NUM_MODULES; m++) {
+      for (let lv = 0; lv < C.LEVELS; lv++) {
+        for (let c = 0; c < C.COMPARTMENTS; c++) {
+          const hasKit = moduleHasKit[m];
+          const priority = (hasKit && lv < 3) ? 0.7 : (lv < 5 ? 0.3 : 0.1);
+          materialPositions.push({ module: m, comp: c, level: lv, freq: priority + rng() * 0.2 });
+        }
+      }
+    }
+  } else { // travel
+    for (let m = 0; m < C.NUM_MODULES; m++) {
+      for (let lv = 0; lv < C.LEVELS; lv++) {
+        for (let c = 0; c < C.COMPARTMENTS; c++) {
+          const dist = m * 4 + c * 0.5 + lv * 2;
+          materialPositions.push({ module: m, comp: c, level: lv, freq: Math.max(0, 1 - dist * 0.02) });
+        }
+      }
+    }
+  }
+
+  // Normalize
+  const maxF = Math.max(...materialPositions.map(p => p.freq));
+  materialPositions.forEach(p => p.freq /= maxF);
+}
+
+function mulberry32(a) {
+  return function() {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+}
+
+function pickRandomMaterials(n) {
+  // Weighted random selection
+  const rng = Math.random;
+  const picks = [];
+  const totalFreq = materialPositions.reduce((s, p) => s + p.freq, 0);
+  for (let i = 0; i < n; i++) {
+    let r = rng() * totalFreq;
+    for (const p of materialPositions) {
+      r -= p.freq;
+      if (r <= 0) {
+        picks.push(p);
+        break;
+      }
+    }
+  }
+  return picks;
+}
+
+function generateOrder() {
+  const n = C.ITEMS_MIN + Math.floor(Math.random() * (C.ITEMS_MAX - C.ITEMS_MIN + 1));
+  const items = pickRandomMaterials(n);
+  // Sort by nearest neighbor from kitting
+  const sorted = [];
+  let cur = KITTING.clone();
+  const remaining = [...items];
+  while (remaining.length > 0) {
+    let bestIdx = 0, bestDist = Infinity;
+    for (let i = 0; i < remaining.length; i++) {
+      const w = posToWorld(remaining[i].module, remaining[i].comp, 0);
+      const d = cur.distanceTo(w);
+      if (d < bestDist) { bestDist = d; bestIdx = i; }
+    }
+    sorted.push(remaining.splice(bestIdx, 1)[0]);
+    cur = posToWorld(sorted[sorted.length-1].module, sorted[sorted.length-1].comp, 0);
+  }
+  return sorted;
+}
+
+function needsRT(pick) {
+  const hasKit = moduleHasKit[pick.module];
+  return !(hasKit && pick.level < C.FAST_MOVER_MAX_LEVEL);
+}
+
+function getAvailableRT() {
+  return reachTrucks.findIndex(rt => !rt.busy);
+}
+
+// ── Pick flash effect ───────────────────────────────────────────────────────
+const flashGeo = new THREE.SphereGeometry(0.3, 8, 8);
+const flashMat = new THREE.MeshStandardMaterial({ color: 0xf44336, emissive: 0xf44336, emissiveIntensity: 1, transparent: true });
+
+function addPickFlash(pos) {
+  const m = new THREE.Mesh(flashGeo, flashMat.clone());
+  m.position.copy(pos);
+  m.position.y += 0.5;
+  scene.add(m);
+  pickFlashes.push({ mesh: m, timer: 0.5 });
+}
+
+// ── Main update loop ────────────────────────────────────────────────────────
+const clock = new THREE.Clock();
+let orderTimer = 0;
+
+generatePlacements('usage');
+
+function update() {
+  const rawDt = clock.getDelta();
+  if (paused) return;
+  const dt = rawDt * speedMult;
+  simTime += dt;
+
+  if (simTime > C.SHIFT) {
+    simTime = 0;
+    totalPicks = 0; totalOrders = 0; totalPrepTime = 0;
+  }
+
+  // Generate orders
+  orderTimer += dt;
+  const orderInterval = C.SHIFT / C.ORDERS_PER_DAY;
+  while (orderTimer >= orderInterval) {
+    orderTimer -= orderInterval;
+    orderQueue.push(generateOrder());
+  }
+
+  // Assign orders to idle operators
+  for (const op of operators) {
+    if (op.state === 'idle' && orderQueue.length > 0) {
+      op.pickList = orderQueue.shift();
+      op.pickIdx = 0;
+      op.state = 'walking';
+      op.from = KITTING.clone();
+      op.from.y = 0;
+      const pick = op.pickList[0];
+      op.target = posToWorld(pick.module, pick.comp, 0); // walk on ground
+      op.progress = 0;
+      op.waitingRT = false;
+      op.orderStart = simTime;
+    }
+
+    if (op.state === 'walking') {
+      const dist = op.from.distanceTo(op.target);
+      const travelTime = dist / C.WALK_SPEED;
+      op.progress += dt / Math.max(travelTime, 0.1);
+
+      if (op.progress >= 1) {
+        op.mesh.position.copy(op.target);
+        const pick = op.pickList[op.pickIdx];
+
+        if (needsRT(pick)) {
+          op.state = 'waiting_rt';
+          op.waitingRT = true;
+        } else {
+          op.state = 'picking';
+          op.progress = 0;
+        }
+      } else {
+        op.mesh.position.lerpVectors(op.from, op.target, op.progress);
+      }
+    }
+
+    if (op.state === 'waiting_rt') {
+      const rtIdx = getAvailableRT();
+      if (rtIdx >= 0) {
+        const rt = reachTrucks[rtIdx];
+        const pick = op.pickList[op.pickIdx];
+        rt.busy = true;
+        rt.timer = pick.level * C.RT_LIFT_PER_LEVEL + C.RT_PICK_PLACE;
+        // Move RT to position
+        const rackPos = posToWorld(pick.module, pick.comp, 0);
+        rt.mesh.position.set(rackPos.x, 0, rackPos.z);
+        op.state = 'rt_working';
+        op.progress = 0;
+        op._rtIdx = rtIdx;
+      }
+    }
+
+    if (op.state === 'rt_working') {
+      const rt = reachTrucks[op._rtIdx];
+      rt.timer -= dt;
+      // Animate RT mast going up
+      const pick = op.pickList[op.pickIdx];
+      const targetY = pick.level * C.LEVEL_H;
+      const currentY = rt.mesh.position.y;
+      if (rt.timer > C.RT_PICK_PLACE) {
+        rt.mesh.children[1].scale.y = 1 + pick.level * 0.3; // extend mast
+      }
+      if (rt.timer <= 0) {
+        rt.busy = false;
+        rt.mesh.children[1].scale.y = 1;
+        op.state = 'picking';
+        op.progress = 0;
+      }
+    }
+
+    if (op.state === 'picking') {
+      op.progress += dt / C.OP_PICK_TIME;
+      if (op.progress >= 1) {
+        const pick = op.pickList[op.pickIdx];
+        addPickFlash(posToWorld(pick.module, pick.comp, pick.level));
+        totalPicks++;
+        op.pickIdx++;
+
+        if (op.pickIdx >= op.pickList.length) {
+          // Return to kitting
+          op.state = 'returning';
+          op.from = op.mesh.position.clone();
+          op.target = KITTING.clone();
+          op.target.y = 0;
+          op.progress = 0;
+        } else {
+          // Next pick
+          op.state = 'walking';
+          op.from = op.mesh.position.clone();
+          const nextPick = op.pickList[op.pickIdx];
+          op.target = posToWorld(nextPick.module, nextPick.comp, 0);
+          op.progress = 0;
+        }
+      }
+    }
+
+    if (op.state === 'returning') {
+      const dist = op.from.distanceTo(op.target);
+      const travelTime = dist / C.WALK_SPEED;
+      op.progress += dt / Math.max(travelTime, 0.1);
+      if (op.progress >= 1) {
+        op.mesh.position.copy(KITTING);
+        op.mesh.position.y = 0;
+        op.state = 'idle';
+        totalOrders++;
+        totalPrepTime += (simTime - op.orderStart);
+      } else {
+        op.mesh.position.lerpVectors(op.from, op.target, op.progress);
+      }
+    }
+  }
+
+  // Update pick flashes
+  for (let i = pickFlashes.length - 1; i >= 0; i--) {
+    pickFlashes[i].timer -= rawDt;
+    pickFlashes[i].mesh.material.opacity = pickFlashes[i].timer / 0.5;
+    pickFlashes[i].mesh.scale.setScalar(1 + (0.5 - pickFlashes[i].timer) * 2);
+    if (pickFlashes[i].timer <= 0) {
+      scene.remove(pickFlashes[i].mesh);
+      pickFlashes.splice(i, 1);
+    }
+  }
+
+  // HUD
+  const h = Math.floor(simTime / 3600);
+  const m = Math.floor((simTime % 3600) / 60);
+  document.getElementById('hud-time').textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  document.getElementById('hud-orders').textContent = totalOrders;
+  document.getElementById('hud-rt').textContent = `${reachTrucks.filter(r=>r.busy).length} / ${C.NUM_RT}`;
+  document.getElementById('hud-picks').textContent = totalPicks;
+  document.getElementById('hud-prep').textContent = totalOrders > 0
+    ? `${(totalPrepTime / totalOrders / 60).toFixed(1)} min` : '-';
+}
+
+// ── Render loop ─────────────────────────────────────────────────────────────
+function animate() {
+  requestAnimationFrame(animate);
+  update();
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+// ── UI ──────────────────────────────────────────────────────────────────────
+document.getElementById('btn-play').onclick = () => {
+  paused = !paused;
+  document.getElementById('btn-play').textContent = paused ? 'Play' : 'Pause';
+};
+
+document.getElementById('speed').oninput = (e) => {
+  speedMult = parseInt(e.target.value);
+  document.getElementById('speed-label').textContent = speedMult + 'x';
+};
+
+document.getElementById('policy').onchange = (e) => {
+  generatePlacements(e.target.value);
+  simTime = 0; totalPicks = 0; totalOrders = 0; totalPrepTime = 0;
+  orderQueue = [];
+  operators.forEach(op => { op.state = 'idle'; op.mesh.position.set(8, 0, 3); });
+};
+
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+</script>
+</body>
+</html>
