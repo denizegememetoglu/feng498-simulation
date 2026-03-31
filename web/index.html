@@ -144,7 +144,7 @@ C.LV_H = C.RACK_H / C.LEVELS;
 // ── Scene ───────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0f0f1a);
-scene.fog = new THREE.FogExp2(0x0f0f1a, 0.004);
+scene.fog = new THREE.FogExp2(0x0f0f1a, 0.0012);
 
 const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.1, 500);
 camera.position.set(20, 30, 50);
@@ -155,7 +155,7 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.1;
+renderer.toneMappingExposure = 1.6;
 document.body.appendChild(renderer.domElement);
 
 // CSS2D for labels
@@ -187,16 +187,20 @@ controls.dampingFactor = 0.05;
 controls.maxPolarAngle = Math.PI * 0.48;
 controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
 
-// Lights
-scene.add(new THREE.AmbientLight(0xffffff, 0.35));
-const sun = new THREE.DirectionalLight(0xfff8e1, 0.7);
+// Lights — bright indoor warehouse lighting
+scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+const sun = new THREE.DirectionalLight(0xfff8e1, 1.0);
 sun.position.set(40, 50, 30);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
 sun.shadow.camera.left = -60; sun.shadow.camera.right = 60;
 sun.shadow.camera.top = 60; sun.shadow.camera.bottom = -60;
 scene.add(sun);
-scene.add(new THREE.HemisphereLight(0x4fc3f7, 0x1a1a2e, 0.2));
+scene.add(new THREE.HemisphereLight(0x4fc3f7, 0x1a1a2e, 0.5));
+// Fill light from below to counteract ceiling shadow
+const fill = new THREE.DirectionalLight(0xffffff, 0.4);
+fill.position.set(15, -5, -20);
+scene.add(fill);
 
 // Ceiling lights (industrial fluorescent feel)
 for (let x = 5; x < 30; x += 10) {
@@ -207,8 +211,8 @@ for (let x = 5; x < 30; x += 10) {
     );
     strip.position.set(x, 9.5, z);
     scene.add(strip);
-    const pl = new THREE.PointLight(0xfff8e1, 0.3, 15);
-    pl.position.set(x, 9, z);
+    const pl = new THREE.PointLight(0xfff8e1, 1.2, 30);
+    pl.position.set(x, 8, z);
     scene.add(pl);
   }
 }
@@ -754,19 +758,8 @@ function addFlash(pos) {
   pickFlashes.push({ mesh: m, timer: 0.4 });
 }
 
-// Audio context for beeps
-let audioCtx;
-function beep(freq, dur) {
-  try {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.frequency.value = freq;
-    gain.gain.value = 0.03;
-    osc.start(); osc.stop(audioCtx.currentTime + dur);
-  } catch(e) {}
-}
+// Audio disabled — was annoying beep on every pick
+function beep(freq, dur) {}
 
 // ── Camera modes ────────────────────────────────────────────────────────────
 let camMode = 'free'; // free, follow, topdown, cinematic
@@ -927,7 +920,7 @@ animate();
 document.getElementById('btn-play').onclick = () => {
   paused = !paused;
   document.getElementById('btn-play').textContent = paused ? 'Play' : 'Pause';
-  if (!paused && audioCtx?.state === 'suspended') audioCtx.resume();
+  // audio removed
 };
 document.getElementById('speed').oninput = e => {
   speedMult = parseInt(e.target.value);
@@ -956,8 +949,7 @@ window.addEventListener('resize', () => {
   if (labelRenderer) labelRenderer.setSize(innerWidth, innerHeight);
   if (composer) composer.setSize(innerWidth, innerHeight);
 });
-// Init audio on first click
-document.addEventListener('click', () => { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }, { once: true });
+// Audio removed
 </script>
 </body>
 </html>
