@@ -144,7 +144,7 @@ C.LV_H = C.RACK_H / C.LEVELS;
 // ── Scene ───────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0f0f1a);
-scene.fog = new THREE.FogExp2(0x0f0f1a, 0.0012);
+scene.fog = new THREE.FogExp2(0x0f0f1a, 0.0006);
 
 const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.1, 500);
 camera.position.set(20, 30, 50);
@@ -155,7 +155,7 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.6;
+renderer.toneMappingExposure = 2.0;
 document.body.appendChild(renderer.domElement);
 
 // CSS2D for labels
@@ -188,7 +188,7 @@ controls.maxPolarAngle = Math.PI * 0.48;
 controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
 
 // Lights — bright indoor warehouse lighting
-scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+scene.add(new THREE.AmbientLight(0xffffff, 1.2));
 const sun = new THREE.DirectionalLight(0xfff8e1, 1.0);
 sun.position.set(40, 50, 30);
 sun.castShadow = true;
@@ -273,14 +273,14 @@ for (let m = 0; m < C.NUM_MODULES; m++) {
   moduleHasKit.push(hasKit);
   moduleYs.push(zCur);
 
-  const rackColor = hasKit ? 0xf9a825 : 0x607d8b;
-  const rackMat = new THREE.MeshStandardMaterial({ color: rackColor, roughness: 0.7, metalness: 0.15 });
-  const metalMat = new THREE.MeshStandardMaterial({ color: 0x37474f, metalness: 0.7, roughness: 0.25 });
+  const rackColor = hasKit ? 0xf9a825 : 0x90a4ae;
+  const rackMat = new THREE.MeshStandardMaterial({ color: rackColor, roughness: 0.5, metalness: 0.2, emissive: rackColor, emissiveIntensity: 0.05 });
+  const metalMat = new THREE.MeshStandardMaterial({ color: 0x78909c, metalness: 0.6, roughness: 0.3 });
 
   // Uprights
   for (let c = 0; c <= C.COMPS; c++) {
     const x = c * C.COMP_W;
-    const u = new THREE.Mesh(new THREE.BoxGeometry(0.08, C.RACK_H, C.RACK_DEPTH), metalMat);
+    const u = new THREE.Mesh(new THREE.BoxGeometry(0.12, C.RACK_H, C.RACK_DEPTH), metalMat);
     u.position.set(x, C.RACK_H/2, -(zCur + C.RACK_DEPTH/2));
     u.castShadow = true;
     scene.add(u);
@@ -289,13 +289,13 @@ for (let m = 0; m < C.NUM_MODULES; m++) {
   // Shelves + boxes
   for (let lv = 0; lv < C.LEVELS; lv++) {
     const y = lv * C.LV_H + 0.05;
-    const shelf = new THREE.Mesh(new THREE.BoxGeometry(C.RACK_W, 0.03, C.RACK_DEPTH), rackMat);
+    const shelf = new THREE.Mesh(new THREE.BoxGeometry(C.RACK_W, 0.08, C.RACK_DEPTH), rackMat);
     shelf.position.set(C.RACK_W/2, y, -(zCur + C.RACK_DEPTH/2));
     shelf.receiveShadow = true;
     scene.add(shelf);
 
     // Boxes/pallets on shelves (varied colors for realism)
-    const boxColors = [0x8d6e63, 0xa1887f, 0x6d4c41, 0x795548, 0x5d4037, 0x4e342e, 0x3e2723];
+    const boxColors = [0xbcaaa4, 0xd7ccc8, 0xa1887f, 0xc8b89a, 0x8d6e63, 0xcfb997, 0xb0936e];
     for (let c = 0; c < C.COMPS; c++) {
       // Not every slot is full
       if (Math.sin(m * 7 + c * 3 + lv * 11) > -0.3) {
