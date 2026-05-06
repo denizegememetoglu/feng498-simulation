@@ -19,8 +19,10 @@ class SlottingPolicy(ABC):
         return pool[n_positions:]  # remaining pool
 
 
-class BaselinePolicy(SlottingPolicy):
-    """Schneider's current classification: use SE's ABC-FMR to place materials."""
+class HeuristicBaselinePolicy(SlottingPolicy):
+    """SE's ABC-FMR class drives placement, but uses heuristic level pools
+    (no SAP storage bin lookup). Kept as a control for the SAP-driven baseline.
+    """
 
     def assign(self, materials, warehouse):
         warehouse.clear_assignments()
@@ -113,6 +115,76 @@ class DoubleABCPolicy(SlottingPolicy):
                 warehouse.assign_material(mat["material_id"], remaining_pool.pop(0))
 
 
+class RealBaselinePolicy(SlottingPolicy):
+    """The partner's actual placement read from the SAP `özet` Storage Bin column.
+
+    For materials with a decoded bin that maps to a real (rack, bay) in the
+    layout, place them at level 0 of that bin. For materials whose bin is
+    Kardex (KDX*), unmapped, malformed, or missing, fall back to the heuristic
+    level pools so all materials still get a slot — otherwise capacity drops
+    and the comparison is unfair.
+
+    Reports `placed_from_sap` / `placed_kardex` / `placed_fallback` counters
+    so the report can quote a fidelity number.
+    """
+
+    def __init__(self, decoded_bins=None, kardex_materials=None):
+        self.decoded_bins = decoded_bins or {}
+        self.kardex_materials = kardex_materials or set()
+        self.placed_from_sap = 0
+        self.placed_kardex = 0
+        self.placed_fallback = 0
+
+    def assign(self, materials, warehouse):
+        warehouse.clear_assignments()
+        self.placed_from_sap = 0
+        self.placed_kardex = 0
+        self.placed_fallback = 0
+
+        deferred = []
+        for mat in materials:
+            mid = mat["material_id"]
+            decoded = self.decoded_bins.get(mid)
+            if decoded is not None:
+                rack, bay, pos = decoded
+                pid = warehouse.sap_position_id(rack, bay, pos)
+                if pid is not None and warehouse.positions[pid].material_id is None:
+                    warehouse.assign_material(mid, pid)
+                    self.placed_from_sap += 1
+                    continue
+            # Kardex-stored materials are not in any rack — track separately
+            # but still assign a fallback slot so the simulation has a position
+            # to dispatch from. Real Kardex picks have a different time profile;
+            # that's a TODO May 20 (Sümeyra: Kardex pick ≈ instant after queue).
+            if mid in self.kardex_materials:
+                deferred.append((mat, "kardex"))
+            else:
+                deferred.append((mat, "fallback"))
+
+        fm_pool = warehouse.get_fast_mover_positions()
+        mid_pool = warehouse.get_mid_level_positions()
+        upper_pool = warehouse.get_upper_level_positions()
+        remaining_pool = warehouse.get_available_positions()
+
+        for mat, reason in deferred:
+            fmr = mat["se_fmr"]
+            target = None
+            if fmr == "F" and fm_pool:
+                target = fm_pool.pop(0)
+            elif fmr == "M" and mid_pool:
+                target = mid_pool.pop(0)
+            elif fmr in ("R", "D") and upper_pool:
+                target = upper_pool.pop(0)
+            elif remaining_pool:
+                target = remaining_pool.pop(0)
+            if target is not None:
+                warehouse.assign_material(mat["material_id"], target)
+                if reason == "kardex":
+                    self.placed_kardex += 1
+                else:
+                    self.placed_fallback += 1
+
+
 class TravelDistancePolicy(SlottingPolicy):
     """Greedy optimal: highest consumption -> closest to kitting area."""
 
@@ -130,7 +202,8 @@ class TravelDistancePolicy(SlottingPolicy):
 
 
 ALL_POLICIES = {
-    "Baseline (Schneider)": BaselinePolicy,
+    "Baseline (Heuristic)": HeuristicBaselinePolicy,
+    "Baseline (Actual SAP)": RealBaselinePolicy,
     "Usage-based ABC": UsageBasedABCPolicy,
     "Double ABC": DoubleABCPolicy,
     "Travel-distance Optimized": TravelDistancePolicy,

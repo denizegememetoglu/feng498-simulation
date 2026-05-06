@@ -2,3 +2,13 @@
 __pycache__/
 *.pyc
 output/
+
+# Sensitive / private — do not commit
+whatsapp_export/
+mcp-logs.txt
+wa-logs.txt
+*.bak
+data/rack-drawings/
+docs/*.docx
+SCHNEIDER_SORULAR.md
+MEETING_NOTES_*.md

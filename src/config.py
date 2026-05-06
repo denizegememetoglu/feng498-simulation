@@ -1,35 +1,28 @@
-# Physical layout
-NUM_MODULES = 11
-LEVELS_PER_MODULE = 9
-COMPARTMENTS_PER_MODULE = 12
-PALLETS_PER_COMPARTMENT = 3
-TOTAL_CAPACITY = NUM_MODULES * LEVELS_PER_MODULE * COMPARTMENTS_PER_MODULE * PALLETS_PER_COMPARTMENT
+"""Simulation parameters that are not part of the physical layout.
 
-AISLE_WIDTH_M = 3.0
-KIT_CORRIDOR_WIDTH_M = 1.6
-RACK_DEPTH_M = 1.3
-RACK_HEIGHT_M = 7.5
-RACK_WIDTH_M = 30.0
+Layout (rack geometry, coordinates, kit-corridor/RT sides) lives in
+config/layout.json and is loaded by Warehouse.
+"""
 
-# Aisle layout: alternating RT aisle (3m) and kit corridor (1.6m)
-# Between M0-M1: RT aisle (3m)
-# Between M1-M2: Kit corridor (1.6m)
-# Between M2-M3: RT aisle (3m)
-# Between M3-M4: Kit corridor (1.6m)
-# ...
-# So gaps at index i (between Mi and M(i+1)):
-#   even i -> RT aisle (3m),  odd i -> Kit corridor (1.6m)
+# Layout file (relative to project root)
+LAYOUT_FILE = "config/layout.json"
 
-# Every module has kit corridor access on one side -> lower levels are "fast mover" pickable
-# But reach truck can only come from the 3m aisle side
-FAST_MOVER_MAX_LEVEL = 3  # levels 0-2 reachable by hand from kit corridor
+# Operator can pick directly from levels < FAST_MOVER_MAX_LEVEL when the
+# rack has a kit corridor side (3 lower levels, confirmed May 4 by Sümeyra).
+FAST_MOVER_MAX_LEVEL = 3
+
+# When a rack's kit_corridor_side / rt_aisle_side is "TBD" (not yet measured),
+# treat the rack as having kit-corridor access on at least one side. This is
+# the optimistic assumption; flip to False after May 20 if measurements show
+# some racks have no kit access at all.
+ASSUME_KIT_ACCESS_WHEN_TBD = True
 
 # Resources
 NUM_REACH_TRUCKS = 7
 NUM_OPERATORS = 8
 NUM_MILKRUN_TRAINS = 7
 
-# Timing (minutes)
+# Timing (minutes) — all TODO May 20 time-study
 OPERATOR_WALK_SPEED_M_PER_MIN = 50.0
 REACH_TRUCK_SPEED_M_PER_MIN = 100.0
 REACH_TRUCK_LIFT_TIME_PER_LEVEL = 0.25
@@ -52,12 +45,6 @@ ITEMS_PER_ORDER_MAX = 15
 # ABC thresholds
 ABC_A_THRESHOLD = 0.80
 ABC_B_THRESHOLD = 0.95
-
-# Compartment width (rack_width / compartments)
-COMPARTMENT_WIDTH_M = RACK_WIDTH_M / COMPARTMENTS_PER_MODULE  # 2.5m
-
-# Level height
-LEVEL_HEIGHT_M = RACK_HEIGHT_M / LEVELS_PER_MODULE  # ~0.83m
 
 # Data
 DATA_FILE = "data/Malzeme Girişleri_010126-170326.xlsx"

@@ -1,4 +1,4 @@
-# FENG 498 - Schneider Electric Warehouse Optimization
+# FENG 498 - Warehouse Optimization
 
 ## Project Overview
 - **Course:** FENG 498 Senior Project
@@ -20,16 +20,25 @@
 
 ## Warehouse Specifications
 
-### Physical Layout
-- **Rack modules:** 11
-- **Total capacity:** ~3,000 pallet positions
-- **Pallet type:** P12 standard euro pallet (80 x 120 cm)
-- **Rack dimensions:** width ~30m, depth ~130cm, height ~7.5m
-- **Rack structure:** 8-9 rows (vertical/levels), 12 compartments (horizontal) per module
-- **Compartment:** fits 3 euro pallets width-wise
-- **Aisle width:** ~3m (reach truck operation)
-- **Kit corridor:** 1.6m wide
-- **Access:** Most racks single-sided; fast mover racks are double-sided
+### Physical Layout (May 4, 2026 — verified from technical drawings in `data/rack-drawings/`)
+- **Rack modules:** 11 — A, B, C, D, E, F, G (main rows), H, I (interior pair), J (polyline w/ hook), U (3-segment polyline)
+- **Total capacity:** ~3,000 pallet positions (rack A: 297 confirmed; full count derivable from PDFs)
+- **Pallet type:** P12 standard euro pallet (80 × 120 cm)
+- **Rack A reference dimensions** (from `data/rack-drawings/A.pdf`):
+  - 11 horizontal compartments (A2–A12), bay width **270 cm**
+  - 9 vertical levels (level heights from floor: 41, 138, 206, 291, 370, 461, 540, 631, 700 cm)
+  - 3 pallets per compartment per level → 11 × 9 × 3 = **297 pallets/rack** (was assumed 324)
+  - Total height: **7.0 m** (was assumed 7.5 m)
+  - Total length: ~29.7 m (was assumed 30 m — close)
+  - 24 raf ayağı, 176 travers
+- **Rack depth:** ~130 cm (P12 pallet)
+- **Rack structure:** 9 levels confirmed; lower 3 levels human-reachable (Sümeyra, May 4)
+- **Aisle width:** ~3 m (reach truck), kit corridor ~1.6 m — to be verified May 20
+- **Access:** Single-sided standard, double-sided fast-mover (PROJECT spec)
+- **MHE access constraints (May 4 site clarification):**
+  - **Reach trucks operate ONLY between rack rows** (RT-only aisles)
+  - **Milkrun trains DO NOT enter rack aisles** — they stay on main corridors and serve production lines
+  - Operators (kit pickers) walk in kit corridors and reach lower 3 levels manually
 
 ### Storage Zones
 | Zone | Description | Access |
@@ -104,7 +113,10 @@ Box/Card → Waterspider
 
 ## Dataset: Malzeme Girişleri (01.01.2026 - 17.03.2026)
 
-**File:** `data/Malzeme Girişleri_010126-170326.xlsx`
+**File:** `data/Malzeme Girişleri_010126-170326.xlsx` (May 4, 2026 expanded version)
+**Previous version:** `data/Malzeme Girişleri_010126-170326.v1-2026-04-25.xlsx.bak`
+
+**Sheets added in May 4 version:** `özet` (storage bin map), `mrpc` (MRP-C → line mapping), `zmm400` (material master with Storage Bin), `br unique`, several aggregation sheets.
 
 ### Sheet Descriptions
 
@@ -119,7 +131,7 @@ ABC-FMR analysis results per material.
 | Column | Description |
 |--------|-------------|
 | Row Labels | Material code |
-| ABC-FMR Analizi (SE) | Schneider Electric's own ABC-FMR classification |
+| ABC-FMR Analizi (SE) | The partner's existing ABC-FMR classification (from SAP) |
 | 2026 Tüketim Adetleri | 2026 consumption quantity |
 | ABC (İEÜ) | Team's ABC classification |
 | Pareto | Cumulative Pareto percentage |
@@ -130,18 +142,18 @@ ABC-FMR analysis results per material.
 Detailed ABC analysis with Pareto cumulative values and comparison.
 | Column | Description |
 |--------|-------------|
-| ABC-FMR Analizi (SE) | Schneider's classification |
+| ABC-FMR Analizi (SE) | Partner's existing classification |
 | 2026 Tüketim Adetleri | Consumption quantity (sorted descending) |
 | ABC (İEÜ) | Team's classification |
 | Pareto | Cumulative Pareto % |
 | ABC | ABC class |
-| ABC (SE) | Schneider's ABC class |
+| ABC (SE) | Partner's existing ABC class |
 | ABC Karşılaştırma | Match flag (0=mismatch, 1=match) |
 
 **Top materials by consumption:**
 | Material | Consumption | SE Class | Note |
 |----------|------------|----------|------|
-| HUA11397 | 1,158,440 | BF | Top consumer, classified B by SE but A by volume |
+| HUA11397 | 1,158,440 | BF | Top consumer, classified B by partner but A by volume |
 | HUA12053 | 711,610 | BF | |
 | HUA11450 | 537,832 | BF | |
 | 21130006 | 208,694 | CR | |
@@ -168,23 +180,54 @@ SAP material master data:
 | Column | Description |
 |--------|-------------|
 | Material | Material code |
-| Plant | TR01 or TR04 (Schneider Turkey) |
+| Plant | TR01 or TR04 (Turkey facilities) |
 | ABC Indicator | SAP ABC indicator (1-9) |
 | Purchasing Group | e.g., S02, S07, S11, S13, S17, S24 |
 | MRP Controller | e.g., 199, 300, 418, 563, 963, 964, 965 |
 | Material Description | Human-readable description |
 
-#### 7. zppq11 (6,022 rows, 2 columns)
-Material-level total consumption summary.
+#### 7. zppq11 (6,356 rows, 5 columns)
+Material-level total consumption summary. `Material | Description | Plnt | material-plant | TOTAL`.
+
+#### 8. özet (10,458 rows, 9 columns) — STORAGE BIN MAP ⭐
+**This is the critical "Lagerort" / current placement data we requested.**
+| Column | Description |
+|--------|-------------|
+| Material | Material code |
+| Plant | TR04 |
+| MRP Controller | numeric code (joins to `mrpc` sheet) |
+| MRP Controller Tanımı | line description (e.g., P7M TRAFO CT) |
+| ABC Indicator | SAP indicator (1-9) |
+| Storage Bin | **e.g., `BRH-10-02`** — bin convention seems `<RACK><LEVEL>-<COMPARTMENT>-<POSITION>` |
+| ABC Indicator tanımı | ABCFMR class (CR, BF, etc.) |
+| 2026 tüketim | 2026 consumption count |
+
+#### 9. mrpc (564 rows, 4 columns) — MRP CONTROLLER → LINE MAPPING ⭐
+**The "MRP-C → production line" lookup we requested (Nehir's outstanding ask since March).**
+| Column | Description |
+|--------|-------------|
+| Plant | tr01/tr04 |
+| MRP-C | numeric code |
+| plant-mrpc | composite key |
+| Açıklama | line name (e.g., "SM6-36 IG-Import", "SM6-36 OG-Import", "SM6-36 Local", "SM6-36 SET Amblaj") |
+
+#### 10. zmm400 (10,645 rows, 6 columns) — MATERIAL MASTER w/ Storage Bin
+SAP zmm400 export. `Material | Description | Plant | Storage Loc. | (concat) | Storage Bin`.
+
+#### 11. br unique (875 rows) — Unique Storage Bin codes
+List of distinct bin labels actually used.
+
+#### 12. ABC Analizi (6,011 rows)
+**Includes the partner's existing ABC alongside the IEU team's reclassification** — this is the basis for the project's "Refined ABC" comparison.
 
 ---
 
 ## Key Data Insights
 - **~8,674 unique materials** actively managed
-- **ABC-FMR mismatch detected:** Schneider classifies top consumers (HUA11397, HUA12053, HUA11450) as "B" (medium significance) while volume-based analysis puts them as "A" — this is the core analytical problem the project addresses
-- **Plant codes:** TR01, TR04 — Schneider Electric Turkey manufacturing facilities
+- **ABC-FMR mismatch detected:** the partner's SAP classifies top consumers (HUA11397, HUA12053, HUA11450) as "B" (medium significance) while volume-based analysis puts them as "A" — this is the core analytical problem the project addresses
+- **Plant codes:** TR01, TR04 — Turkey manufacturing facilities
 - **SAP ABC indicators (1-9)** need mapping to standard A/B/C categories
-- The comparison column in ABC Analizi shows significant mismatches (mostly 0), validating the project's hypothesis that SE's classification is inaccurate
+- The comparison column in ABC Analizi shows significant mismatches (mostly 0), validating the project's hypothesis that the partner's classification is inaccurate
 
 ---
 
@@ -199,11 +242,58 @@ Material-level total consumption summary.
 ## Files in This Repo
 ```
 feng498-simulation/
-├── PROJECT.md                          # This file - complete project knowledge base
+├── PROJECT.md                                     # This file - complete project knowledge base
+├── ASSUMPTIONS.md                                 # Modeling assumptions w/ TODOs
 ├── data/
-│   └── Malzeme Girişleri_010126-170326.xlsx  # Schneider Electric material entry dataset
+│   └── Malzeme Girişleri_010126-170326.xlsx                     # SAP export — ABC, storage bin, MRP-C (May 4 expanded)
 ├── docs/
 │   ├── SONPROPOSAL.docx                       # Latest project proposal (final version)
 │   └── Warehouse Layout.pdf                   # Warehouse layout (2D, 3D, MHE table, rack system)
-└── src/                                       # Simulation code (to be developed)
+├── src/                                       # Simulation code
+└── web/                                       # Three.js 3D visualization
 ```
+
+---
+
+## May 4, 2026 — Site Visit Outcomes
+
+Team visited the partner facility in Turkey. Deniz Ege did **not** attend (was in different city); team = Nehir Konya Ekon, Sümeyra IEU, Deniz Etensel Ekon. Coordinated remotely via WhatsApp `Feng498` group.
+
+### Data received (in `data/` and `docs/`)
+
+| Asked for | Status | Where |
+|-----------|--------|-------|
+| ⭐ Storage bin map (Lagerort) | ✅ **RECEIVED** | `data/Malzeme Girişleri_*.xlsx` → `özet` and `zmm400` sheets |
+| ⭐ MRP-C → production line mapping (`MARC-DISPO`) | ✅ **RECEIVED** (long-pending since March) | `data/Malzeme Girişleri_*.xlsx` → `mrpc` sheet |
+| Partner's existing ABC-FMR classification | ✅ **RECEIVED** | `data/Malzeme Girişleri_*.xlsx` → `ABC Analizi` sheet |
+| 2026 consumption volumes per material | ✅ **RECEIVED** | same file, multiple sheets |
+| Rack technical drawings (all 11 racks) | ✅ **RECEIVED** | `data/rack-drawings/*.pdf` |
+| BOM (Bill of Materials) | ⏳ Promised by partner contact, not delivered yet | — |
+| Daily/transactional production history (intra-day timestamps) | ❌ Not available — only date-level, no time. **Decision: use uniform within-day distribution.** | — |
+| Time study (walk speed, RT lift, pick time) | 📅 May 20 site visit (kronometreyle, 10-20 örnek) | — |
+| Operator pick routing observations | 📅 May 20 | — |
+| Building footprint, door/dock layout | 📅 May 20 (mostly verifiable from Warehouse Layout.pdf) | — |
+
+### Operational rules clarified May 4
+
+1. **Lower 3 rack levels are human-reachable** without reach truck (`fast_mover_max_level = 3` confirmed).
+2. **Reach trucks enter every aisle EXCEPT 2 m kit corridors** (Sümeyra: "Rt genisligi iki metre olan koridorlar haricindekilere giriyo"). Alternating RT / kit pattern between a-g rows is confirmed ("birer birer atlıyodu"). Kit corridor width revised 1.6 m → **2.0 m**.
+3. **Milkrun trains DO NOT enter rack aisles** — they stay on main corridors and serve production lines. This affects how milkrun routing is modeled (line-side, not rack-side).
+4. **Kits are NOT ordered as fixed recipes** — every kit is custom, contents derived from production order × BOM. Hence **BOM + production schedule = synthetic kit log** is the modeling path forward.
+5. **Order/kit timestamps are date-only** in SAP (no hour:minute). Modeling decision: aggregate to daily demand, distribute uniformly within shift, note as limitation.
+6. **Storage bin convention** (from `özet` sheet): codes like `BRH-10-02`, `BRA-02-02` — appears to be `<rack-letter><area>-<level>-<position>` style. Need to confirm decoding May 20.
+
+### Open data gaps (still needed)
+
+1. **BOM** — partner contact's pending deliverable. With BOM + 2026 consumption (already have) we can synthesize per-line material demand without intra-day timestamps.
+2. **Time study constants** — `src/config.py` parameters (walk speed 50 m/min, RT lift 0.25 min/level, etc.) are all PROJECT.md guesses.
+3. **Aisle assignment** (which specific aisles are RT-only vs operator-only) — partially known from photos, needs walk-through.
+4. **Multi-bin per material policy** — ~10,000 SKUs vs ~3,200 slots (Nehir, Apr 15) means some materials share bins or have multiple. Not modeled; decision pending.
+5. **U rack technical drawing** — got `U.pdf` but no site-plan PDF showing kit area / Kardex / dock-door positions relative to racks.
+
+### Modeling implications (translate visit findings to code)
+
+- `simulation.py` order generator: replace synthetic 300/day with `daily_demand[material] = consumption_2026[material] / 365 * working_days_per_year`, then sample uniformly across shift hours.
+- `warehouse.py`: add `RT_only_aisles` / `operator_only_aisles` flags per aisle once May 20 walk-through done.
+- Milkrun routing: line-side only; do NOT path through rack aisles.
+- Storage placement (baseline policy): join `özet.Storage Bin` to rack/level/position via decoded bin code → reproduces the partner's current layout.
