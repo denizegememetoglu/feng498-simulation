@@ -4,9 +4,7 @@ __pycache__/
 output/
 
 # Sensitive / private — do not commit
-whatsapp_export/
 mcp-logs.txt
-wa-logs.txt
 *.bak
 data/rack-drawings/
 docs/*.docx
