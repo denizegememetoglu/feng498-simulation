@@ -368,6 +368,40 @@ for (const rack of LAYOUT.racks) {
     makeLabel(rack.id,
       new THREE.Vector3(sx - 1, C.RACK_H + 0.5, -sy),
       hasKit ? '#f9a825' : '#90a4ae', '14px');
+
+    // KÜÇÜK RF small-rack marker on detached single-bay segments
+    // (J13, U14 per the rack PDFs).
+    if (seg.small_rack) {
+      makeLabel('KÜÇÜK RF',
+        new THREE.Vector3(cx, C.RACK_H + 0.2, -cy),
+        '#ffd54f', '10px');
+    }
+
+    // Kit-corridor production-line label, where wired in layout.json.
+    if (seg.kit_corridor_line) {
+      const lineLabelOffset = 2.5; // m from rack face on the kit side
+      const labelPos = new THREE.Vector3(
+        cx + perpX * lineLabelOffset, 0.6, -(cy + perpY * lineLabelOffset)
+      );
+      makeLabel(seg.kit_corridor_line, labelPos, '#81c784', '10px');
+    }
+  }
+}
+
+// ── Closed-junction X marks (J↔G and J↔U) ──────────────────────────────────
+for (const jct of (LAYOUT.closed_junctions || [])) {
+  const xMat = new THREE.MeshStandardMaterial({
+    color: 0xef5350, emissive: 0xef5350, emissiveIntensity: 0.3, roughness: 0.6
+  });
+  for (const angle of [Math.PI / 4, -Math.PI / 4]) {
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.05, 0.25), xMat);
+    bar.position.set(jct.x, 0.06, -jct.y);
+    bar.rotation.y = angle;
+    scene.add(bar);
+  }
+  if (jct._label) {
+    makeLabel(jct._label,
+      new THREE.Vector3(jct.x, 1.2, -jct.y), '#ef5350', '9px');
   }
 }
 
