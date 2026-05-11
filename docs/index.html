@@ -93,6 +93,11 @@ canvas { display: block; }
   <div><span class="ld" style="background:#607d8b"></span>RT-only Rack</div>
   <div><span class="ld" style="background:#1565c0"></span>Kardex</div>
   <div><span class="ld" style="background:#00bfa5"></span>Milkrun</div>
+  <div style="margin-top:4px;border-top:1px solid #444;padding-top:4px">
+    <div><span class="ld" style="background:#bcaaa4"></span>3-pallet bay</div>
+    <div><span class="ld" style="background:#fb8c00"></span>2-pallet feeder</div>
+    <div><span class="ld" style="background:#e53935"></span>1-pallet feeder</div>
+  </div>
 </div>
 
 <div id="controls">
@@ -128,7 +133,20 @@ try {
 const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || innerWidth < 900;
 
 // ── Load layout from config/layout.json ─────────────────────────────────────
-const LAYOUT = await fetch('../config/layout.json').then(r => r.json());
+// GitHub Pages serves docs/ as the site root, so ../config/ is unreachable.
+// Try a sibling layout.json first (docs/layout.json is committed alongside this
+// file and synced from config/layout.json); fall back to ../config/layout.json
+// for local dev when serving the repo root over http.server.
+async function loadLayout() {
+  for (const url of ['./layout.json', '../config/layout.json']) {
+    try {
+      const r = await fetch(url);
+      if (r.ok) return await r.json();
+    } catch (_) { /* keep trying */ }
+  }
+  throw new Error('Could not load layout.json from ./layout.json or ../config/layout.json');
+}
+const LAYOUT = await loadLayout();
 
 const C = {
   FM_MAX_LV: LAYOUT.fast_mover_max_level,
@@ -222,6 +240,20 @@ function makeLabel(text, pos, color = '#fff', fontSize = '11px') {
 const segmentInfo = []; // {rack_id, segment_index, start, end, length, dir, perp, bays, levels, hasKit, pallets_per_bay, bay_code_start}
 const positions = []; // flat list of {rack_id, segment_index, bay_index, level, x, y, hasKit, freq}
 
+// Expand `bay_overrides` (matches src/warehouse.py _expand_bay_overrides).
+function expandBayOverrides(seg) {
+  const out = {};
+  for (const ovr of seg.bay_overrides || []) {
+    const rec = { ...ovr };
+    delete rec.bays;
+    for (const bayCode of ovr.bays || []) out[bayCode] = rec;
+  }
+  return out;
+}
+
+// Pallet colour by width — visually distinguishes feeder bays.
+const palletColorByWidth = { 1: 0xe53935, 2: 0xfb8c00, 3: 0xbcaaa4 };
+
 for (const rack of LAYOUT.racks) {
   for (let si = 0; si < rack.segments.length; si++) {
     const seg = rack.segments[si];
@@ -254,6 +286,12 @@ for (const rack of LAYOUT.racks) {
     const cy = (sy + ey) / 2;
     const angle = Math.atan2(dy, dx); // angle in layout x-y plane
     const lvH = C.RACK_H / seg.levels;
+    const bayWidthM = length / seg.bays;
+    const slotsInBay = 3; // physical pallet slot grid per bay (max width)
+
+    const overrides = expandBayOverrides(seg);
+    const defaultWidth = seg.pallets_per_bay;
+    const defaultOffset = seg.position_offset || 0;
 
     // Shelves: one box per level
     for (let lv = 0; lv < seg.levels; lv++) {
@@ -266,21 +304,32 @@ for (const rack of LAYOUT.racks) {
       shelf.receiveShadow = true;
       scene.add(shelf);
 
-      // Decorative pallets per bay
-      for (let b = 0; b < seg.bays; b += (isMobile ? 2 : 1)) {
-        if (Math.sin(rack.id.charCodeAt(0) * 7 + b * 3 + lv * 11) > (isMobile ? 0.2 : -0.3)) {
-          const t = (b + 0.5) / seg.bays;
-          const bx = sx + dx * t;
-          const by = sy + dy * t;
-          const bw = 0.5 + Math.sin(rack.id.charCodeAt(0) + b + lv) * 0.15;
-          const bh = 0.15 + Math.abs(Math.sin(rack.id.charCodeAt(0)*3 + b*5 + lv*2)) * 0.25;
-          const box = new THREE.Mesh(
-            new THREE.BoxGeometry(bw, bh, 0.5),
-            new THREE.MeshStandardMaterial({ color: 0xbcaaa4, roughness: 0.85 })
-          );
-          box.position.set(bx, lv * lvH + 0.05 + bh/2 + 0.02, -by);
-          box.rotation.y = -angle;
-          scene.add(box);
+      // Render actual pallet positions: width per bay from bay_overrides,
+      // skip width-0 bays (J12 cart slot), colour by width.
+      // On mobile, only render lower 3 levels for performance.
+      if (isMobile && lv >= 3) continue;
+      for (let b = 0; b < seg.bays; b++) {
+        const bayCode = seg.bay_code_start + b;
+        const ovr = overrides[bayCode] || {};
+        const width = ovr.pallets_per_bay !== undefined ? ovr.pallets_per_bay : defaultWidth;
+        const offset = ovr.position_offset !== undefined ? ovr.position_offset : defaultOffset;
+        if (width <= 0) continue; // reserved bay (cart slot)
+
+        const palletMat = new THREE.MeshStandardMaterial({
+          color: palletColorByWidth[width] || 0xbcaaa4, roughness: 0.85
+        });
+        const palletW = bayWidthM / slotsInBay * 0.88;
+        const palletH = 0.18;
+        const palletGeo = new THREE.BoxGeometry(palletW, palletH, C.RACK_DEPTH * 0.7);
+        for (let p = 1 + offset; p < 1 + offset + width; p++) {
+          // Slot p (1..3) centre at fraction (p - 0.5) / slotsInBay across the bay.
+          const segT = (b + (p - 0.5) / slotsInBay) / seg.bays;
+          const px = sx + dx * segT;
+          const py = sy + dy * segT;
+          const pallet = new THREE.Mesh(palletGeo, palletMat);
+          pallet.position.set(px, lv * lvH + 0.05 + palletH/2 + 0.02, -py);
+          pallet.rotation.y = -angle;
+          scene.add(pallet);
         }
       }
     }
@@ -297,8 +346,13 @@ for (const rack of LAYOUT.racks) {
       scene.add(u);
     }
 
-    // Build position records for the simulation
+    // Build position records for the simulation (one entry per actual pallet
+    // position, not per bay — matches src/warehouse.py).
     for (let b = 0; b < seg.bays; b++) {
+      const bayCode = seg.bay_code_start + b;
+      const ovr = overrides[bayCode] || {};
+      const width = ovr.pallets_per_bay !== undefined ? ovr.pallets_per_bay : defaultWidth;
+      if (width <= 0) continue;
       const t = (b + 0.5) / seg.bays;
       const bx = sx + dx * t;
       const by = sy + dy * t;
