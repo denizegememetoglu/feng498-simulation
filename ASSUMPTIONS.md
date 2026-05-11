@@ -61,18 +61,19 @@ for now and flagged for May 20.
 | ID | Shape | Bays | Bay codes | Bay width | Levels | Pallets/bay | Pallets | Source |
 |----|-------|------|-----------|-----------|--------|-------------|---------|--------|
 | A  | linear | 11 | A2–A12 | **2.70 m** | 9 | 3 | **297** | ✅ A.pdf (270 cm stamped) |
-| B  | linear | 12 | B1–B12 | 2.70 m (assumed) | 9 | 3 | **288** | ✅ B.pdf (36 missing positions) |
-| C  | linear | 12 | C1–C12 | 2.70 m (assumed) | 9 | 3 | **297** | ✅ C.pdf (27 missing) |
-| D  | linear | 12 | D1–D12 | 2.70 m (assumed) | 9 | 3 | **300** | ✅ D.pdf (24 missing) |
-| E  | linear | 12 | E1–E12 | 2.70 m (assumed) | 9 | 3 | **294** | ✅ E.pdf (30 missing) |
-| F  | linear | 12 | F1–F12 | 2.70 m (assumed) | 9 | 3 | **303** | ✅ F.pdf (21 missing) |
-| G  | linear | 12 | G1–G12 | 2.70 m (assumed) | 9 | 3 | **288** | ✅ G.pdf (36 missing) |
-| H  | linear (vert) | 11 | H1–H11 | 2.70 m (assumed) | **8** | 3 | **240** | ✅ H.pdf — heights 41/138/206/322/438/554/670/700 cm |
-| I  | linear (vert) | 11 | I1–I11 | 2.70 m (assumed) | **8** | 3 | **252** | ✅ I.pdf |
-| J  | polyline ("[") | **18** | J1–J18 | 2.70 m (assumed) | **8** | 3 | **381** | ✅ J.pdf — bottom 4 + vertical 10 + top 4 (84+213+84) |
-| U  | linear (horiz) | **14** | U1–U14 | 2.70 m (assumed) | **7** | 3 | **263** | ✅ U.pdf — heights 118/222/346/455/564/676/700 cm + "KÜÇÜK RF" notes |
+| B  | **split** | 6+5 | B1–B6 + B8–B12 | 2.61 m | 9 | 3 | **261** (was 288) | ✅ B.pdf (B7 absent — physical gap) |
+| C  | linear | 12 | C1–C12 | 2.61 m | 9 | 3 | **297** | ✅ C.pdf (27 missing) |
+| D  | linear | 12 | D1–D12 | 2.61 m | 9 | 3 | **300** | ✅ D.pdf (24 missing) |
+| E  | linear | 12 | E1–E12 | 2.61 m | 9 | 3 | **294** | ✅ E.pdf (30 missing) |
+| F  | linear | 12 | F1–F12 | 2.61 m | 9 | 3 | **303** | ✅ F.pdf (21 missing) |
+| G  | linear | 12 | G1–G12 | 2.196 m | 9 | 3 | **288** | ✅ G.pdf (36 missing) |
+| H  | linear (vert) | 11 | H1–H11 | 2.305 m | **8** | 3 | **240** | ✅ H.pdf — heights 41/138/206/322/438/554/670/700 cm |
+| I  | linear (vert) | 11 | I1–I11 | 2.305 m | **8** | 3 | **252** | ✅ I.pdf |
+| J  | **5-section polyline** | **18** | J1–J18 | mixed | **8** | 3 | **381** | ✅ J.pdf — [J1] [J2-J12] [J13 KÜÇÜK RF] [J14] [J15-J18] |
+| U  | **split** | 13+1 | U1–U13 + U14 KÜÇÜK RF | 1.73 m / 2.0 m | **7** | 2 | **263** | ✅ U.pdf — U14 detached small rack at west end |
 
-**Total: 3 203 pallets** (was estimated 3 564 / 3 000 in older notes).
+**Total: 3 110 modelled positions** (3 203 raw PDF-stamp capacity; difference
+is feeder-bay reductions and the B7 physical gap).
 
 The 0–87 "missing positions" per a–g rack come from ÖN/ARKA passage cutouts
 where pallets cannot sit (visible as red ÖN/ARKA markers in each PDF). They
@@ -130,34 +131,46 @@ in `config/layout.json`).
 - H's neighbours (J on west, I on east): aisle types `TBD` until May 20 measurement.
 - **TODO May 20:** confirm H's two corridor sides; confirm exact x positions.
 
-## 6. J rack — polyline "[" bracket on the far west
+## 6. J rack — 5-section polyline per J.pdf (post May-11 CAD revision)
 
-✅ **Confirmed May 6** from user's top-down sketch.
+✅ **Confirmed May 11** from CAD + J.pdf detailed read.
 
-- **Bottom arm:** (10.0, 10.0) → (20.8, 10.0), 4 bays J1–J4, 84 pallets.
-- **Vertical:** (10.0, 10.0) → (10.0, 37.0), 10 bays J5–J14, 213 pallets.
-- **Top arm:** (10.0, 37.0) → (20.8, 37.0), 4 bays J15–J18, 84 pallets.
-- **Total: 18 bays × 8 levels = 381 pallets** (matches J.pdf stamp).
-- **G ↔ J bottom-arm junction (~20.8, 10): CLOSED.** No traffic flow. Modelled as
-  visual proximity only — operators and reach trucks cannot cross.
-- **U ↔ J top-arm junction (~20.8, 37): CLOSED.** Same — visual only.
-- ⚠ Per user instruction May 6 ("j'yi uzatıp da double yapma orayı"), do **not** extend
-  J or duplicate it. The bracket has exactly 2 corners and stops at the closed
-  junctions.
-- Kit/RT sides on all 3 segments: `TBD` until May 20.
+J.pdf shows J as five physically separated sub-sections in elevation, not the
+clean 3-segment `[` bracket we modeled on May 6. Updated segmentation
+(post-flip coordinates — see §18):
 
-## 7. U rack — single horizontal at north end
+- **J1 bottom arm:** single bay at (59.2, 10) → (61.9, 10), meets G at CLOSED
+  junction.
+- **J2-J12 main vertical:** 11 bays at x=70, y=6.5 → 36.2 (east wall).
+  J4, J10, J11 width=2; J12 width=0 (cart parking slot).
+- **J13 KÜÇÜK RF:** detached small rack at (72.0, 22.0) → (73.5, 22.0),
+  flagged `small_rack: true`.
+- **J14:** single detached bay at (72.0, 27.0) → (74.7, 27.0).
+- **J15-J18 top arm:** 4 bays at (59.2, 37) → (70.0, 37), all width=2.
+  Meets U at CLOSED junction.
+- **Total: 18 bays × 8 levels = 336 modelled positions** (PDF stamp is 381;
+  PDF counts pre-feeder-bay slots).
+- **G ↔ J1 junction (~59.2, 10): CLOSED.** No traffic flow.
+- **U ↔ J15 junction (~59.2, 37): CLOSED.** No traffic flow.
+- Closed-junction X marks are now drawn from `closed_junctions[]` in
+  `layout.json` (renderer in `web/index.html`).
+- Kit/RT sides on all 5 segments: `TBD` until May 20.
 
-✅ **Confirmed May 6** from user's top-down sketch.
+## 7. U rack — split: main run + detached U14 KÜÇÜK RF (post May-11)
 
-- Single linear segment: (20.8, 37.0) → (58.6, 37.0), 14 bays U1–U14, 7 levels.
-- 263 pallets (matches U.pdf stamp).
-- West end meets J's top arm at the **CLOSED** junction (~20.8, 37).
-- East end is open (no rack continues past A).
+✅ **Confirmed May 11** from U.pdf detailed read.
+
+U.pdf draws U14 as a stand-alone KÜÇÜK RF small rack at the left of the U
+elevation, physically detached from the main U1-U13 run. Updated model
+(post-flip coordinates — see §18):
+
+- **Main run U1-U13:** (59.2, 37) → (36.72, 37), 13 bays, 7 levels.
+  U8 keeps `position_offset: 1` (positions 2,3 not 1,2 — "U8 hariç, 1 yok").
+- **U14 KÜÇÜK RF:** (33.5, 37) → (35.5, 37), 1 bay, 7 levels, `small_rack: true`.
+  SAP shows odd positions {3, 5, 6} for U14 — flagged for May 20.
+- **East end of main run** meets J's top arm at the CLOSED junction
+  (~59.2, 37).
 - Kit/RT sides: `TBD` until May 20.
-- ⚠ Per user instruction May 6 ("bu layout dışında şeklin dışında çıkan başka raf
-  YOK"), no rack extends past the drawn footprint — U is a single horizontal,
-  not a polyline.
 
 ## 8. Kardex
 
@@ -248,17 +261,46 @@ Each kit corridor is labelled with the production line it feeds:
 - `KITTING (SM6-Premset)`
 - `KITTING (F400)`
 - `KITTING (RI-P7 SD-POLE)`
-- `KITTING (GAM)` (on the west edge — runs along J's vertical arm)
+- `KITTING (GAM)` (along J's vertical arm)
 
 Putaway (RT) aisles are labelled `PUTAWAY` in between.
 
-⏳ **Not yet wired into `config/layout.json`.** The image orientation is
-rotated relative to our (x, y) convention and the exact rack-to-corridor
-assignment needs to be confirmed on May 20. Once confirmed, add a
-`production_line` field to each segment's `kit_corridor_side`. This unlocks
-**line-aware milkrun routing** in `src/simulation.py` (each milkrun tour can
-target one line's kit corridor by name, joining material → MRP-C → line →
-corridor).
+✅ **Wired into `config/layout.json`** as `production_lines[]` top-level array
+plus per-segment `kit_corridor_line` where confident. Confident wires so far:
+
+- **GAM** on J's main vertical (segment J2-J12). Side still `TBD` — the CAD
+  shows it adjacent to J but the exact kit/RT side won't be settled until
+  May 20.
+
+The other 5 lines are documented in `production_lines[]` with
+`"kit_corridor": "TBD May 20"`. Once confirmed, add a `kit_corridor_line`
+field to the matching segment's `kit_corridor_side` and unlock **line-aware
+milkrun routing** in `src/simulation.py` (each milkrun tour can target one
+line's kit corridor by name, joining material → MRP-C → line → corridor).
+
+## 18. CAD orientation — x-axis flipped on May 11
+
+The May 11 CAD image places J at the **bottom-right** of the floor plan; our
+pre-May-11 coords placed J at the far west. To bring the model into
+alignment with the CAD (so report screenshots match without rotation), every
+horizontal coordinate in `config/layout.json` is now mirrored around
+x = building.width_m / 2 = 40.
+
+Concrete changes:
+
+- Every rack segment's `start[0]` and `end[0]`: `new_x = 80 - old_x`.
+- Every `kit_corridor_side` / `rt_aisle_side`: `east <-> west`. North/south
+  unchanged. `TBD` stays `TBD`.
+- Kitting block: x went 8 → 60 (south-east corner now).
+- Trolley staging: x went 22 → 30.
+- Kardex: x went 0 → 76 (east wall now, was west wall).
+- Closed junctions: J↔G at (59.2, 10); J↔U at (59.2, 37) — both moved from
+  x=20.8 to x=59.2.
+
+SAP bin codes are **NOT** affected — the `(rack, bay, position)` join in
+`Warehouse.sap_position_id` ignores spatial coordinates. The simulation
+produces the same KPIs (verified May 11) modulo the B7-physical-gap and J
+re-segmentation which together drop the model from 3 137 to 3 110 positions.
 
 ---
 
