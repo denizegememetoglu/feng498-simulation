@@ -10,3 +10,21 @@ data/rack-drawings/
 docs/*.docx
 SCHNEIDER_SORULAR.md
 MEETING_NOTES_*.md
+
+# Session / agent notes — local only
+HANDOFF.md
+.claude/
+.agents/
+.codex/
+
+# Loose WhatsApp media / screenshots accidentally dropped at the root
+/*.jpeg
+/*.jpg
+/*.png
+/*.heic
+/*.mp4
+/data/*.jpeg
+/data/*.jpg
+
+# Large/private SAP exports — share via WhatsApp folder instead
+/data/Malzeme*.xlsx*

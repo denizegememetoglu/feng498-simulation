@@ -1,10 +1,14 @@
 # Layout & Modeling Assumptions
 
-> **Status (May 6, 2026 — post-rearrangement):** Rack inventory + capacities confirmed
-> from `data/rack-drawings/*.pdf` (3 203 pallets total) and SAP export
-> (`özet`, `mrpc` sheets). Top-down topology committed May 6 from the user's hand-drawn
-> sketch (`Downloads/layout.png`). Exact rack-to-rack distances and kit-corridor
-> sides for J, H, U still need the **May 20 site visit**.
+> **Status (May 11, 2026 — post per-bay correction):** Rack inventory + per-bay
+> pallet widths confirmed from `data/rack-drawings/*.pdf`, May 11 WhatsApp from
+> site report, and SAP `özet` cross-check. Total **3 137 positions** (down from the
+> 3 203 PDF-stamp grand total because per-bay reductions are now modelled
+> explicitly via `bay_overrides` in `config/layout.json`). Top-down topology
+> committed May 6 from the user's hand-drawn sketch. Exact rack-to-rack
+> distances, kit-corridor sides for J, H, U, and the **kit corridor → production
+> line** map (from the May 11 CAD image — see §17) still need the **May 20
+> site visit**.
 >
 > Confirmed items marked ✅. Open items still TODO.
 
@@ -21,8 +25,38 @@ behind those numbers.
 
 ## 1. Rack inventory
 
-✅ **All 11 PDFs decoded May 6 from `data/rack-drawings/*.pdf`. Grand total
-3 203 pallets matches the "3203 PALET KAPASİTE" stamp on U.pdf.**
+✅ **All 11 PDFs decoded May 6 from `data/rack-drawings/*.pdf`. PDF stamp
+grand total 3 203 ("3203 PALET KAPASİTE" on U.pdf).**
+
+✅ **Per-bay widths corrected May 11** from the site report (May 11), then
+cross-checked against the SAP `özet` sheet (every reduced bay's WhatsApp
+width matches the max position seen in SAP). Many bays are "feeder" bays
+of width 1 or 2 instead of the default 3 — pallets per bay vary with the
+material size that lives there. Encoded as `bay_overrides` per segment in
+`config/layout.json`; the simulation now materialises **3 137 positions**.
+The 66-position delta vs the PDF stamp total is the cumulative effect of
+those per-bay reductions; the PDF stamp is kept as `pallet_count` for
+fidelity reporting (`Warehouse.pallet_capacity_from_pdf`).
+
+| Rack | WA-confirmed exceptions | Default width | Levels |
+|------|-------------------------|---------------|--------|
+| A | (none) | 3 | 9 |
+| B | (none) | 3 | 9 |
+| C | bays 10–12 → 2 | 3 | 9 |
+| D | bay 8 → 2; bays 11, 12 → 1 | 3 | 9 |
+| E | bay 4 → 1 | 3 | 9 |
+| F | bays 5, 6 → 2 | 3 | 9 |
+| G | (none) | 3 | 9 |
+| H | (none) | 3 | 8 |
+| I | bay 4 → 1; bays 5–9 → 2 | 3 | 8 |
+| J | bottom-arm bay 4 → 2; vertical bays 10, 11, 13, 14 → 2; **bay 12 → 0 (cart)**; top-arm bays 15–18 → 2 | 3 | 8 |
+| U | bay 8 → `position_offset=1` (positions 2, 3; "1 yok") | **2** | 7 |
+
+U is the only rack whose **default** is width 2 — every bay holds two
+pallets (positions 1, 2) except U8, which is width 2 but addressed at
+positions 2, 3 (its position 1 is physically absent). U14 is a "KÜÇÜK RF"
+small rack with non-standard SAP positions {3, 5, 6}; modelled as width 2
+for now and flagged for May 20.
 
 | ID | Shape | Bays | Bay codes | Bay width | Levels | Pallets/bay | Pallets | Source |
 |----|-------|------|-----------|-----------|--------|-------------|---------|--------|
@@ -52,7 +86,7 @@ of the J and U polylines.
 
 ## 2. Building footprint
 
-- **80 m × 50 m.** Eyeballed from the 3D rendering Sümeyra circulated; not measured.
+- **80 m × 50 m.** Eyeballed from a 3D rendering shared by the partner; not measured.
 - Kitting at front-center, Kardex front-left, trolley staging front-center next to kitting.
 - **TODO May 4:** measure exterior walls; confirm dock-door positions on north wall.
 
@@ -68,7 +102,7 @@ of the J and U polylines.
 
 ## 4. Kit-corridor / RT-aisle assignment
 
-✅ **Confirmed May 4** (Sümeyra + Nehir, in WhatsApp): **alternating pattern is real, RT
+✅ **Confirmed May 4** (site visit report): **alternating pattern is real, RT
 enters every corridor EXCEPT the 2 m kit corridors** ("Rt genisligi iki metre olan
 koridorlar haricindekilere giriyo", "birer birer atlıyodu").
 
@@ -83,7 +117,7 @@ koridorlar haricindekilere giriyo", "birer birer atlıyodu").
 | F ↔ G   | RT | ~3 m |
 | G ↔ I (across J's bottom arm at the south end, kit) | kit | **2 m** |
 
-Each rack has either zero or one kit-corridor side (per Nehir Apr 1). **TODO May 20:**
+Each rack has either zero or one kit-corridor side (per team contact, Apr 1). **TODO May 20:**
 measure exact RT aisle widths; confirm kit-corridor sides for J, H, A (currently `TBD`
 in `config/layout.json`).
 
@@ -145,7 +179,7 @@ in `config/layout.json`).
 
 ## 11. Fast-mover threshold
 
-- ✅ **Confirmed May 4** (Sümeyra): "İlk üç raf insanın ulaşabileceği raflar" — the lower 3
+- ✅ **Confirmed May 4** (site visit): "İlk üç raf insanın ulaşabileceği raflar" — the lower 3
   levels (level < `fast_mover_max_level = 3`) are reachable from the kit corridor without
   a reach truck.
 - Assumed uniform across all racks; visual evidence in May 4 photos consistent for a-g, J, U.
@@ -158,7 +192,7 @@ in `config/layout.json`).
 ## 13. Single-position-per-material
 
 - Each material is assigned exactly one bin.
-- Real warehouse: ~10 000 SKUs vs ~3 200 slots (Nehir, Apr 15) — many SKUs share bins
+- Real warehouse: ~10 000 SKUs vs ~3 200 slots (team contact, Apr 15) — many SKUs share bins
   or have multiple bins. Not modeled.
 - **Storage bin map RECEIVED May 4** (`data/Malzeme Girişleri_*.xlsx` → `özet`,
   `Storage Bin` column). Decoding bin codes (e.g., `BRH-10-02`) into rack/level/position
@@ -203,6 +237,28 @@ in `config/layout.json`).
 
 **TODO May 4:** time-study these — especially RT lift time per level and operator
 walking speed in a loaded warehouse.
+
+## 17. Kit-corridor → production-line map (May 11, partial)
+
+✅ **CAD image received May 11** (`WhatsApp Image 2026-05-11 at 11.25.39.jpeg`).
+Each kit corridor is labelled with the production line it feeds:
+
+- `KITTING (MCset-Aksesuar)`
+- `KITTING (Blokset-Fasen)`
+- `KITTING (SM6-Premset)`
+- `KITTING (F400)`
+- `KITTING (RI-P7 SD-POLE)`
+- `KITTING (GAM)` (on the west edge — runs along J's vertical arm)
+
+Putaway (RT) aisles are labelled `PUTAWAY` in between.
+
+⏳ **Not yet wired into `config/layout.json`.** The image orientation is
+rotated relative to our (x, y) convention and the exact rack-to-corridor
+assignment needs to be confirmed on May 20. Once confirmed, add a
+`production_line` field to each segment's `kit_corridor_side`. This unlocks
+**line-aware milkrun routing** in `src/simulation.py` (each milkrun tour can
+target one line's kit corridor by name, joining material → MRP-C → line →
+corridor).
 
 ---
 

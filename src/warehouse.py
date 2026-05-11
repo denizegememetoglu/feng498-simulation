@@ -39,6 +39,18 @@ def _segment_has_kit_access(segment: dict) -> bool:
     return False
 
 
+def _expand_bay_overrides(overrides: list) -> dict[int, dict]:
+    """Expand a list of `{bays: [...], pallets_per_bay: int, position_offset?: int}`
+    entries into a flat {bay_code -> override_dict} mapping."""
+    out: dict[int, dict] = {}
+    for entry in overrides:
+        bays = entry.get("bays", [])
+        record = {k: v for k, v in entry.items() if k != "bays"}
+        for bay in bays:
+            out[bay] = record
+    return out
+
+
 def _bay_center(segment: dict, bay_index: int) -> tuple[float, float]:
     """Return (x, y) for the center of bay `bay_index` (0-based) within
     the segment. Linear interpolation along start->end."""
@@ -73,18 +85,21 @@ class Warehouse:
             for seg_i, segment in enumerate(rack["segments"]):
                 has_kit = _segment_has_kit_access(segment)
                 levels = segment["levels"]
-                pallets_per_bay = segment["pallets_per_bay"]
+                default_width = segment["pallets_per_bay"]
+                default_offset = segment.get("position_offset", 0)
                 bay_count = segment["bays"]
                 bay_start = segment["bay_code_start"]
-                expected = segment["pallet_count"]
-                # We materialise bay_count * levels * pallets_per_bay positions;
-                # this overcounts vs `pallet_count` (which excludes ÖN/ARKA passage
-                # cutouts). Track expected separately for fidelity reporting.
+                overrides = _expand_bay_overrides(segment.get("bay_overrides", []))
                 for b in range(bay_count):
                     bx, by = _bay_center(segment, b)
                     bay_code = bay_start + b
+                    ovr = overrides.get(bay_code, {})
+                    width = ovr.get("pallets_per_bay", default_width)
+                    offset = ovr.get("position_offset", default_offset)
+                    if width <= 0:
+                        continue  # bay reserved (e.g. J12 cart) — no pallet positions
                     for lv in range(levels):
-                        for p in range(1, pallets_per_bay + 1):
+                        for p in range(1 + offset, 1 + offset + width):
                             pid = f"{rack_id}-{bay_code:02d}-{p:02d}-L{lv}"
                             self.positions[pid] = PalletPosition(
                                 position_id=pid,
@@ -100,13 +115,18 @@ class Warehouse:
 
     @property
     def pallet_capacity_from_pdf(self) -> int:
-        return sum(s["pallet_count"] for r in self.layout["racks"] for s in r["segments"])
+        """Sum of `pallet_count` stamps from each rack PDF — informational only.
+        Note this differs from len(positions): PDF stamps count physical pallet
+        slots after ÖN/ARKA passage cutouts; positions are derived from per-bay
+        widths in layout.json which model material-size-based feeder bays from
+        the May 11 site data."""
+        return sum(s.get("pallet_count", 0) for r in self.layout["racks"] for s in r["segments"])
 
     def sap_position_id(self, rack_id: str, bay_code: int, position: int) -> str | None:
         """Return the position_id for the SAP-format coordinate at level 0
         (the SAP storage bin doesn't encode a level). Level 0 chosen so that
         the RealBaselinePolicy places materials at the bottom by default —
-        per Sümeyra (May 4) the lower 3 levels are operator-reachable."""
+        per site report (May 4) the lower 3 levels are operator-reachable."""
         pid = f"{rack_id}-{bay_code:02d}-{position:02d}-L0"
         return pid if pid in self.positions else None
 
