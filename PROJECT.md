@@ -32,7 +32,7 @@
   - Total length: ~29.7 m (was assumed 30 m — close)
   - 24 raf ayağı, 176 travers
 - **Rack depth:** ~130 cm (P12 pallet)
-- **Rack structure:** 9 levels confirmed; lower 3 levels human-reachable (Sümeyra, May 4)
+- **Rack structure:** 9 levels confirmed; lower 3 levels human-reachable (site visit, May 4)
 - **Aisle width:** ~3 m (reach truck), kit corridor ~1.6 m — to be verified May 20
 - **Access:** Single-sided standard, double-sided fast-mover (PROJECT spec)
 - **MHE access constraints (May 4 site clarification):**
@@ -203,7 +203,7 @@ Material-level total consumption summary. `Material | Description | Plnt | mater
 | 2026 tüketim | 2026 consumption count |
 
 #### 9. mrpc (564 rows, 4 columns) — MRP CONTROLLER → LINE MAPPING ⭐
-**The "MRP-C → production line" lookup we requested (Nehir's outstanding ask since March).**
+**The "MRP-C → production line" lookup we requested (outstanding ask since March).**
 | Column | Description |
 |--------|-------------|
 | Plant | tr01/tr04 |
@@ -257,7 +257,7 @@ feng498-simulation/
 
 ## May 4, 2026 — Site Visit Outcomes
 
-Team visited the partner facility in Turkey. Deniz Ege did **not** attend (was in different city); team = Nehir Konya Ekon, Sümeyra IEU, Deniz Etensel Ekon. Coordinated remotely via WhatsApp `Feng498` group.
+Two teammates visited the partner facility in Turkey; the author did not attend (different city). Coordinated remotely via the project group chat.
 
 ### Data received (in `data/` and `docs/`)
 
@@ -277,7 +277,7 @@ Team visited the partner facility in Turkey. Deniz Ege did **not** attend (was i
 ### Operational rules clarified May 4
 
 1. **Lower 3 rack levels are human-reachable** without reach truck (`fast_mover_max_level = 3` confirmed).
-2. **Reach trucks enter every aisle EXCEPT 2 m kit corridors** (Sümeyra: "Rt genisligi iki metre olan koridorlar haricindekilere giriyo"). Alternating RT / kit pattern between a-g rows is confirmed ("birer birer atlıyodu"). Kit corridor width revised 1.6 m → **2.0 m**.
+2. **Reach trucks enter every aisle EXCEPT 2 m kit corridors** (site report: "Rt genisligi iki metre olan koridorlar haricindekilere giriyo"). Alternating RT / kit pattern between a-g rows is confirmed ("birer birer atlıyodu"). Kit corridor width revised 1.6 m → **2.0 m**.
 3. **Milkrun trains DO NOT enter rack aisles** — they stay on main corridors and serve production lines. This affects how milkrun routing is modeled (line-side, not rack-side).
 4. **Kits are NOT ordered as fixed recipes** — every kit is custom, contents derived from production order × BOM. Hence **BOM + production schedule = synthetic kit log** is the modeling path forward.
 5. **Order/kit timestamps are date-only** in SAP (no hour:minute). Modeling decision: aggregate to daily demand, distribute uniformly within shift, note as limitation.
@@ -288,7 +288,7 @@ Team visited the partner facility in Turkey. Deniz Ege did **not** attend (was i
 1. **BOM** — partner contact's pending deliverable. With BOM + 2026 consumption (already have) we can synthesize per-line material demand without intra-day timestamps.
 2. **Time study constants** — `src/config.py` parameters (walk speed 50 m/min, RT lift 0.25 min/level, etc.) are all PROJECT.md guesses.
 3. **Aisle assignment** (which specific aisles are RT-only vs operator-only) — partially known from photos, needs walk-through.
-4. **Multi-bin per material policy** — ~10,000 SKUs vs ~3,200 slots (Nehir, Apr 15) means some materials share bins or have multiple. Not modeled; decision pending.
+4. **Multi-bin per material policy** — ~10,000 SKUs vs ~3,200 slots (team contact, Apr 15) means some materials share bins or have multiple. Not modeled; decision pending.
 5. **U rack technical drawing** — got `U.pdf` but no site-plan PDF showing kit area / Kardex / dock-door positions relative to racks.
 
 ### Modeling implications (translate visit findings to code)

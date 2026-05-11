@@ -8,7 +8,7 @@ config/layout.json and is loaded by Warehouse.
 LAYOUT_FILE = "config/layout.json"
 
 # Operator can pick directly from levels < FAST_MOVER_MAX_LEVEL when the
-# rack has a kit corridor side (3 lower levels, confirmed May 4 by Sümeyra).
+# rack has a kit corridor side (3 lower levels, confirmed May 4 site visit).
 FAST_MOVER_MAX_LEVEL = 3
 
 # When a rack's kit_corridor_side / rt_aisle_side is "TBD" (not yet measured),

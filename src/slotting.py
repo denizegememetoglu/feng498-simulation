@@ -155,7 +155,7 @@ class RealBaselinePolicy(SlottingPolicy):
             # Kardex-stored materials are not in any rack — track separately
             # but still assign a fallback slot so the simulation has a position
             # to dispatch from. Real Kardex picks have a different time profile;
-            # that's a TODO May 20 (Sümeyra: Kardex pick ≈ instant after queue).
+            # that's a TODO May 20 (site report: Kardex pick ≈ instant after queue).
             if mid in self.kardex_materials:
                 deferred.append((mat, "kardex"))
             else:

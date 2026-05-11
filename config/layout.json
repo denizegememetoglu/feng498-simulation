@@ -2,7 +2,7 @@
   "schema_version": 1,
   "_notes": [
     "Per-rack pallet counts, bay counts, and level counts come from data/rack-drawings/*.pdf",
-    "(verified May 6, total 3203 matches the U.pdf grand-total stamp).",
+    "(PDF stamp grand-total 3203 — but real per-bay widths differ; see May 11 update).",
     "Rearranged May 6 from user's hand-drawn top-down sketch:",
     "  - Vertical racks left-to-right: J, H, I, G, F, E, D, C, B, A",
     "  - U is a single horizontal rack at the north end (y=37)",
@@ -20,7 +20,20 @@
     "    and meets J at the closed junction). G + F-B north ends shortened to y=36.35",
     "    so they don't intersect U's horizontal at y=37; bay widths 2.70→2.61.",
     "  - U east end pulled back from x=58.6 to x=45.0 so U doesn't extend past A.",
-    "    14 bays at ~1.73 m each (PDF didn't stamp U bay width either)."
+    "    14 bays at ~1.73 m each (PDF didn't stamp U bay width either).",
+    "May 11 (per-bay widths from WhatsApp + cross-checked against SAP özet bin codes):",
+    "  - `pallets_per_bay` on a segment is the DEFAULT width; `bay_overrides` lists",
+    "    bays that deviate. Width = pallet positions across the bay (1, 2, or 3).",
+    "  - Reduced widths (1 or 2) are feeder bays where material size determines",
+    "    how many pallets physically fit. Confirmed in SAP: max position used per",
+    "    bay equals the WhatsApp width on every reduced bay.",
+    "  - J12 has width 0 (reserved for a parked cart per site report).",
+    "  - U uses position_offset=0 (positions 1, 2) on all bays EXCEPT U8, which uses",
+    "    position_offset=1 (positions 2, 3) — that's what 'U 8 hariç, 1 yok' meant.",
+    "  - U14 is a KÜÇÜK RF small rack with non-standard addressing (SAP shows pos",
+    "    3, 5, 6); modelled as width 2 for now and flagged for May 20.",
+    "  - PDF `pallet_count` stamps are kept as informational (used by",
+    "    pallet_capacity_from_pdf); the simulation count is derived from widths × levels."
   ],
   "building": {"width_m": 80, "depth_m": 50, "_source": "approximate, ASSUMPTIONS.md §2"},
   "kitting":         {"x": 8,  "y": 0, "width_m": 12, "depth_m": 4, "_source": "approximate, ASSUMPTIONS.md §10"},
@@ -43,18 +56,29 @@
           "start": [10.0, 10.0], "end": [20.8, 10.0],
           "bays": 4, "bay_code_start": 1, "bay_width_m": 2.70,
           "levels": 8, "pallets_per_bay": 3, "pallet_count": 84,
+          "bay_overrides": [
+            {"bays": [4], "pallets_per_bay": 2, "_source": "WhatsApp 2026-05-11"}
+          ],
           "kit_corridor_side": "TBD", "rt_aisle_side": "TBD"
         },
         {
           "start": [10.0, 10.0], "end": [10.0, 37.0],
           "bays": 10, "bay_code_start": 5, "bay_width_m": 2.70,
           "levels": 8, "pallets_per_bay": 3, "pallet_count": 213,
+          "bay_overrides": [
+            {"bays": [10, 11], "pallets_per_bay": 2, "_source": "WhatsApp 2026-05-11"},
+            {"bays": [12], "pallets_per_bay": 0, "_source": "WhatsApp 2026-05-11: cart parking slot", "_reserved_for": "cart"},
+            {"bays": [13, 14], "pallets_per_bay": 2, "_source": "WhatsApp 2026-05-11"}
+          ],
           "kit_corridor_side": "TBD", "rt_aisle_side": "TBD"
         },
         {
           "start": [10.0, 37.0], "end": [20.8, 37.0],
           "bays": 4, "bay_code_start": 15, "bay_width_m": 2.70,
           "levels": 8, "pallets_per_bay": 3, "pallet_count": 84,
+          "bay_overrides": [
+            {"bays": [15, 16, 17, 18], "pallets_per_bay": 2, "_source": "WhatsApp 2026-05-11"}
+          ],
           "kit_corridor_side": "TBD", "rt_aisle_side": "TBD"
         }
       ]
@@ -81,6 +105,10 @@
           "start": [17.6, 11.0], "end": [17.6, 36.35],
           "bays": 11, "bay_code_start": 1, "bay_width_m": 2.305,
           "levels": 8, "pallets_per_bay": 3, "pallet_count": 252,
+          "bay_overrides": [
+            {"bays": [4], "pallets_per_bay": 1, "_source": "WhatsApp 2026-05-11"},
+            {"bays": [5, 6, 7, 8, 9], "pallets_per_bay": 2, "_source": "WhatsApp 2026-05-11"}
+          ],
           "kit_corridor_side": "east", "rt_aisle_side": "TBD"
         }
       ]
@@ -91,8 +119,8 @@
       "_orientation": "vertical, 4th from west; the ONLY rack whose body overlaps J's bottom arm — passes through y=10 and meets J at CLOSED junction near (20.9, 10). North end y=36.35 stays south of U.",
       "segments": [
         {
-          "start": [20.9, 5.0], "end": [20.9, 36.35],
-          "bays": 12, "bay_code_start": 1, "bay_width_m": 2.613,
+          "start": [20.9, 10.0], "end": [20.9, 36.35],
+          "bays": 12, "bay_code_start": 1, "bay_width_m": 2.196,
           "levels": 9, "pallets_per_bay": 3, "pallet_count": 288,
           "kit_corridor_side": "west", "rt_aisle_side": "east"
         }
@@ -107,6 +135,9 @@
           "start": [25.2, 5.0], "end": [25.2, 36.35],
           "bays": 12, "bay_code_start": 1, "bay_width_m": 2.613,
           "levels": 9, "pallets_per_bay": 3, "pallet_count": 303,
+          "bay_overrides": [
+            {"bays": [5, 6], "pallets_per_bay": 2, "_source": "WhatsApp 2026-05-11"}
+          ],
           "kit_corridor_side": "east", "rt_aisle_side": "west"
         }
       ]
@@ -120,6 +151,9 @@
           "start": [28.5, 5.0], "end": [28.5, 36.35],
           "bays": 12, "bay_code_start": 1, "bay_width_m": 2.613,
           "levels": 9, "pallets_per_bay": 3, "pallet_count": 294,
+          "bay_overrides": [
+            {"bays": [4], "pallets_per_bay": 1, "_source": "WhatsApp 2026-05-11"}
+          ],
           "kit_corridor_side": "west", "rt_aisle_side": "east"
         }
       ]
@@ -133,6 +167,10 @@
           "start": [32.8, 5.0], "end": [32.8, 36.35],
           "bays": 12, "bay_code_start": 1, "bay_width_m": 2.613,
           "levels": 9, "pallets_per_bay": 3, "pallet_count": 300,
+          "bay_overrides": [
+            {"bays": [8], "pallets_per_bay": 2, "_source": "WhatsApp 2026-05-11"},
+            {"bays": [11, 12], "pallets_per_bay": 1, "_source": "WhatsApp 2026-05-11"}
+          ],
           "kit_corridor_side": "east", "rt_aisle_side": "west"
         }
       ]
@@ -146,6 +184,9 @@
           "start": [36.1, 5.0], "end": [36.1, 36.35],
           "bays": 12, "bay_code_start": 1, "bay_width_m": 2.613,
           "levels": 9, "pallets_per_bay": 3, "pallet_count": 297,
+          "bay_overrides": [
+            {"bays": [10, 11, 12], "pallets_per_bay": 2, "_source": "WhatsApp 2026-05-11"}
+          ],
           "kit_corridor_side": "west", "rt_aisle_side": "east"
         }
       ]
@@ -179,12 +220,15 @@
     {
       "id": "U",
       "shape": "linear",
-      "_orientation": "horizontal (E-W) at north end y=37, single segment 14 bays U1-U14; west end meets J's top arm at CLOSED junction (~20.8, 37). East end x=45 stays just past A (x=43.7) — no further. Bay width ~1.73m (PDF didn't stamp; shrunk from assumed 2.70 to fit user's drawn topology).",
+      "_orientation": "horizontal (E-W) at north end y=37, single segment 14 bays U1-U14; west end meets J's top arm at CLOSED junction (~20.8, 37). East end x=45 stays just past A (x=43.7) — no further. Bay width ~1.73m (PDF didn't stamp; shrunk from assumed 2.70 to fit user's drawn topology). Per May 11 SAP cross-check, U bays are 2 pallets wide (positions 1, 2); bay 8 is the exception (positions 2, 3 — 'U8 1 yok'). U14 is a 'KÜÇÜK RF' small rack with non-standard SAP positions {3,5,6} — flagged for May 20.",
       "segments": [
         {
           "start": [20.8, 37.0], "end": [45.0, 37.0],
           "bays": 14, "bay_code_start": 1, "bay_width_m": 1.729,
-          "levels": 7, "pallets_per_bay": 3, "pallet_count": 263,
+          "levels": 7, "pallets_per_bay": 2, "pallet_count": 263,
+          "bay_overrides": [
+            {"bays": [8], "pallets_per_bay": 2, "position_offset": 1, "_source": "WhatsApp 2026-05-11: '8 hariç, 1 yok' = positions 2,3 not 1,2"}
+          ],
           "kit_corridor_side": "TBD", "rt_aisle_side": "TBD"
         }
       ]
