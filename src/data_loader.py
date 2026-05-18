@@ -13,14 +13,36 @@ _BIN_RE = re.compile(r"^(?:BR)?([A-Z])-(\d{1,2})-(\d{1,2})$")
 # Kardex automated storage — not in rack layout, tracked separately.
 _KDX_RE = re.compile(r"^KDX\d*$")
 
+# Last-load telemetry from load_storage_bins, surfaced via preprocess stats.
+LAST_LOAD_META: dict[str, int] = {}
+
 
 def _resolve_data_path():
-    """Find the actual Excel file in data/ regardless of unicode normalization."""
-    data_dir = os.path.dirname(DATA_FILE)
-    for f in os.listdir(data_dir):
-        if f.endswith(".xlsx"):
-            return os.path.join(data_dir, f)
-    raise FileNotFoundError(f"No .xlsx file found in {data_dir}/")
+    """Resolve the path to the Excel data file.
+
+    Prefer the exact `DATA_FILE` from config when it exists (unicode
+    normalisation can leave the filesystem name slightly different from the
+    config string — try both raw and NFC). Falling back to the first .xlsx
+    in the data/ directory is dangerous once a second Excel file (BOM,
+    secondary export) is added, so we only do that as a last resort and
+    raise if multiple candidates exist.
+    """
+    import unicodedata
+    candidates = [DATA_FILE, unicodedata.normalize("NFC", DATA_FILE),
+                  unicodedata.normalize("NFD", DATA_FILE)]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    data_dir = os.path.dirname(DATA_FILE) or "data"
+    xlsx_files = [f for f in os.listdir(data_dir) if f.endswith(".xlsx")]
+    if not xlsx_files:
+        raise FileNotFoundError(f"No .xlsx file found in {data_dir}/")
+    if len(xlsx_files) > 1:
+        raise FileNotFoundError(
+            f"Multiple .xlsx files in {data_dir}/ ({xlsx_files}); "
+            f"set DATA_FILE in src/config.py to disambiguate."
+        )
+    return os.path.join(data_dir, xlsx_files[0])
 
 
 def _open_workbook(filepath=None):
@@ -112,15 +134,19 @@ def load_sap_master(filepath=None):
 
 
 def load_storage_bins(filepath=None):
-    """Load özet sheet: material -> SAP storage bin code (e.g., 'BRA-02-02').
+    """Load özet sheet: material -> list of SAP storage bin codes.
 
-    The özet sheet has 10458 rows; only rows with a non-empty Storage Bin
-    are returned. When a material appears multiple times the last seen
-    bin wins (özet is the canonical source per the May 4 visit).
+    Returns `dict[str, list[str]]` so multi-bin materials (forward + reserve,
+    or multiple slots for high-volume items) keep ALL their bins instead of
+    silently collapsing to the last-seen one. Earlier versions kept only
+    one bin per material and exposed the discarded duplicate count via
+    LAST_LOAD_META — that's still done, but the data itself is no longer lossy.
     """
     wb = _open_workbook(filepath)
     ws = wb["özet"]
-    result: dict[str, str] = {}
+    result: dict[str, list[str]] = {}
+    duplicates = 0
+    conflicts = 0
     for row in ws.iter_rows(min_row=2, values_only=True):
         # Material | Plant | MRP Controller | MRP Tanımı | ABC Ind | Storage Bin
         if len(row) < 6:
@@ -129,8 +155,19 @@ def load_storage_bins(filepath=None):
         bin_code = row[5]
         if not mat_id or not bin_code:
             continue
-        result[str(mat_id).strip()] = str(bin_code).strip()
+        mid = str(mat_id).strip()
+        bc = str(bin_code).strip()
+        bins = result.setdefault(mid, [])
+        if bc in bins:
+            duplicates += 1  # exact same bin repeated
+        else:
+            if bins:  # already had a different bin
+                conflicts += 1
+            bins.append(bc)
     wb.close()
+    LAST_LOAD_META["bin_duplicates"] = duplicates
+    LAST_LOAD_META["bin_conflicts"] = conflicts
+    LAST_LOAD_META["multi_bin_materials"] = sum(1 for v in result.values() if len(v) > 1)
     return result
 
 
@@ -198,31 +235,32 @@ def preprocess(filepath=None, layout_path: str = None, write_stats: bool = True)
     for pid, p in wh.positions.items():
         valid_rack_bays.add((p.rack_id, p.bay_code))
 
-    decoded_bins: dict[str, tuple[str, int, int]] = {}
+    # Decoded bins is now a list per material (multi-bin support). A material
+    # may have a mix of rack bins and Kardex codes — we keep the rack tuples
+    # for placement and track kardex membership separately so the simulation
+    # can route those picks to the Kardex resource.
+    decoded_bins: dict[str, list[tuple[str, int, int]]] = {}
     kardex_materials: set[str] = set()
     bins_unknown_rack = 0
     bins_unmapped_position = 0
     bins_malformed = 0
     bins_kardex = 0
 
-    for mat_id, bin_code in storage_bins.items():
-        if is_kardex_bin(bin_code):
-            kardex_materials.add(mat_id)
-            bins_kardex += 1
-            continue
-        decoded = decode_storage_bin(bin_code)
-        if decoded is None:
-            # Either format-mismatch (RST, #N/A, SEVK, KRIT, ...) or unknown rack
-            # letter (T, Q, ...). Bucket both under malformed; the unknown-rack
-            # counter is reserved for the case decode returns a rack we then
-            # can't find in the layout.
-            bins_malformed += 1
-            continue
-        rack, bay, pos = decoded
-        if (rack, bay) not in valid_rack_bays:
-            bins_unmapped_position += 1
-            continue
-        decoded_bins[mat_id] = decoded
+    for mat_id, bin_codes in storage_bins.items():
+        for bin_code in bin_codes:
+            if is_kardex_bin(bin_code):
+                kardex_materials.add(mat_id)
+                bins_kardex += 1
+                continue
+            decoded = decode_storage_bin(bin_code)
+            if decoded is None:
+                bins_malformed += 1
+                continue
+            rack, bay, pos = decoded
+            if (rack, bay) not in valid_rack_bays:
+                bins_unmapped_position += 1
+                continue
+            decoded_bins.setdefault(mat_id, []).append(decoded)
 
     # Join material -> line via sap_master.mrp_controller -> mrp_to_line
     material_to_line: dict[str, str] = {}
@@ -245,6 +283,10 @@ def preprocess(filepath=None, layout_path: str = None, write_stats: bool = True)
         "bins_malformed": bins_malformed,
         "bins_unknown_rack": bins_unknown_rack,
         "bins_unmapped_position": bins_unmapped_position,
+        "bin_duplicates": LAST_LOAD_META.get("bin_duplicates", 0),
+        "bin_conflicts": LAST_LOAD_META.get("bin_conflicts", 0),
+        "multi_bin_materials": LAST_LOAD_META.get("multi_bin_materials", 0),
+        "decoded_bin_slots_total": sum(len(v) for v in decoded_bins.values()),
         "materials_with_line": sum(1 for m in materials if m["material_id"] in material_to_line),
         "mrp_controllers_total": len(mrp_to_line),
         "warehouse_positions": len(wh.positions),

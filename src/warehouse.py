@@ -143,13 +143,32 @@ class Warehouse:
         pos = self.positions[position_id]
         return pos.has_kit_corridor and pos.level < config.FAST_MOVER_MAX_LEVEL
 
+    def can_pick_manually(self, position_id):
+        """Operator can walk into the RT aisle at low levels without an RT —
+        slower than a kit-corridor pick but doesn't queue for a truck."""
+        pos = self.positions[position_id]
+        return (not pos.has_kit_corridor) and pos.level <= config.MANUAL_PICK_MAX_LEVEL
+
     def needs_reach_truck(self, position_id):
-        return not self.can_pick_directly(position_id)
+        if self.can_pick_directly(position_id):
+            return False
+        if self.can_pick_manually(position_id):
+            return False
+        return True
 
     def reach_truck_time(self, position_id):
         pos = self.positions[position_id]
         lift_time = pos.level * config.REACH_TRUCK_LIFT_TIME_PER_LEVEL
         return lift_time + config.REACH_TRUCK_PICK_PLACE_TIME
+
+    def reach_truck_travel_time(self, position_id):
+        """Time for an RT to come from the depot to the pick position."""
+        pos = self.positions[position_id]
+        dist = abs(pos.x - config.REACH_TRUCK_DEPOT_X) + abs(pos.y - config.REACH_TRUCK_DEPOT_Y)
+        return dist / config.REACH_TRUCK_SPEED_M_PER_MIN
+
+    def manual_pick_time(self, position_id):
+        return config.OPERATOR_PICK_TIME + config.MANUAL_PICK_TIME_PENALTY
 
     def assign_material(self, material_id, position_id):
         pos = self.positions[position_id]
@@ -179,17 +198,31 @@ class Warehouse:
         avail.sort(key=lambda p: (p.level, self._key_dist(p)))
         return [p.position_id for p in avail]
 
+    def _level_bands(self, max_lv: int) -> tuple[int, int]:
+        """Return (mid_hi_inclusive, upper_lo_inclusive) for a rack with
+        `max_lv` levels. Levels are partitioned into 3 contiguous bands
+        with no gap: [0, FAST_MOVER_MAX_LEVEL), [fm_max, mid_hi], [mid_hi+1, max_lv-1].
+        Earlier versions left levels 6-7 of a 9-level rack in neither pool;
+        this guarantees full coverage."""
+        fm_max = config.FAST_MOVER_MAX_LEVEL  # exclusive
+        remaining = max_lv - fm_max
+        if remaining <= 0:
+            return (fm_max - 1, fm_max)  # degenerate; no mid/upper
+        # Half of the remaining levels go to mid, the rest to upper.
+        mid_count = max(1, remaining // 2)
+        mid_hi = fm_max + mid_count - 1
+        upper_lo = mid_hi + 1
+        return mid_hi, upper_lo
+
     def get_mid_level_positions(self):
-        """Mid band: roughly the middle third of each rack's level range,
-        capped at level 5 to match the original behaviour."""
+        """Mid band: levels [FAST_MOVER_MAX_LEVEL, mid_hi] per rack height."""
         avail = []
         for p in self.positions.values():
             if p.material_id is not None:
                 continue
             max_lv = self._max_level_for_rack(p.rack_id)
-            mid_lo = max(config.FAST_MOVER_MAX_LEVEL, 1)
-            mid_hi = min(max_lv - 2, 5)
-            if mid_lo <= p.level <= mid_hi:
+            mid_hi, _ = self._level_bands(max_lv)
+            if config.FAST_MOVER_MAX_LEVEL <= p.level <= mid_hi:
                 avail.append(p)
         avail.sort(key=lambda p: (p.level, self._key_dist(p)))
         return [p.position_id for p in avail]
@@ -200,7 +233,7 @@ class Warehouse:
             if p.material_id is not None:
                 continue
             max_lv = self._max_level_for_rack(p.rack_id)
-            upper_lo = max(6, max_lv - 1)
+            _, upper_lo = self._level_bands(max_lv)
             if p.level >= upper_lo:
                 avail.append(p)
         avail.sort(key=lambda p: (p.level, self._key_dist(p)))

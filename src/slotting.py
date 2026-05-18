@@ -1,22 +1,10 @@
 from abc import ABC, abstractmethod
-import math
-from src import config
 
 
 class SlottingPolicy(ABC):
     @abstractmethod
     def assign(self, materials, warehouse):
         """Assign materials to warehouse positions."""
-
-    def _allocate_positions(self, material_id, consumption, total_consumption, warehouse, pool):
-        """Allocate proportional positions from a pool. Returns number assigned."""
-        daily = consumption / config.DATA_DAYS
-        # At least 1 position, scale by share of consumption
-        n_positions = max(1, math.ceil(daily / 50))  # ~50 units per pallet per day
-        n_positions = min(n_positions, len(pool))
-        for i in range(n_positions):
-            warehouse.assign_material(material_id, pool[i])
-        return pool[n_positions:]  # remaining pool
 
 
 class HeuristicBaselinePolicy(SlottingPolicy):
@@ -33,7 +21,6 @@ class HeuristicBaselinePolicy(SlottingPolicy):
 
         for mat in materials:
             fmr = mat["se_fmr"]
-            abc = mat["se_abc"]
 
             if fmr == "F" and fm_pool:
                 # Fast movers -> fast mover racks
@@ -118,55 +105,64 @@ class DoubleABCPolicy(SlottingPolicy):
 class RealBaselinePolicy(SlottingPolicy):
     """The partner's actual placement read from the SAP `özet` Storage Bin column.
 
-    For materials with a decoded bin that maps to a real (rack, bay) in the
-    layout, place them at level 0 of that bin. For materials whose bin is
-    Kardex (KDX*), unmapped, malformed, or missing, fall back to the heuristic
-    level pools so all materials still get a slot — otherwise capacity drops
-    and the comparison is unfair.
+    `decoded_bins` is now `dict[str, list[(rack, bay, pos)]]` — a material
+    can have multiple bins (forward + reserve, or multiple slots for high-
+    volume items). We assign the material to ALL of its decoded bins that
+    are still free; the simulation picks from the closest available one.
+
+    Materials whose bin is Kardex (KDX*) are routed to the Kardex resource at
+    simulation time (no rack slot needed). Materials with no decoded rack
+    bin and no Kardex membership fall back to the heuristic level pools so
+    capacity isn't artificially reduced.
 
     Reports `placed_from_sap` / `placed_kardex` / `placed_fallback` counters
-    so the report can quote a fidelity number.
+    (counting MATERIALS, not slots) so the report can quote a fidelity
+    number that's comparable to the older single-bin runs.
     """
 
     def __init__(self, decoded_bins=None, kardex_materials=None):
         self.decoded_bins = decoded_bins or {}
         self.kardex_materials = kardex_materials or set()
-        self.placed_from_sap = 0
-        self.placed_kardex = 0
-        self.placed_fallback = 0
+        self.placed_from_sap = 0       # materials with >= 1 SAP slot assigned
+        self.placed_kardex = 0         # kardex-routed (no rack slot needed)
+        self.placed_fallback = 0       # heuristic-pool fallback
+        self.sap_slots_assigned = 0    # total slots placed via SAP (>= materials)
 
     def assign(self, materials, warehouse):
         warehouse.clear_assignments()
         self.placed_from_sap = 0
         self.placed_kardex = 0
         self.placed_fallback = 0
+        self.sap_slots_assigned = 0
 
         deferred = []
         for mat in materials:
             mid = mat["material_id"]
-            decoded = self.decoded_bins.get(mid)
-            if decoded is not None:
-                rack, bay, pos = decoded
+            decoded_list = self.decoded_bins.get(mid) or []
+            placed_any = False
+            for (rack, bay, pos) in decoded_list:
                 pid = warehouse.sap_position_id(rack, bay, pos)
                 if pid is not None and warehouse.positions[pid].material_id is None:
                     warehouse.assign_material(mid, pid)
-                    self.placed_from_sap += 1
-                    continue
-            # Kardex-stored materials are not in any rack — track separately
-            # but still assign a fallback slot so the simulation has a position
-            # to dispatch from. Real Kardex picks have a different time profile;
-            # that's a TODO May 20 (site report: Kardex pick ≈ instant after queue).
+                    self.sap_slots_assigned += 1
+                    placed_any = True
+            if placed_any:
+                self.placed_from_sap += 1
+                continue
+            # Kardex-only materials don't need a rack slot — the simulation
+            # dispatches them to the Kardex resource directly. We still mark
+            # them so the counters add up.
             if mid in self.kardex_materials:
-                deferred.append((mat, "kardex"))
-            else:
-                deferred.append((mat, "fallback"))
+                self.placed_kardex += 1
+                continue
+            deferred.append((mat, "fallback"))
 
         fm_pool = warehouse.get_fast_mover_positions()
         mid_pool = warehouse.get_mid_level_positions()
         upper_pool = warehouse.get_upper_level_positions()
         remaining_pool = warehouse.get_available_positions()
 
-        for mat, reason in deferred:
+        for mat, _reason in deferred:
             fmr = mat["se_fmr"]
             target = None
             if fmr == "F" and fm_pool:
@@ -179,10 +175,7 @@ class RealBaselinePolicy(SlottingPolicy):
                 target = remaining_pool.pop(0)
             if target is not None:
                 warehouse.assign_material(mat["material_id"], target)
-                if reason == "kardex":
-                    self.placed_kardex += 1
-                else:
-                    self.placed_fallback += 1
+                self.placed_fallback += 1
 
 
 class TravelDistancePolicy(SlottingPolicy):
