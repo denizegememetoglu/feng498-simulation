@@ -208,6 +208,12 @@ sun.shadow.camera.top = BUILD.depth_m; sun.shadow.camera.bottom = -BUILD.depth_m
 scene.add(sun);
 scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 0.6));
 
+// Camera-parented fill light — guarantees even illumination from any
+// orbit angle (sun is fixed in world space and underlit some viewpoints).
+const fillLight = new THREE.PointLight(0xffffff, 0.45, 0, 2);
+camera.add(fillLight);
+scene.add(camera);
+
 // Floor
 const floor = new THREE.Mesh(
   new THREE.PlaneGeometry(BUILD.width_m, BUILD.depth_m),
@@ -217,6 +223,17 @@ floor.rotation.x = -Math.PI/2;
 floor.position.set(BUILD.width_m / 2, 0, -BUILD.depth_m / 2);
 floor.receiveShadow = true;
 scene.add(floor);
+
+// 1-metre grid overlay for spatial reference (aisle-width guides).
+const grid = new THREE.GridHelper(
+  Math.max(BUILD.width_m, BUILD.depth_m),
+  Math.round(Math.max(BUILD.width_m, BUILD.depth_m)),
+  0x334455, 0x2a3344
+);
+grid.position.set(BUILD.width_m / 2, 0.015, -BUILD.depth_m / 2);
+grid.material.transparent = true;
+grid.material.opacity = 0.35;
+scene.add(grid);
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 function mkMesh(geo, mat, x, y, z, rx, ry, rz) {
