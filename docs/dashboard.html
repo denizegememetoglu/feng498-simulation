@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Policy Comparison Dashboard — FENG 498</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-error-bars@4.4.1/build/index.umd.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  background: #1a1a2e; color: #eee;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+}
+header {
+  padding: 24px 32px; border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+}
+header h1 { font-size: 22px; color: #4fc3f7; letter-spacing: 0.4px; }
+header .meta { font-size: 12px; color: #888; }
+header nav a {
+  color: #4fc3f7; text-decoration: none; margin-left: 14px;
+  font-size: 13px; padding: 5px 10px; border-radius: 6px; border: 1px solid rgba(79,195,247,0.3);
+}
+header nav a:hover { background: rgba(79,195,247,0.12); }
+
+#error { padding: 14px 32px; background: #e53935; color: #fff; font-size: 13px; display: none; }
+
+main { padding: 24px 32px; max-width: 1500px; margin: 0 auto; }
+
+.summary-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px; margin-bottom: 28px;
+}
+.summary-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; padding: 14px 16px;
+}
+.summary-card .k { color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; }
+.summary-card .v { color: #fff; font-size: 18px; font-weight: 600; margin-top: 4px; }
+.summary-card .sub { color: #aaa; font-size: 11px; margin-top: 2px; }
+.summary-card.win .v { color: #4caf50; }
+.summary-card.warn .v { color: #ff9800; }
+
+h2 { margin: 24px 0 12px; font-size: 16px; color: #4fc3f7; letter-spacing: 0.3px; }
+h3 { margin: 12px 0 8px; font-size: 14px; color: #ddd; }
+
+.kpi-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 18px;
+}
+.kpi-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 16px;
+}
+.kpi-card .head {
+  display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; flex-wrap: wrap;
+}
+.kpi-card .head h3 { color: #fff; }
+.kpi-card .head .winner { font-size: 11px; color: #4caf50; }
+.kpi-card .head .winner.warn { color: #ff9800; }
+.kpi-card .verdict {
+  font-size: 11px; color: #aaa; margin-bottom: 10px;
+}
+.kpi-card .verdict .sig { color: #4caf50; font-weight: 600; }
+.kpi-card .verdict .nsig { color: #ff9800; font-weight: 600; }
+.kpi-card canvas { max-height: 260px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 8px; }
+th, td { padding: 5px 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+th { color: #888; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.tukey-matrix { display: grid; gap: 1px; background: rgba(255,255,255,0.04); padding: 1px; border-radius: 6px; margin-top: 6px; font-size: 9px; }
+.tukey-cell { padding: 4px 5px; background: #1a1a2e; min-height: 22px; display: flex; align-items: center; justify-content: center; text-align: center; }
+.tukey-cell.diag { background: #2a2a3a; color: #555; }
+.tukey-cell.sig { background: rgba(229,57,53,0.25); color: #ffcdd2; }
+.tukey-cell.nsig { background: rgba(76,175,80,0.18); color: #c8e6c9; }
+.tukey-cell.hdr { background: #2a2a3a; color: #aaa; font-weight: 600; font-size: 10px; }
+
+footer {
+  padding: 30px 32px; text-align: center; color: #777; font-size: 11px;
+  border-top: 1px solid rgba(255,255,255,0.06); margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+  header { padding: 16px 18px; }
+  main { padding: 16px 18px; }
+  .kpi-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Policy Comparison Dashboard</h1>
+    <div class="meta">FENG 498 — Schneider Manisa warehouse simulation · ANOVA + Tukey HSD + 95% CI</div>
+  </div>
+  <nav>
+    <a href="./index.html">3D Viewer →</a>
+  </nav>
+</header>
+
+<div id="error"></div>
+
+<main id="root">
+  <p style="color:#888">Loading…</p>
+</main>
+
+<footer>
+  Generated from <code>output/policy_stats.json</code>. Methodology:
+  one-way ANOVA per KPI across replications, Tukey HSD post-hoc pairwise,
+  95% Student-t confidence intervals (df = N − 1). α = 0.05.
+</footer>
+
+<script>
+const POLICY_COLORS = {
+  'Baseline (Heuristic)':       '#90a4ae',
+  'Baseline (Actual SAP)':      '#7986cb',
+  'Usage-based ABC':            '#ffb74d',
+  'Double ABC':                 '#ba68c8',
+  'Travel-distance Optimized':  '#4fc3f7',
+};
+const COLOR_FALLBACK = '#888';
+
+function colorFor(policy) { return POLICY_COLORS[policy] || COLOR_FALLBACK; }
+
+function fmt(x, p=3) {
+  if (x == null || Number.isNaN(x) || !isFinite(x)) return '—';
+  if (typeof x === 'number') return x.toFixed(p);
+  return String(x);
+}
+function fmtP(p) {
+  if (p == null) return '—';
+  if (p < 0.0001) return '<0.0001';
+  return p.toFixed(4);
+}
+function effectMag(d) {
+  if (d == null) return '—';
+  const a = Math.abs(d);
+  if (a < 0.2) return 'trivial';
+  if (a < 0.5) return 'small';
+  if (a < 0.8) return 'medium';
+  if (a < 1.5) return 'large';
+  return 'very large';
+}
+
+async function loadStats() {
+  for (const path of ['./policy_stats.json', '../output/policy_stats.json']) {
+    try {
+      const r = await fetch(path);
+      if (r.ok) return await r.json();
+    } catch (e) { /* try next */ }
+  }
+  throw new Error('Could not load policy_stats.json from ./ or ../output/');
+}
+
+function summary(report) {
+  const metrics = report.metrics;
+  const keys = Object.keys(metrics);
+  const sigCount = keys.filter(k => metrics[k].anova && metrics[k].anova.p_value < 0.05).length;
+  const nReps = Object.values(report.n_replications)[0] || '—';
+  const nPolicies = Object.keys(report.n_replications).length;
+
+  // Headline KPI for the executive card: walk distance.
+  const wd = metrics.avg_walk_distance;
+  const wdWinner = wd ? wd.winner : '—';
+  const wdGap = wd ? (wd.per_policy['Baseline (Heuristic)'].mean - wd.per_policy[wdWinner].mean) : null;
+
+  const cards = [
+    {k: 'Policies tested', v: nPolicies, sub: `${nReps} replications each`},
+    {k: 'KPIs with significant policy effect', v: `${sigCount} / ${keys.length}`,
+     sub: 'ANOVA p < 0.05', cls: sigCount > 0 ? 'win' : 'warn'},
+    {k: 'Walk-distance winner', v: wdWinner,
+     sub: wdGap != null ? `−${wdGap.toFixed(2)} m/order vs Heuristic` : '', cls: 'win'},
+    {k: 'Bottleneck flag', v: metrics.operator_utilization
+       ? (metrics.operator_utilization.per_policy[wdWinner]?.mean > 0.98 ? 'Operator queue saturated' : 'OK')
+       : '—',
+     sub: 'Op util ≥ 0.98 masks throughput differences',
+     cls: 'warn'},
+  ];
+
+  const html = `<section class="summary-grid">${
+    cards.map(c => `
+      <div class="summary-card ${c.cls||''}">
+        <div class="k">${c.k}</div>
+        <div class="v">${c.v}</div>
+        <div class="sub">${c.sub}</div>
+      </div>`).join('')
+  }</section>`;
+  return html;
+}
+
+function makeChart(canvas, block) {
+  const policies = Object.keys(block.per_policy);
+  const data = policies.map(p => {
+    const s = block.per_policy[p];
+    return { y: s.mean, yMin: s.ci95_low, yMax: s.ci95_high };
+  });
+  const colors = policies.map(colorFor);
+
+  // chartjs-chart-error-bars registers a 'barWithErrorBars' chart type.
+  return new Chart(canvas, {
+    type: 'barWithErrorBars',
+    data: {
+      labels: policies,
+      datasets: [{
+        label: block.label,
+        data,
+        backgroundColor: colors.map(c => c + 'cc'),
+        borderColor: colors,
+        borderWidth: 1,
+        errorBarColor: '#fff',
+        errorBarWhiskerColor: '#fff',
+        errorBarLineWidth: 1.2,
+        errorBarWhiskerLineWidth: 1.2,
+        errorBarWhiskerSize: 12,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const s = block.per_policy[ctx.label];
+              return [
+                `mean: ${fmt(s.mean)}`,
+                `95% CI: [${fmt(s.ci95_low)}, ${fmt(s.ci95_high)}]`,
+                `stdev: ${fmt(s.stdev)}  CV: ${fmt(s.cv)}`,
+              ];
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: '#bbb', font: { size: 10 },
+            callback: function(v) {
+              const lbl = this.getLabelForValue(v);
+              if (lbl.length > 16) return lbl.slice(0, 14) + '…';
+              return lbl;
+            },
+            maxRotation: 30, minRotation: 0,
+          },
+          grid: { color: 'rgba(255,255,255,0.04)' },
+        },
+        y: {
+          ticks: { color: '#bbb', font: { size: 10 } },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+        },
+      },
+    },
+  });
+}
+
+function tukeyMatrix(block) {
+  const policies = Object.keys(block.per_policy);
+  const sigMap = new Map();
+  for (const t of (block.tukey_hsd || [])) {
+    sigMap.set(`${t.policy_a}|${t.policy_b}`, t);
+    sigMap.set(`${t.policy_b}|${t.policy_a}`, t);
+  }
+  const n = policies.length;
+  let html = `<div class="tukey-matrix" style="grid-template-columns: repeat(${n + 1}, 1fr)">`;
+  html += `<div class="tukey-cell hdr"></div>`;
+  for (const p of policies) html += `<div class="tukey-cell hdr" title="${p}">${p.split(' ')[0]}</div>`;
+  for (const a of policies) {
+    html += `<div class="tukey-cell hdr" title="${a}">${a.split(' ')[0]}</div>`;
+    for (const b of policies) {
+      if (a === b) { html += `<div class="tukey-cell diag">—</div>`; continue; }
+      const t = sigMap.get(`${a}|${b}`);
+      if (!t) { html += `<div class="tukey-cell">·</div>`; continue; }
+      const cls = t['significant_at_0.05'] ? 'sig' : 'nsig';
+      const sym = t['significant_at_0.05'] ? `p=${fmtP(t.p_value)}` : `ns`;
+      html += `<div class="tukey-cell ${cls}" title="diff=${fmt(t.mean_diff)}, p=${fmtP(t.p_value)}">${sym}</div>`;
+    }
+  }
+  html += `</div>`;
+  return html;
+}
+
+function welchTable(block) {
+  const rows = block.welch_vs_baseline || [];
+  if (!rows.length) return '';
+  let html = `<table><thead><tr>
+    <th></th><th>vs Heuristic</th>
+    <th class="num">t</th><th class="num">p</th>
+    <th class="num">Cohen's d</th><th>magnitude</th></tr></thead><tbody>`;
+  for (const r of rows) {
+    const sig = r['significant_at_0.05'] ? '✓' : '';
+    const sigCls = r['significant_at_0.05'] ? 'style="color:#4caf50;font-weight:600"' : '';
+    html += `<tr>
+      <td ${sigCls}>${sig}</td>
+      <td>${r.policy}</td>
+      <td class="num">${fmt(r.t)}</td>
+      <td class="num">${fmtP(r.p_value)}</td>
+      <td class="num">${fmt(r.cohens_d)}</td>
+      <td>${effectMag(r.cohens_d)}</td>
+    </tr>`;
+  }
+  html += `</tbody></table>`;
+  return html;
+}
+
+function kpiCard(key, block) {
+  const a = block.anova;
+  const sig = a && a.p_value < 0.05;
+  const verdict = a
+    ? `ANOVA F(${a.df_between},${a.df_within}) = ${fmt(a.F)},
+       p = <span class="${sig ? 'sig' : 'nsig'}">${fmtP(a.p_value)}</span>
+       — ${sig ? 'means differ' : 'no detectable difference'}`
+    : 'ANOVA not computable';
+
+  return `
+    <div class="kpi-card">
+      <div class="head">
+        <h3>${block.label}</h3>
+        <span class="winner ${sig ? '' : 'warn'}">
+          ${sig ? 'winner' : 'no policy effect'}: <strong>${block.winner}</strong>
+          ${block.direction === 'lower' ? '(lower is better)' : '(higher is better)'}
+        </span>
+      </div>
+      <div class="verdict">${verdict}</div>
+      <canvas id="chart-${key}"></canvas>
+      <h3 style="margin-top:14px">Tukey HSD pairwise</h3>
+      ${tukeyMatrix(block)}
+      <h3>Welch vs Heuristic</h3>
+      ${welchTable(block)}
+    </div>`;
+}
+
+(async function main() {
+  let report;
+  try { report = await loadStats(); }
+  catch (e) {
+    document.getElementById('error').style.display = 'block';
+    document.getElementById('error').textContent = e.message
+      + ' — copy output/policy_stats.json to docs/policy_stats.json '
+      + 'or serve from repo root with python -m http.server.';
+    document.getElementById('root').innerHTML = '';
+    return;
+  }
+
+  const root = document.getElementById('root');
+  const metricOrder = [
+    'avg_walk_distance', 'total_walk_distance', 'reach_truck_utilization',
+    'avg_prep_time', 'avg_lead_time', 'avg_op_queue_wait',
+    'operator_utilization', 'orders_completed',
+  ];
+
+  root.innerHTML = `
+    ${summary(report)}
+    <h2>Per-KPI breakdown</h2>
+    <div class="kpi-grid">
+      ${metricOrder
+         .filter(k => report.metrics[k])
+         .map(k => kpiCard(k, report.metrics[k]))
+         .join('')}
+    </div>`;
+
+  for (const key of metricOrder) {
+    if (!report.metrics[key]) continue;
+    const canvas = document.getElementById('chart-' + key);
+    if (canvas) makeChart(canvas, report.metrics[key]);
+  }
+})();
+</script>
+</body>
+</html>
