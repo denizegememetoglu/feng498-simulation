@@ -92,7 +92,7 @@ SHIFT_MODE = "continuous"  # "continuous" | "daily"
 
 # Replications — independent runs with different seeds, needed for the
 # chi-square / t-test validation the supervisor asked for.
-N_REPLICATIONS = 5
+N_REPLICATIONS = 30
 RANDOM_SEED = 42  # base seed; per-rep seed is RANDOM_SEED + rep_index
 
 # Order generation
