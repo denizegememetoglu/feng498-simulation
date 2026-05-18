@@ -454,6 +454,29 @@ for (let i = 0; i < 8; i++) {
   scene.add(tg);
 }
 
+// ── CAD decorations (visual only — not in simulation) ─────────────────────
+for (const dec of (LAYOUT.decorations || [])) {
+  const h = dec.height_m || 3.5;
+  const col = new THREE.Color(dec.color || '#8b3a3a');
+  const mat = new THREE.MeshStandardMaterial({
+    color: col, roughness: 0.85, metalness: 0.0,
+    transparent: true, opacity: 0.55,
+  });
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(dec.width_m, h, dec.depth_m), mat
+  );
+  mesh.position.set(
+    dec.x + dec.width_m / 2, h / 2, -(dec.y + dec.depth_m / 2)
+  );
+  scene.add(mesh);
+  if (dec.label) {
+    makeLabel(dec.label,
+      new THREE.Vector3(dec.x + dec.width_m / 2, h + 0.6,
+                        -(dec.y + dec.depth_m / 2)),
+      '#ff9999', '10px');
+  }
+}
+
 // ── Operator / RT models (unchanged from previous) ─────────────────────────
 const opColors = [0x4fc3f7, 0x81c784, 0xffb74d, 0xf06292, 0xba68c8, 0x4dd0e1, 0xaed581, 0xff8a65];
 function createOp(color) {
