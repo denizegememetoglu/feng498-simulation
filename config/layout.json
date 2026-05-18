@@ -3,22 +3,24 @@
   "_notes": [
     "Per-rack pallet counts, bay counts, and level counts come from data/rack-drawings/*.pdf",
     "(PDF stamp grand-total 3203 — but real per-bay widths differ; see May 11 update).",
-    "Rearranged May 6 from the team's hand-drawn top-down sketch:",
-    "  - Vertical racks ordered along the building. U is a single horizontal rack at",
-    "    the north end (y=37). J is a polyline bracket; A is the easternmost peer in",
-    "    the line of single-rack columns.",
-    "  - J's bottom arm meets G at a CLOSED junction (no traffic).",
-    "  - J's top arm meets U at a CLOSED junction (no traffic).",
+    "Rearranged May 6 from user's hand-drawn top-down sketch:",
+    "  - Vertical racks left-to-right: J, H, I, G, F, E, D, C, B, A",
+    "  - U is a single horizontal rack at the north end (y=37)",
+    "  - J is a polyline bracket on the far west (bottom arm + vertical + top arm)",
+    "  - J's bottom arm meets G at a CLOSED junction (no traffic)",
+    "  - J's top arm meets U at a CLOSED junction (no traffic)",
     "Coordinates are approximate until May 20 site measurement; topology is committed.",
     "kit_corridor_side / rt_aisle_side preserved from the previously confirmed B-G",
     "alternation; J and H's adjacent corridor types are TBD until measurement.",
-    "May 6 (later correction from feedback on 3D render):",
-    "  - H, I raised so south ends are above J's bottom arm (y=11) — they live INSIDE",
-    "    J's bracket but do not pass through the bottom arm.",
+    "May 6 (later correction from user feedback on 3D render):",
+    "  - H, I raised so south ends are above J's bottom arm (y=10) — they live INSIDE",
+    "    J's bracket but do not pass through the bottom arm. Bay widths shrunk from",
+    "    2.70 to 2.31 to fit between J's arms (PDF didn't stamp H/I bay widths).",
     "  - G is the only rack that overlaps J's bottom arm (its body passes through y=10",
     "    and meets J at the closed junction). G + F-B north ends shortened to y=36.35",
-    "    so they don't intersect U's horizontal at y=37.",
-    "  - U east end pulled back so U doesn't extend past A. 14 bays at ~1.73 m each.",
+    "    so they don't intersect U's horizontal at y=37; bay widths 2.70→2.61.",
+    "  - U east end pulled back from x=58.6 to x=45.0 so U doesn't extend past A.",
+    "    14 bays at ~1.73 m each (PDF didn't stamp U bay width either).",
     "May 11 (per-bay widths from WhatsApp + cross-checked against SAP özet bin codes):",
     "  - `pallets_per_bay` on a segment is the DEFAULT width; `bay_overrides` lists",
     "    bays that deviate. Width = pallet positions across the bay (1, 2, or 3).",
@@ -30,35 +32,13 @@
     "    position_offset=1 (positions 2, 3) — that's what 'U 8 hariç, 1 yok' meant.",
     "  - U14 is a KÜÇÜK RF small rack with non-standard addressing (SAP shows pos",
     "    3, 5, 6); modelled as width 2 for now and flagged for May 20.",
-    "May 11 (CAD-driven integration — this commit):",
-    "  - X-AXIS FLIPPED. CAD shows J at the bottom-right of the floor plan; our",
-    "    previous coords placed J at the far west. Every horizontal coordinate is",
-    "    now mirrored around x = building.width_m / 2 = 40. Sides flipped",
-    "    east<->west; vertical sides (north/south) unchanged. After the flip:",
-    "    J's main vertical sits at x≈70 (east wall), U east end at x=59.2,",
-    "    A at x≈36, kitting at x=60-72 (south-east corner).",
-    "  - J 5-SECTION POLYLINE per J.pdf. The PDF draws J as five detached",
-    "    sub-sections in elevation: [J1] [J2-J12] [J13 KÜÇÜK RF] [J14] [J15-J18].",
-    "    Our previous 4+10+4 model split was wrong — the actual segmentation",
-    "    is 1+11+1+1+4. J13 and J14 are detached single bays; J13 is the small",
-    "    KÜÇÜK RF rack flagged in the PDF.",
-    "  - B SPLIT per B.pdf. The PDF draws B as two visually separated sections,",
-    "    B1-B6 and B8-B12, with B7 absent. Modelled here as two segments; B7 is",
-    "    omitted entirely. Capacity drops by 27 pallet positions (3 × 9 levels)",
-    "    versus the May 6 single-segment B.",
-    "  - U14 DETACHED per U.pdf. U.pdf draws U14 as a stand-alone KÜÇÜK RF small",
-    "    rack at the west end of U; main run is U1-U13.",
-    "  - PRODUCTION-LINE map (ASSUMPTIONS §17) — provisional wires: GAM along J's",
-    "    main vertical (no side committed yet, kit_corridor_side stays TBD until",
-    "    May 20). Other 5 lines documented in production_lines below; exact",
-    "    corridor assignment TBD on the May 20 site visit.",
-    "  - CLOSED JUNCTIONS list added so the renderer can draw the J↔G and J↔U",
-    "    closed-junction X marks the CAD shows."
+    "  - PDF `pallet_count` stamps are kept as informational (used by",
+    "    pallet_capacity_from_pdf); the simulation count is derived from widths × levels."
   ],
   "building": {"width_m": 80, "depth_m": 50, "_source": "approximate, ASSUMPTIONS.md §2"},
-  "kitting":         {"x": 60, "y": 0, "width_m": 12, "depth_m": 4, "_source": "approximate, ASSUMPTIONS.md §10 (post May-11 x-flip)"},
-  "kardex":          {"x": 76, "y": 4, "width_m": 4,  "depth_m": 14, "_source": "approximate, ASSUMPTIONS.md §8 (post May-11 x-flip)"},
-  "trolley_staging": {"x": 30, "y": 0, "width_m": 28, "depth_m": 4, "_source": "approximate, ASSUMPTIONS.md §9 (post May-11 x-flip)"},
+  "kitting":         {"x": 8,  "y": 0, "width_m": 12, "depth_m": 4, "_source": "approximate, ASSUMPTIONS.md §10"},
+  "kardex":          {"x": 0,  "y": 4, "width_m": 4,  "depth_m": 14, "_source": "approximate, ASSUMPTIONS.md §8"},
+  "trolley_staging": {"x": 22, "y": 0, "width_m": 28, "depth_m": 4, "_source": "approximate, ASSUMPTIONS.md §9"},
 
   "fast_mover_max_level": 3,
   "rt_aisle_width_m": 3.0,
@@ -66,64 +46,34 @@
   "rack_depth_m": 1.3,
   "rack_height_m": 7.0,
 
-  "closed_junctions": [
-    {"x": 59.2, "y": 10.0, "_label": "J1 ↔ G south end"},
-    {"x": 59.2, "y": 37.0, "_label": "J15 ↔ U west end"}
-  ],
-
-  "production_lines": [
-    {"name": "MCset-Aksesuar", "kit_corridor": "TBD May 20"},
-    {"name": "Blokset-Fasen", "kit_corridor": "TBD May 20"},
-    {"name": "SM6-Premset", "kit_corridor": "TBD May 20"},
-    {"name": "F400", "kit_corridor": "TBD May 20"},
-    {"name": "RI-P7 SD-POLE", "kit_corridor": "TBD May 20"},
-    {"name": "GAM", "kit_corridor": "J vertical run (provisional, side TBD)"}
-  ],
-
   "racks": [
     {
       "id": "J",
       "shape": "polyline",
-      "_geometry": "5-section polyline per J.pdf: [J1] south stub + [J2-J12] main vertical + [J13 KÜÇÜK RF] detached + [J14] detached + [J15-J18] top arm. Post May-11 x-flip: main vertical at x≈70 (east wall), top arm runs west toward U at closed junction (59.2, 37), bottom J1 stub sits at closed junction with G (59.2, 10), J13 and J14 sit detached east of the main run.",
+      "_geometry": "bracket on the far west: bottom arm + vertical + top arm; 18 bays J1-J18 split 4+10+4. Bottom arm meets G at CLOSED junction (~20.8, 10). Top arm meets U at CLOSED junction (~20.8, 37).",
       "segments": [
         {
-          "_label": "J1 bottom arm (1 bay) — at G closed junction",
-          "start": [59.2, 10.0], "end": [61.9, 10.0],
-          "bays": 1, "bay_code_start": 1, "bay_width_m": 2.70,
-          "levels": 8, "pallets_per_bay": 3, "pallet_count": 24,
+          "start": [10.0, 10.0], "end": [20.8, 10.0],
+          "bays": 4, "bay_code_start": 1, "bay_width_m": 2.70,
+          "levels": 8, "pallets_per_bay": 3, "pallet_count": 84,
+          "bay_overrides": [
+            {"bays": [4], "pallets_per_bay": 2, "_source": "WhatsApp 2026-05-11"}
+          ],
           "kit_corridor_side": "TBD", "rt_aisle_side": "TBD"
         },
         {
-          "_label": "J2-J12 main vertical (11 bays) — east wall",
-          "start": [70.0, 6.5], "end": [70.0, 36.2],
-          "bays": 11, "bay_code_start": 2, "bay_width_m": 2.70,
+          "start": [10.0, 10.0], "end": [10.0, 37.0],
+          "bays": 10, "bay_code_start": 5, "bay_width_m": 2.70,
           "levels": 8, "pallets_per_bay": 3, "pallet_count": 213,
           "bay_overrides": [
-            {"bays": [4], "pallets_per_bay": 2, "_source": "WhatsApp 2026-05-11"},
             {"bays": [10, 11], "pallets_per_bay": 2, "_source": "WhatsApp 2026-05-11"},
-            {"bays": [12], "pallets_per_bay": 0, "_source": "WhatsApp 2026-05-11: cart parking slot", "_reserved_for": "cart"}
+            {"bays": [12], "pallets_per_bay": 0, "_source": "WhatsApp 2026-05-11: cart parking slot", "_reserved_for": "cart"},
+            {"bays": [13, 14], "pallets_per_bay": 2, "_source": "WhatsApp 2026-05-11"}
           ],
-          "kit_corridor_side": "TBD", "rt_aisle_side": "TBD",
-          "kit_corridor_line": "GAM (provisional, ASSUMPTIONS §17)"
-        },
-        {
-          "_label": "J13 KÜÇÜK RF — detached small rack per J.pdf",
-          "start": [72.0, 22.0], "end": [73.5, 22.0],
-          "bays": 1, "bay_code_start": 13, "bay_width_m": 1.50,
-          "levels": 8, "pallets_per_bay": 2, "pallet_count": 16,
-          "small_rack": true,
           "kit_corridor_side": "TBD", "rt_aisle_side": "TBD"
         },
         {
-          "_label": "J14 single bay — detached per J.pdf",
-          "start": [72.0, 27.0], "end": [74.7, 27.0],
-          "bays": 1, "bay_code_start": 14, "bay_width_m": 2.70,
-          "levels": 8, "pallets_per_bay": 2, "pallet_count": 16,
-          "kit_corridor_side": "TBD", "rt_aisle_side": "TBD"
-        },
-        {
-          "_label": "J15-J18 top arm (4 bays) — at U closed junction",
-          "start": [59.2, 37.0], "end": [70.0, 37.0],
+          "start": [10.0, 37.0], "end": [20.8, 37.0],
           "bays": 4, "bay_code_start": 15, "bay_width_m": 2.70,
           "levels": 8, "pallets_per_bay": 3, "pallet_count": 84,
           "bay_overrides": [
@@ -136,10 +86,10 @@
     {
       "id": "H",
       "shape": "linear",
-      "_orientation": "vertical, lives INSIDE J's bracket — south end y=11 stays north of J's bottom arm (y=10), north end y=36.35 stays south of U (y=37). Post-flip: H sits between J's main vertical (x=70) and I (x=62.4).",
+      "_orientation": "vertical, 2nd from west; lives INSIDE J's bracket — south end y=11 stays north of J's bottom arm (y=10), north end y=36.35 stays south of U (y=37). J↔H and H↔I corridor types TBD until May 20.",
       "segments": [
         {
-          "start": [65.7, 11.0], "end": [65.7, 36.35],
+          "start": [14.3, 11.0], "end": [14.3, 36.35],
           "bays": 11, "bay_code_start": 1, "bay_width_m": 2.305,
           "levels": 8, "pallets_per_bay": 3, "pallet_count": 240,
           "kit_corridor_side": "TBD", "rt_aisle_side": "TBD"
@@ -149,153 +99,136 @@
     {
       "id": "I",
       "shape": "linear",
-      "_orientation": "vertical, INSIDE J's bracket like H — south above J bottom arm, north below U. Post-flip: I↔G is the kit corridor (matches G's kit_east).",
+      "_orientation": "vertical, 3rd from west; INSIDE J's bracket like H — south above J bottom arm, north below U. I↔G is the kit corridor (matches G's kit_west).",
       "segments": [
         {
-          "start": [62.4, 11.0], "end": [62.4, 36.35],
+          "start": [17.6, 11.0], "end": [17.6, 36.35],
           "bays": 11, "bay_code_start": 1, "bay_width_m": 2.305,
           "levels": 8, "pallets_per_bay": 3, "pallet_count": 252,
           "bay_overrides": [
             {"bays": [4], "pallets_per_bay": 1, "_source": "WhatsApp 2026-05-11"},
             {"bays": [5, 6, 7, 8, 9], "pallets_per_bay": 2, "_source": "WhatsApp 2026-05-11"}
           ],
-          "kit_corridor_side": "west", "rt_aisle_side": "TBD"
+          "kit_corridor_side": "east", "rt_aisle_side": "TBD"
         }
       ]
     },
     {
       "id": "G",
       "shape": "linear",
-      "_orientation": "vertical, the ONLY rack whose body overlaps J's bottom arm — passes through y=10 and meets J1 at CLOSED junction near (59.2, 10). North end y=36.35 stays south of U. Post-flip x=59.1.",
+      "_orientation": "vertical, 4th from west; the ONLY rack whose body overlaps J's bottom arm — passes through y=10 and meets J at CLOSED junction near (20.9, 10). North end y=36.35 stays south of U.",
       "segments": [
         {
-          "start": [59.1, 10.0], "end": [59.1, 36.35],
+          "start": [20.9, 10.0], "end": [20.9, 36.35],
           "bays": 12, "bay_code_start": 1, "bay_width_m": 2.196,
           "levels": 9, "pallets_per_bay": 3, "pallet_count": 288,
-          "kit_corridor_side": "east", "rt_aisle_side": "west"
+          "kit_corridor_side": "west", "rt_aisle_side": "east"
         }
       ]
     },
     {
       "id": "F",
       "shape": "linear",
-      "_orientation": "vertical, north end y=36.35 stays south of U. Post-flip x=54.8.",
+      "_orientation": "vertical, 5th from west; north end y=36.35 stays south of U",
       "segments": [
         {
-          "start": [54.8, 5.0], "end": [54.8, 36.35],
+          "start": [25.2, 5.0], "end": [25.2, 36.35],
           "bays": 12, "bay_code_start": 1, "bay_width_m": 2.613,
           "levels": 9, "pallets_per_bay": 3, "pallet_count": 303,
           "bay_overrides": [
             {"bays": [5, 6], "pallets_per_bay": 2, "_source": "WhatsApp 2026-05-11"}
           ],
-          "kit_corridor_side": "west", "rt_aisle_side": "east"
+          "kit_corridor_side": "east", "rt_aisle_side": "west"
         }
       ]
     },
     {
       "id": "E",
       "shape": "linear",
-      "_orientation": "vertical, north end y=36.35 stays south of U. Post-flip x=51.5.",
+      "_orientation": "vertical, 6th from west; north end y=36.35 stays south of U",
       "segments": [
         {
-          "start": [51.5, 5.0], "end": [51.5, 36.35],
+          "start": [28.5, 5.0], "end": [28.5, 36.35],
           "bays": 12, "bay_code_start": 1, "bay_width_m": 2.613,
           "levels": 9, "pallets_per_bay": 3, "pallet_count": 294,
           "bay_overrides": [
             {"bays": [4], "pallets_per_bay": 1, "_source": "WhatsApp 2026-05-11"}
           ],
-          "kit_corridor_side": "east", "rt_aisle_side": "west"
+          "kit_corridor_side": "west", "rt_aisle_side": "east"
         }
       ]
     },
     {
       "id": "D",
       "shape": "linear",
-      "_orientation": "vertical, north end y=36.35 stays south of U. Post-flip x=47.2.",
+      "_orientation": "vertical, 7th from west; north end y=36.35 stays south of U",
       "segments": [
         {
-          "start": [47.2, 5.0], "end": [47.2, 36.35],
+          "start": [32.8, 5.0], "end": [32.8, 36.35],
           "bays": 12, "bay_code_start": 1, "bay_width_m": 2.613,
           "levels": 9, "pallets_per_bay": 3, "pallet_count": 300,
           "bay_overrides": [
             {"bays": [8], "pallets_per_bay": 2, "_source": "WhatsApp 2026-05-11"},
             {"bays": [11, 12], "pallets_per_bay": 1, "_source": "WhatsApp 2026-05-11"}
           ],
-          "kit_corridor_side": "west", "rt_aisle_side": "east"
+          "kit_corridor_side": "east", "rt_aisle_side": "west"
         }
       ]
     },
     {
       "id": "C",
       "shape": "linear",
-      "_orientation": "vertical, north end y=36.35 stays south of U. Post-flip x=43.9.",
+      "_orientation": "vertical, 8th from west; north end y=36.35 stays south of U",
       "segments": [
         {
-          "start": [43.9, 5.0], "end": [43.9, 36.35],
+          "start": [36.1, 5.0], "end": [36.1, 36.35],
           "bays": 12, "bay_code_start": 1, "bay_width_m": 2.613,
           "levels": 9, "pallets_per_bay": 3, "pallet_count": 297,
           "bay_overrides": [
             {"bays": [10, 11, 12], "pallets_per_bay": 2, "_source": "WhatsApp 2026-05-11"}
           ],
-          "kit_corridor_side": "east", "rt_aisle_side": "west"
+          "kit_corridor_side": "west", "rt_aisle_side": "east"
         }
       ]
     },
     {
       "id": "B",
-      "shape": "split",
-      "_orientation": "vertical, but split into two physical sections per B.pdf: B1-B6 (south) and B8-B12 (north). B7 is absent (physical gap, not just an ÖN/ARKA cutout). North end y=36.35 stays south of U. Post-flip x=39.6.",
+      "shape": "linear",
+      "_orientation": "vertical, 9th from west; north end y=36.35 stays south of U",
       "segments": [
         {
-          "_label": "B1-B6 south section",
-          "start": [39.6, 5.0], "end": [39.6, 20.66],
-          "bays": 6, "bay_code_start": 1, "bay_width_m": 2.61,
-          "levels": 9, "pallets_per_bay": 3, "pallet_count": 144,
-          "kit_corridor_side": "west", "rt_aisle_side": "east"
-        },
-        {
-          "_label": "B8-B12 north section (B7 absent per B.pdf)",
-          "start": [39.6, 23.27], "end": [39.6, 36.32],
-          "bays": 5, "bay_code_start": 8, "bay_width_m": 2.61,
-          "levels": 9, "pallets_per_bay": 3, "pallet_count": 117,
-          "kit_corridor_side": "west", "rt_aisle_side": "east"
+          "start": [40.4, 5.0], "end": [40.4, 36.35],
+          "bays": 12, "bay_code_start": 1, "bay_width_m": 2.613,
+          "levels": 9, "pallets_per_bay": 3, "pallet_count": 288,
+          "kit_corridor_side": "east", "rt_aisle_side": "west"
         }
       ]
     },
     {
       "id": "A",
       "shape": "linear",
-      "_orientation": "vertical, post-flip leftmost (west) of the single-rack column line; 11 bays A2-A12 per A.pdf. Post-flip x=36.3.",
+      "_orientation": "vertical, rightmost (east); 11 bays A2-A12 per A.pdf",
       "segments": [
         {
-          "start": [36.3, 5.0], "end": [36.3, 34.7],
+          "start": [43.7, 5.0], "end": [43.7, 34.7],
           "bays": 11, "bay_code_start": 2, "bay_width_m": 2.70,
           "levels": 9, "pallets_per_bay": 3, "pallet_count": 297,
-          "kit_corridor_side": "east", "rt_aisle_side": "TBD"
+          "kit_corridor_side": "west", "rt_aisle_side": "TBD"
         }
       ]
     },
     {
       "id": "U",
-      "shape": "split",
-      "_orientation": "horizontal (E-W) at north end y=37, split into main run (U1-U13) and detached U14 KÜÇÜK RF per U.pdf. Post-flip: U1 at east end (x=59.2) meets J's top arm at CLOSED junction; U13 at x≈36.7; U14 KÜÇÜK RF detached at the far west (x≈33.5-35.5). Bay width ~1.73m (PDF didn't stamp). Per May 11 SAP cross-check, U bays are 2 pallets wide (positions 1, 2); bay 8 is the exception (positions 2, 3 — 'U8 1 yok').",
+      "shape": "linear",
+      "_orientation": "horizontal (E-W) at north end y=37, single segment 14 bays U1-U14; west end meets J's top arm at CLOSED junction (~20.8, 37). East end x=45 stays just past A (x=43.7) — no further. Bay width ~1.73m (PDF didn't stamp; shrunk from assumed 2.70 to fit user's drawn topology). Per May 11 SAP cross-check, U bays are 2 pallets wide (positions 1, 2); bay 8 is the exception (positions 2, 3 — 'U8 1 yok'). U14 is a 'KÜÇÜK RF' small rack with non-standard SAP positions {3,5,6} — flagged for May 20.",
       "segments": [
         {
-          "_label": "U1-U13 main run",
-          "start": [59.2, 37.0], "end": [36.72, 37.0],
-          "bays": 13, "bay_code_start": 1, "bay_width_m": 1.729,
-          "levels": 7, "pallets_per_bay": 2, "pallet_count": 247,
+          "start": [20.8, 37.0], "end": [45.0, 37.0],
+          "bays": 14, "bay_code_start": 1, "bay_width_m": 1.729,
+          "levels": 7, "pallets_per_bay": 2, "pallet_count": 263,
           "bay_overrides": [
             {"bays": [8], "pallets_per_bay": 2, "position_offset": 1, "_source": "WhatsApp 2026-05-11: '8 hariç, 1 yok' = positions 2,3 not 1,2"}
           ],
-          "kit_corridor_side": "TBD", "rt_aisle_side": "TBD"
-        },
-        {
-          "_label": "U14 KÜÇÜK RF — detached small rack per U.pdf",
-          "start": [33.5, 37.0], "end": [35.5, 37.0],
-          "bays": 1, "bay_code_start": 14, "bay_width_m": 2.0,
-          "levels": 7, "pallets_per_bay": 2, "pallet_count": 16,
-          "small_rack": true,
           "kit_corridor_side": "TBD", "rt_aisle_side": "TBD"
         }
       ]
