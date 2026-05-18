@@ -46,6 +46,16 @@
   "rack_depth_m": 1.3,
   "rack_height_m": 7.0,
 
+  "_decorations_note": "Visual-only structures from CAD (WhatsApp 2026-05-11). NOT loaded by Warehouse — no positions, no SAP join, no KPI impact. Rendered as flat blocks in the 3D viewer to match the partner's floor plan corners. Coordinates are approximate; refine after May 20 site visit.",
+  "decorations": [
+    {"id": "gam_west",    "label": "GAM (PUTAWAY)", "x": 1.0,  "y": 19.0, "width_m": 2.0, "depth_m": 28.0, "height_m": 4.5, "color": "#8b3a3a"},
+    {"id": "east_zone_1", "label": "PRODUCTION",    "x": 55.0, "y": 4.0,  "width_m": 3.0, "depth_m": 42.0, "height_m": 3.5, "color": "#8b3a3a"},
+    {"id": "east_zone_2", "label": "",              "x": 61.0, "y": 4.0,  "width_m": 3.0, "depth_m": 42.0, "height_m": 3.5, "color": "#8b3a3a"},
+    {"id": "east_zone_3", "label": "STAGING",       "x": 67.0, "y": 8.0,  "width_m": 3.0, "depth_m": 34.0, "height_m": 3.5, "color": "#8b3a3a"},
+    {"id": "sw_blocks",   "label": "",              "x": 1.0,  "y": 0.5,  "width_m": 6.0, "depth_m": 3.0,  "height_m": 1.8, "color": "#a93030"},
+    {"id": "se_blocks",   "label": "",              "x": 53.0, "y": 0.5,  "width_m": 22.0,"depth_m": 3.0,  "height_m": 1.8, "color": "#a93030"}
+  ],
+
   "racks": [
     {
       "id": "J",
