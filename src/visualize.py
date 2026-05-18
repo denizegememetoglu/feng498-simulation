@@ -61,16 +61,19 @@ def compare_policies(results, output_dir="output"):
     plt.close()
 
     # 2. Summary table as text
-    print("\n" + "=" * 90)
-    print(f"{'Policy':<28} {'Orders':>7} {'Avg Prep':>9} {'Avg Wait':>9} "
-          f"{'Avg Dist':>9} {'RT Util':>8} {'Op Util':>8}")
-    print("-" * 90)
+    print("\n" + "=" * 108)
+    print(f"{'Policy':<28} {'Orders':>7} {'Prep':>7} {'Lead':>7} "
+          f"{'OpQ':>6} {'RTQ':>6} {'Dist':>7} {'RT%':>6} {'Op%':>6}")
+    print("-" * 108)
     for n in names:
         r = results[n]
-        print(f"{n:<28} {r['orders_completed']:>7} {r['avg_prep_time']:>8.2f}m "
-              f"{r['avg_wait_time']:>8.2f}m {r['avg_walk_distance']:>8.1f}m "
-              f"{r['reach_truck_utilization'] * 100:>7.1f}% {r['operator_utilization'] * 100:>7.1f}%")
-    print("=" * 90)
+        print(f"{n:<28} {r.get('orders_completed', 0):>7.0f} "
+              f"{r.get('avg_prep_time', 0):>6.2f}m {r.get('avg_lead_time', 0):>6.2f}m "
+              f"{r.get('avg_op_queue_wait', 0):>5.2f}m {r.get('avg_wait_time', 0):>5.2f}m "
+              f"{r.get('avg_walk_distance', 0):>6.1f}m "
+              f"{r.get('reach_truck_utilization', 0) * 100:>5.1f}% "
+              f"{r.get('operator_utilization', 0) * 100:>5.1f}%")
+    print("=" * 108)
 
 
 def plot_prep_time_distribution(all_kpis, output_dir="output"):
