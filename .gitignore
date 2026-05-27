@@ -5,8 +5,12 @@ output/
 
 # Sensitive / private — do not commit
 mcp-logs.txt
+wa-logs.txt
+whatsapp_export/
 *.bak
+*.bak_*
 data/rack-drawings/
+/data/*.dwg
 docs/*.docx
 SCHNEIDER_SORULAR.md
 MEETING_NOTES_*.md
@@ -28,3 +32,9 @@ HANDOFF.md
 
 # Large/private SAP exports — share via WhatsApp folder instead
 /data/Malzeme*.xlsx*
+/data/zwm92/
+/data/factory-photos-*/
+
+# Time-motion video study (large, not for repo)
+/data/F400 Kit Cansu Nehir.xlsx
+/data/F400*.xlsx

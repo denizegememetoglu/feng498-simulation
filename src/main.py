@@ -9,7 +9,7 @@ from src import config
 from src.data_loader import preprocess
 from src.warehouse import Warehouse
 from src.simulation import WarehouseSimulation
-from src.slotting import ALL_POLICIES, RealBaselinePolicy
+from src.slotting import ALL_POLICIES, RealBaselinePolicy, TravelDistancePolicy
 from src.visualize import compare_policies, plot_prep_time_distribution
 
 
@@ -19,7 +19,26 @@ def _instantiate_policy(policy_cls, data):
             decoded_bins=data["decoded_bins"],
             kardex_materials=data["kardex_materials"],
         )
+    if policy_cls is TravelDistancePolicy:
+        return policy_cls(picks_by_material=_load_picks_by_material())
     return policy_cls()
+
+
+def _load_picks_by_material() -> dict[str, int]:
+    """ZWM92 per-material dispatch counts → TravelDistancePolicy sort key.
+
+    Empty dict when the cache is missing; the policy then falls back to
+    the SAP consumption proxy.
+    """
+    path = "output/zwm92_summary.json"
+    if not os.path.exists(path):
+        return {}
+    try:
+        with open(path) as f:
+            data = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return {}
+    return {str(k): int(v) for k, v in data.get("picks_by_material", {}).items()}
 
 
 def _safe_name(name: str) -> str:
@@ -44,11 +63,14 @@ def run_policy(policy_name, policy_cls, data, n_reps=None):
         policy = _instantiate_policy(policy_cls, data)
         policy.assign(materials, warehouse)
 
+        seed = (config.RANDOM_SEED
+                if getattr(config, "SAME_SEED_FOR_ALL_REPS", False)
+                else config.RANDOM_SEED + rep)
         sim = WarehouseSimulation(
             warehouse, materials,
             material_to_line=material_to_line,
             kardex_materials=data["kardex_materials"],
-            seed=config.RANDOM_SEED + rep,
+            seed=seed,
         )
         sim.run()
         summary = sim.kpi.summary(

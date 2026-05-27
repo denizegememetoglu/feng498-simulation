@@ -223,8 +223,23 @@ elevation, physically detached from the main U1-U13 run. Updated model
   both available; comparison is the project's analytical core.
 - ✅ **Production line mapping RECEIVED May 4** (`mrpc` sheet) → milkrun routing can now
   be line-aware. Material → MRP-C in `özet`/`zppq16_copy`, MRP-C → line in `mrpc`.
-- ⏳ **BOM still pending** — once received, can synthesize per-line kit content from
-  production schedule × BOM.
+- ✅ **BOM RECEIVED May 26 via ZWM92** (`data/zwm92/*.XLSX`, 9 family exports). The
+  dispatch log itself is an as-dispatched BOM: each row records `(Order, KIT No,
+  Bileşen Malzeme, Çıkılan Miktar)` and grouping by `(Order, KIT No)` reconstructs
+  the full component list of each kit produced. 40,804 kit-orders are extracted in
+  `src/zwm92.py:build_orders` and cached at `output/zwm92_orders.json`; per-kit BOM
+  sizes are the empirical distribution feeding the Arena-style driver (§21).
+  Caveats:
+  - "BOM size" here = number of dispatched components, not engineering BOM levels;
+    bulk-issue rows with `Çıkılan Miktar` in the thousands (e.g. fasteners) inflate
+    the per-kit item count, so the empirical distribution is clipped at 50 items
+    to keep the sim numerically stable (`src/zwm92.py:fit_distributions`).
+  - Phantom assemblies are not exploded — every `Bileşen Malzeme` is treated as a
+    leaf-level pick the warehouse actually fetches, which matches reality from
+    the warehouse's perspective.
+  - The per-line "kit content" lookup (`zwm92.kit_bom`) is also exposed but not
+    yet wired into a kit-aware slotting policy — would be a natural next step
+    for a "co-locate kit-mates" heuristic.
 
 ## 15. Routing
 
@@ -301,6 +316,225 @@ SAP bin codes are **NOT** affected — the `(rack, bay, position)` join in
 `Warehouse.sap_position_id` ignores spatial coordinates. The simulation
 produces the same KPIs (verified May 11) modulo the B7-physical-gap and J
 re-segmentation which together drop the model from 3 137 to 3 110 positions.
+
+## 19. Timing constants — F400-derived, extrapolated to all lines (May 26)
+
+The May 20 site visit produced an F400 Kit video time-motion study
+(`F400 Kit Cansu Nehir.xlsx`, 2,319 micro-events across 296.6 min of DJI
+footage with CNVA/FNVA/NVA classification). Extractor at
+`src/timing_study.py` parses the four sheets, classifies each row via Turkish
+keyword regex, and writes `output/timing_study_f400.json`. The simulation
+now uses these constants instead of the pre-visit placeholders:
+
+| Constant | Old (placeholder) | New (F400 video) | Sample |
+|----------|------------------:|-----------------:|-------:|
+| `OPERATOR_PICK_TIME`         | 0.30 min | **0.113 min** | n=900 (rf_scan + manual_pick) |
+| `MANUAL_PICK_TIME_PENALTY`   | 0.50 min | **0.102 min** | n=157 (walk_corridor) |
+| `REACH_TRUCK_PICK_PLACE_TIME`| 0.50 min | **0.110 min** | n=69 (rt_pick) |
+| `KARDEX_PICK_TIME`           | 0.50 min | **0.113 min** | mirrors operator pick |
+
+These are *at-bin micro-event* times: the video captures only the seconds
+the operator spends at the rack face (scan + grab + place), not the full
+"travel-to-bin + scan + grab + walk-back" cycle that `OPERATOR_PICK_TIME`
+used to represent. Walking is now modelled separately via
+`OPERATOR_WALK_SPEED_M_PER_MIN`, so this decomposition is consistent.
+
+**Sargent face-validity limitation:** F400 is the largest line (~48k of
+167k ZWM92 dispatch rows) but only one of nine product families. We
+extrapolate F400-measured constants to SM6, Okken, Premset, MCSET,
+AKS_PAK, Çekmece, DMK, Sepam without per-line verification. The
+sensitivity analysis (`src/sensitivity.py`) reports model sensitivity to
+each of these constants so the extrapolation risk is bounded.
+
+**2026-05-26 code-audit fixes:**
+
+- **C2 (Excel unit safety net):** `src/timing_study.py::_time_to_seconds`
+  treated raw numeric cells as fraction-of-day, but the F400 workbook
+  cells are already `datetime.time` objects so the bug was effectively
+  dead code. The conversion is now explicit and unit-correct for both
+  paths. Numerical constants are unchanged.
+- **H4 (`MANUAL_PICK_TIME_PENALTY` definition):** the constant is the
+  `walk_corridor` mean from F400 — a conservative **UPPER-bound proxy**
+  for the marginal time penalty of a fallback (manual) pick over a
+  baseline (correct-slot) pick. The full corridor traversal overstates
+  the incremental penalty by ~30% because the operator would walk part
+  of the corridor anyway. Documented in `src/config.py` and called out
+  here so the reader doesn't mistake the proxy for the true marginal
+  cost.
+
+## 20. Trace-driven order arrivals from ZWM92 (May 26 — superseded)
+
+Initial design replayed the raw ZWM92 timestamps order-by-order
+(`ZWM92TraceDriver`). Section §21 below documents the May 26 advisor
+pivot to fitted distributions, which is what the codebase actually uses
+now. The trace replay is still callable for ad-hoc comparison but is
+no longer the default driver.
+
+For historical record: the raw-trace driver loaded the cached ZWM92
+dispatch log (`output/zwm92_orders.json`, 40,804 orders over
+2026-01-02 → 2026-05-18, 9 families) and replayed orders in real
+arrival sequence with inter-arrival times equal to the wall-clock
+delta between consecutive `Sayim Tarihi + Sayim Zamani` timestamps,
+capped at `MAX_TRACE_IAT_MIN = 60 min` so overnight / weekend gaps
+didn't waste sim time. Same per-line kitting and material-master join
+filter as the fitted driver.
+
+## 21. Arena-style fitted distributions + same-seed runs (May 26 — current)
+
+Advisor's instruction was that the simulation should mirror Arena's
+discrete-event paradigm: don't replay a single recorded trajectory,
+fit parametric / empirical distributions to the historical log and
+sample fresh on each replication. Combined with a fixed seed across
+all replications (`SAME_SEED_FOR_ALL_REPS=True`, `RANDOM_SEED=42`),
+every run produces an identical trajectory — which the advisor wanted
+so that the experimental contrasts between policies are not confounded
+by Monte-Carlo noise and so the run is fully reproducible from the
+written report.
+
+Implementation (`src/zwm92.py:fit_distributions`,
+`src/simulation.py:ZWM92DistributionDriver`):
+
+| Random quantity      | Distribution                  | Source data                  |
+|----------------------|-------------------------------|------------------------------|
+| Inter-arrival (min)  | Exponential(mean=4.8)         | mean of consecutive ZWM92 IATs |
+| Items per order      | Empirical (clipped at 50)     | observed kit BOM sizes        |
+| Production line      | Categorical(weights)          | line frequency in ZWM92       |
+| Material per line    | Categorical(weights)          | per-line pick frequencies     |
+| Operator pick time   | Lognormal(μ from §19, σ=1.30) | F400 video pick CV ≈ 1.7      |
+| RT pick/place time   | Lognormal(σ=1.20)             | F400 video rt_pick CV ≈ 1.37  |
+| Manual-pick penalty  | Lognormal(σ=1.40)             | F400 walk_corridor CV ≈ 1.92  |
+| Kardex pick + rotate | Lognormal(σ=1.30 / 0.30)      | mirrors operator + book val   |
+
+Means of the timing log-normals are preserved (μ = log(mean) −
+0.5·σ²) so the expected pick time still matches the §19 deterministic
+constants — only the variability is added. Item-count empirical
+samples are clipped at 50 because a handful of SAP "Çıkılan Miktar"
+entries are bulk-issue quantities (e.g. 134 012) that would crash the
+sim if drawn.
+
+**Statistical-test consequence:** with N_REPLICATIONS=1 and identical
+seeds, between-rep variance is zero and the Sargent ANOVA / Tukey /
+Welch comparisons collapse to a single trajectory each. The validation
+plan therefore swaps in a paired-by-order Wilcoxon signed-rank test
+(`src.analyze.paired_by_order`) that pairs every order against the
+same order under the baseline policy. With ~440 orders per run, this
+gives more inferential power than 5 independent reps of 440-order runs
+would (paired design eliminates between-order variance entirely).
+
+Validation against ZWM92 actuals still uses real per-rack dispatch
+counts (`picks_per_rack_actual` from the loader), not the fit. The fit
+is only used at run-time to drive the simulation; the goodness-of-fit
+test in `src/validate.py` compares simulated vs. observed rack pick
+shares directly.
+
+**2026-05-26 code-audit fixes:**
+
+- **H2 (IAT calendar mean):** `output/zwm92_summary.json` now reports
+  two means side-by-side — `iat_within_shift_mean` (consecutive-order
+  gaps under a 60-min cap, the within-shift cadence) and
+  `iat_calendar_mean` (`(last_dt − first_dt) / (n_orders − 1)`, the
+  long-run including overnight / weekend gaps). The driver continues
+  to use the within-shift mean because the simulation models a single
+  8-h shift; the calendar mean is exposed for traceability and
+  long-horizon what-ifs. Numbers as of 2026-05-26: within-shift 5.36
+  min, calendar 4.80 min.
+- **H5 (distinct materials vs total picks):** ZWM92 build now stores
+  both lists per kit-order — `distinct_materials` (unique material IDs
+  in the kit) and `items` (qty-expanded picks). `n_items_empirical` in
+  `fit_distributions` now uses *distinct* counts (mean 4.0 picks/kit),
+  which matches the Arena-style "draw N distinct picks per order"
+  semantics. Previously `items` (qty-expanded, mean 16.7) was being
+  used and a qty=20 row was counted as 20 distinct materials. The
+  summary JSON exposes both means so the report can quote either.
+- **H1 (Kardex batch picking):** the simulation now holds the Kardex
+  resource for a single carousel rotation per order regardless of
+  Kardex pick count, then iterates pick times inside that hold. The
+  old model paid one full carousel cycle per item, which roughly
+  triples the Kardex service time when a kit has 3+ Kardex picks.
+- **H6 (zero-pick orders):** if both rack and Kardex pick lists are
+  empty for an order (no material has a slot and none is Kardex-
+  routed), the order is now counted in `orders_with_no_locations` and
+  not in `orders_completed`. Prior runs silently inflated the
+  completion count with no-op orders, biasing throughput up by ~0.2%.
+- **C3 (TravelDistance sort key):** `TravelDistancePolicy` now sorts
+  by *real* per-material pick frequency from `picks_by_material`
+  (cached in `zwm92_summary.json`) when available, falling back to
+  the SAP `consumption` proxy only when the cache is missing. Result:
+  Travel-distance no longer beats the heuristic on walk distance once
+  the sort uses real picks rather than the consumption-weighted proxy
+  — the previous "winner" was an artefact.
+- **C1 (sensitivity baselines):** `src/sensitivity.py` now reads
+  baselines from the live `config` module at import time and sweeps
+  ±20% from each, rather than from a hardcoded table that went stale
+  after the F400 timing study landed. `IAT_MEAN_MIN_OVERRIDE` is a
+  new optional config knob the sweep uses to perturb the arrival
+  rate (the runtime IAT mean) without regenerating the ZWM92 cache.
+- **M4 (UNKNOWN line orders):** orders whose production line could
+  not be resolved from the SAP plant code are now dropped at
+  `build_orders` time and the count is reported as
+  `orders_dropped_no_line`. The driver no longer needs to deal with
+  `line=None` (it was using a noisy fallback).
+- **H3 (Wilcoxon multiple-comparison correction):** `src/analyze.py`
+  now applies Holm-Bonferroni across the family of paired-by-order
+  Wilcoxon tests (3 metrics × (n_policies − 1) tests). Each entry
+  carries `p_raw` and `p_holm`; the `significant_at_0.05` flag uses
+  `p_holm`. With 12 tests, the prior raw-p reporting was overstating
+  significance.
+- **M3 (Cochran's rule guard):** the chi-square per-rack test now
+  reports `cochran_warning` when any expected cell count is below 5.
+  This is a face-validity caveat — the asymptotic distribution drifts
+  for sparse cells. The 2026-05-26 run has no low cells (smallest
+  expected cell ≈ 8.2).
+- **M7 (Wilcoxon skip log):** when fewer than 30 paired orders are
+  common between a policy and the baseline, the comparison is now
+  logged to stdout instead of silently dropped.
+
+## 22. Resource counts — verbal site report (May 2026)
+
+`NUM_REACH_TRUCKS = 7`, `NUM_OPERATORS = 8`, `NUM_MILKRUN_TRAINS = 7`,
+`NUM_KARDEX_UNITS = 4`. Source: verbal report from the May 20 site
+visit, recorded in CLAUDE.md and confirmed in the F400 video footage
+(7 distinct reach-truck driver IDs across 296.6 min). These are
+treated as static for the headline run. Sensitivity sweeps the timing
+constants but not the fleet sizes — a fleet-sweep is in the
+`IMPROVEMENT_BACKLOG.md` future-work list.
+
+## 23. Modelling limitations carried forward to V&V
+
+The 2026-05-26 audit refactored several silent assumptions into
+explicit, documented limitations. These remain in the model and are
+disclosed in the V&V report's `Limitations` section:
+
+1. **Kardex single-station collapse (M6):** `config/layout.json`
+   does not yet expose per-station Kardex coordinates, so all four
+   Kardex units share a single (x, y) point and a single SimPy
+   `Resource` of capacity 4. Per-station queue dynamics are
+   underestimated. Fix is layout-side and is deferred to the layout-
+   geometry session.
+2. **Zero-pick orders (H6):** counted separately from
+   `orders_completed`. These are a model artefact (some order's
+   materials have no decoded SAP bin and aren't Kardex-routed); the
+   real warehouse never sees this case because every order has
+   feasible picks. The counter is a face-validity instrument, not a
+   throughput penalty.
+3. **Holm-corrected significance (H3):** the report should always
+   quote `p_holm`, not `p_raw`, for policy-vs-baseline contrasts to
+   control family-wise error.
+4. **Single-shift model:** ZWM92's 4-month log is compressed into a
+   single synthetic 8-h shift. Multi-shift dynamics (warm-up after
+   break, end-of-shift catch-up) are not modelled.
+5. **Multi-bin partial placement:** if a material has 3 SAP bins, all
+   3 are filled when free, but the simulation always picks from the
+   nearest available. The other 2 bins effectively sit unused for
+   that order — closer to real picking behaviour than a single-bin
+   model, but the SAP "duplicate the inventory across bins" policy
+   means the operator might in practice pick from a different bin on
+   a different order. Not modelled.
+6. **Travel-distance metric is 2D Euclidean:** real aisle-constrained
+   Manhattan distance + one-way corridors are not modelled. C3 fixed
+   the sort key but the distance metric stays optimistic.
+7. **Battery / charging for reach trucks:** not modelled. Over an 8-h
+   shift each RT could realistically need 1–2 charge cycles.
 
 ---
 

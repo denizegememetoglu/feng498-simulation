@@ -179,13 +179,28 @@ class RealBaselinePolicy(SlottingPolicy):
 
 
 class TravelDistancePolicy(SlottingPolicy):
-    """Greedy optimal: highest consumption -> closest to kitting area."""
+    """Greedy optimal: highest pick frequency -> closest to kitting area.
+
+    When `picks_by_material` is provided (e.g. read from ZWM92 dispatch
+    counts), sort by real pick frequency. Otherwise fall back to the SAP
+    `consumption` column — the legacy proxy that underweights low-volume
+    but high-frequency materials. C3 fix: prior versions silently used
+    consumption even when ZWM92 picks were available.
+    """
+
+    def __init__(self, picks_by_material: dict[str, int] | None = None):
+        self.picks_by_material = picks_by_material or {}
 
     def assign(self, materials, warehouse):
         warehouse.clear_assignments()
-        # Materials already sorted by consumption desc from data_loader
-        sorted_mats = sorted(materials, key=lambda m: m["consumption"], reverse=True)
-        # Positions sorted by distance to kitting (closest first)
+        freq = self.picks_by_material
+
+        def _sort_key(m):
+            mid = m["material_id"]
+            # Real ZWM92 pick frequency beats consumption proxy when present.
+            return freq.get(mid, m["consumption"])
+
+        sorted_mats = sorted(materials, key=_sort_key, reverse=True)
         all_positions = warehouse.get_available_positions()
 
         for mat in sorted_mats:

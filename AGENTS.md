@@ -1,4 +1,4 @@
-# CLAUDE.md — project memory for Claude Code sessions
+# AGENTS.md — project memory for Codex sessions
 
 Read me first. This file is the across-session memory; without it the model
 loses every prior decision after a compaction. When something durable
@@ -100,7 +100,7 @@ Bu session'da yapılanlar:
   and KPI baseline rewrite. Deferred — current sim still uses layout
   orientation, Codex viewer uses CAD orientation. Both coexist.
 
-### Codex's diagnostic of "why Claude got stuck" (2026-05-27, FYI)
+### Codex's diagnostic of "why Codex got stuck" (2026-05-27, FYI)
 
 User shared Codex's analysis. 6 root causes:
 
@@ -322,7 +322,7 @@ prep +0.1–0.5 min, orders -20 (KPI shift expected with new geometry).
 4. **Commits** — many uncommitted modifications (post-audit fixes).
    User to approve commit chunks.
 5. **WhatsApp MCP log nuisance** — `wa-logs.txt` writes to CWD because
-   `WHATSAPP_MCP_DATA_DIR` is unset. Permanent fix in `~/.claude.json` is
+   `WHATSAPP_MCP_DATA_DIR` is unset. Permanent fix in `~/.Codex.json` is
    Deniz's call (sensitive global config).
 6. **Code-audit fixes from 2026-05-26** — C1/C2/C3, H1–H7, M1/M3/M4/M5/M6/M7,
    L1/L8/L9 are all DONE (this session). M2 / L7 were already fixed earlier.
@@ -367,5 +367,5 @@ python -c "import json; d=json.load(open('config/layout.json')); print(sum(s['pa
 - Don't run extra "let me verify" reads after Edit/Write — harness errors
   on failure.
 - Prefer Edit over Write for existing files.
-- Commits only when user asks. Co-author tag: `Claude Opus 4.7
+- Commits only when user asks. Co-author tag: `Codex Opus 4.7
   <noreply@anthropic.com>`.
