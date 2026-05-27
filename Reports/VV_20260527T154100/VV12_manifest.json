@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0",
+  "framework": "Sargent V&V (1979, 2013)",
+  "git_sha": "23d2986e7be10d1e0d042ebf3880ab0b510c44a7",
+  "git_dirty": true,
+  "python": "3.14.5",
+  "platform": "Linux-7.0.9-arch1-1-x86_64-with-glibc2.43",
+  "wall_clock_started_utc": "2026-05-27T12:41:00.176491Z",
+  "wall_clock_finished_utc": "2026-05-27T12:41:03.200650Z",
+  "step_durations_s": {
+    "VV1_data_integrity": 0.026,
+    "VV2_face_validity": 0.863,
+    "VV3_conceptual_validity": 0.508,
+    "VV4_data_validity": 0.247,
+    "VV5_operational_validity": 0.38,
+    "VV6_audit_mode": 0.0,
+    "VV7_cross_validation": 0.0,
+    "VV8_replication_variance": 0.0,
+    "VV9_sensitivity_full": 0.176,
+    "VV10_tests": 0.015,
+    "VV11_assumptions": 0.803
+  },
+  "step_status": {
+    "VV1_data_integrity": "ok",
+    "VV2_face_validity": "ok",
+    "VV3_conceptual_validity": "ok",
+    "VV4_data_validity": "ok",
+    "VV5_operational_validity": "ok",
+    "VV6_audit_mode": "ok",
+    "VV7_cross_validation": "ok",
+    "VV8_replication_variance": "ok",
+    "VV9_sensitivity_full": "ok",
+    "VV10_tests": "ok",
+    "VV11_assumptions": "ok"
+  },
+  "files": {
+    "VV10_pytest_log.txt": {
+      "sha256": "733f331d79bc1c876acd0e672949d5137c78d557313cab8ee4de1dcd377b1093",
+      "size_bytes": 88
+    },
+    "VV11_assumptions.pdf": {
+      "sha256": "7d352a95943b07a7db833a8e995bd175ba086ce444e9d414871bd1808359e54b",
+      "size_bytes": 30591
+    },
+    "VV1_data_integrity.json": {
+      "sha256": "b74d8fca496b1bd397ad17593f91944ca50aaca4d9d35e87f996fef9fa9a8859",
+      "size_bytes": 1306
+    },
+    "VV2_face_validity.pdf": {
+      "sha256": "00fa5ba033f8ec3ce5c1c0321050a7cc0f9b72fc288cc7be6dedb101f388346f",
+      "size_bytes": 32083
+    },
+    "VV3_conceptual_validity.pdf": {
+      "sha256": "741f0478255a11dbbeaf9ccb1309af1fee180b751ac5fe4ab30ca5631eb4ed8c",
+      "size_bytes": 87593
+    },
+    "VV4_data_validity.pdf": {
+      "sha256": "4c787f4c768d056833148f80e01e2c03341f839684a40915c6159302c48903a5",
+      "size_bytes": 34308
+    },
+    "VV5_operational_validity.pdf": {
+      "sha256": "93c049d9abb740dff35ff5b90d1b769a47ebb1b292a267fcd5bf625a23a7fdb4",
+      "size_bytes": 31717
+    },
+    "VV6_audit_mode.txt": {
+      "sha256": "a020e4526ca7803d05d39ef7de152218a052363da9ec4694c9a6596b0483ce0a",
+      "size_bytes": 490
+    },
+    "VV7_cross_validation.json": {
+      "sha256": "f8b92a182722614c5ae713dbc446c01e21c9f442d9fac343ea02546f9e3e3b63",
+      "size_bytes": 244
+    },
+    "VV8_replication_variance.json": {
+      "sha256": "37d6c204f2a624779beb3c599eede0c61f4e79693e30c66bec60ebfb1df98ab4",
+      "size_bytes": 1267
+    },
+    "VV9_sensitivity_full.pdf": {
+      "sha256": "bf66beecc3bfae1105f8faf1fcb8dbeebfe775591b7ce64bb61bb304a808e6d6",
+      "size_bytes": 29888
+    }
+  }
+}

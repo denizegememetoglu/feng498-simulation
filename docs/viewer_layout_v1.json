@@ -1,0 +1,871 @@
+{
+  "schema_version": "1.0",
+  "_source": "web/index.html VIEWER_RACK_MODEL + PDF_BAY_OVERRIDES applied to output/dwg_codex_geometry.json",
+  "_provenance": "scripts/export_viewer_layout.py — replicates web/index.html:166-253",
+  "_unit": "cm",
+  "_axes": "codex CAD: x increases east, y increases north",
+  "_rack_height_cm": 700,
+  "_rack_levels_m_default": [
+    0.61,
+    1.36,
+    2.06,
+    2.91,
+    3.76,
+    4.61,
+    5.46,
+    6.31,
+    7.0
+  ],
+  "_bounds": {
+    "min_x": 1736.13,
+    "max_x": 5734.85,
+    "min_y": 390.21,
+    "max_y": 4066.65
+  },
+  "_viewer_model": {
+    "VIEWER_RACK_MODEL": {
+      "0": {
+        "letter": "J",
+        "label": false,
+        "role": "j-fragment"
+      },
+      "1": {
+        "letter": null,
+        "label": false,
+        "role": "unmapped-trash-side-stub"
+      },
+      "2": {
+        "letter": "J",
+        "label": false,
+        "role": "j-south-arm"
+      },
+      "3": {
+        "letter": "I",
+        "label": true,
+        "role": "small"
+      },
+      "4": {
+        "letter": "H",
+        "label": true,
+        "role": "small"
+      },
+      "5": {
+        "letter": "G",
+        "label": true,
+        "role": "normal"
+      },
+      "6": {
+        "letter": "F",
+        "label": true,
+        "role": "normal"
+      },
+      "7": {
+        "letter": "E",
+        "label": true,
+        "role": "normal"
+      },
+      "8": {
+        "letter": "D",
+        "label": true,
+        "role": "normal"
+      },
+      "9": {
+        "letter": "C",
+        "label": true,
+        "role": "normal"
+      },
+      "10": {
+        "letter": "B",
+        "label": true,
+        "role": "normal"
+      },
+      "11": {
+        "letter": "A",
+        "label": true,
+        "role": "normal"
+      },
+      "12": {
+        "letter": "U",
+        "label": true,
+        "role": "perpendicular"
+      },
+      "13": {
+        "letter": "J",
+        "label": false,
+        "role": "j-fragment"
+      },
+      "14": {
+        "letter": null,
+        "label": false,
+        "role": "unmapped-post"
+      },
+      "15": {
+        "letter": "J",
+        "label": false,
+        "role": "j-east-vertical"
+      }
+    },
+    "PDF_BAY_OVERRIDES": {
+      "5": {
+        "bays": 12,
+        "anchor": "east"
+      },
+      "6": {
+        "bays": 12,
+        "anchor": "east"
+      },
+      "7": {
+        "bays": 12,
+        "anchor": "east"
+      },
+      "8": {
+        "bays": 12,
+        "anchor": "east"
+      },
+      "9": {
+        "bays": 12,
+        "anchor": "east"
+      },
+      "10": {
+        "bays": 11,
+        "anchor": "east"
+      },
+      "11": {
+        "bays": 11,
+        "anchor": "east"
+      },
+      "12": {
+        "bays": 14,
+        "anchor": "y"
+      }
+    },
+    "small_footprint_pdf_bays": 11,
+    "small_footprint_span_cm": 3080,
+    "default_bay_pitch_cm": 280.0
+  },
+  "racks": [
+    {
+      "codex_idx": 0,
+      "letter": "J",
+      "role": "j-fragment",
+      "label": false,
+      "skip": false,
+      "dir": "x",
+      "x0": 1847.13,
+      "x1": 2057.13,
+      "y0": 390.21,
+      "y1": 485.21,
+      "bays": 1,
+      "bay_pitch_cm": 210.0,
+      "posts": [
+        1847.13,
+        2057.13
+      ],
+      "level_heights_cm": [
+        61,
+        136,
+        206,
+        322,
+        438,
+        554,
+        670,
+        700
+      ]
+    },
+    {
+      "codex_idx": 1,
+      "letter": null,
+      "role": "unmapped-trash-side-stub",
+      "label": false,
+      "skip": true,
+      "dir": "x",
+      "x0": 5354.85,
+      "x1": 5634.85,
+      "y0": 586.65,
+      "y1": 681.65,
+      "bays": 1,
+      "bay_pitch_cm": 280.0,
+      "posts": [
+        5354.85,
+        5634.85
+      ],
+      "level_heights_cm": []
+    },
+    {
+      "codex_idx": 2,
+      "letter": "J",
+      "role": "j-south-arm",
+      "label": false,
+      "skip": false,
+      "dir": "x",
+      "x0": 2270.13,
+      "x1": 5279.85,
+      "y0": 886.65,
+      "y1": 981.65,
+      "bays": 11,
+      "bay_pitch_cm": 273.61,
+      "posts": [
+        2270.13,
+        2550.52,
+        2829.85,
+        3109.85,
+        3389.85,
+        3669.85,
+        3949.85,
+        4159.85,
+        4439.85,
+        4719.85,
+        4999.85,
+        5279.85
+      ],
+      "level_heights_cm": [
+        61,
+        136,
+        206,
+        322,
+        438,
+        554,
+        670,
+        700
+      ]
+    },
+    {
+      "codex_idx": 3,
+      "letter": "I",
+      "role": "small",
+      "label": true,
+      "skip": false,
+      "dir": "x",
+      "x0": 2269.8500000000004,
+      "x1": 5349.85,
+      "y0": 1291.65,
+      "y1": 1386.65,
+      "bays": 11,
+      "bay_pitch_cm": 280.0,
+      "posts": [
+        2269.85,
+        2549.85,
+        2829.85,
+        3109.85,
+        3389.85,
+        3669.85,
+        3949.85,
+        4229.85,
+        4509.85,
+        4789.85,
+        5069.85,
+        5349.85
+      ],
+      "level_heights_cm": [
+        61,
+        136,
+        206,
+        322,
+        438,
+        554,
+        670,
+        700
+      ]
+    },
+    {
+      "codex_idx": 4,
+      "letter": "H",
+      "role": "small",
+      "label": true,
+      "skip": false,
+      "dir": "x",
+      "x0": 2269.8500000000004,
+      "x1": 5349.85,
+      "y0": 1416.65,
+      "y1": 1511.65,
+      "bays": 11,
+      "bay_pitch_cm": 280.0,
+      "posts": [
+        2269.85,
+        2549.85,
+        2829.85,
+        3109.85,
+        3389.85,
+        3669.85,
+        3949.85,
+        4229.85,
+        4509.85,
+        4789.85,
+        5069.85,
+        5349.85
+      ],
+      "level_heights_cm": [
+        61,
+        136,
+        206,
+        322,
+        438,
+        554,
+        700
+      ]
+    },
+    {
+      "codex_idx": 5,
+      "letter": "G",
+      "role": "normal",
+      "label": true,
+      "skip": false,
+      "dir": "x",
+      "x0": 2269.8500000000004,
+      "x1": 5629.85,
+      "y0": 1821.65,
+      "y1": 1916.65,
+      "bays": 12,
+      "bay_pitch_cm": 280.0,
+      "posts": [
+        2269.85,
+        2549.85,
+        2829.85,
+        3109.85,
+        3389.85,
+        3669.85,
+        3949.85,
+        4229.85,
+        4509.85,
+        4789.85,
+        5069.85,
+        5349.85,
+        5629.85
+      ],
+      "level_heights_cm": [
+        61,
+        136,
+        206,
+        291,
+        376,
+        461,
+        546
+      ]
+    },
+    {
+      "codex_idx": 6,
+      "letter": "F",
+      "role": "normal",
+      "label": true,
+      "skip": false,
+      "dir": "x",
+      "x0": 2337.13,
+      "x1": 5697.13,
+      "y0": 2126.7,
+      "y1": 2221.7,
+      "bays": 12,
+      "bay_pitch_cm": 280.0,
+      "posts": [
+        2337.13,
+        2617.13,
+        2897.13,
+        3177.13,
+        3457.13,
+        3737.13,
+        4017.13,
+        4297.13,
+        4577.13,
+        4857.13,
+        5137.13,
+        5417.13,
+        5697.13
+      ],
+      "level_heights_cm": [
+        61,
+        136,
+        206,
+        291,
+        376,
+        461,
+        546,
+        631,
+        700
+      ]
+    },
+    {
+      "codex_idx": 7,
+      "letter": "E",
+      "role": "normal",
+      "label": true,
+      "skip": false,
+      "dir": "x",
+      "x0": 2267.13,
+      "x1": 5627.13,
+      "y0": 2551.65,
+      "y1": 2646.65,
+      "bays": 12,
+      "bay_pitch_cm": 280.0,
+      "posts": [
+        2267.13,
+        2547.13,
+        2827.13,
+        3107.13,
+        3387.13,
+        3667.13,
+        3947.13,
+        4227.13,
+        4507.13,
+        4787.13,
+        5067.13,
+        5347.13,
+        5627.13
+      ],
+      "level_heights_cm": [
+        61,
+        136,
+        206,
+        291,
+        376,
+        461,
+        546,
+        631,
+        700
+      ]
+    },
+    {
+      "codex_idx": 8,
+      "letter": "D",
+      "role": "normal",
+      "label": true,
+      "skip": false,
+      "dir": "x",
+      "x0": 2270.13,
+      "x1": 5630.13,
+      "y0": 2856.65,
+      "y1": 2951.65,
+      "bays": 12,
+      "bay_pitch_cm": 280.0,
+      "posts": [
+        2270.13,
+        2550.13,
+        2830.13,
+        3110.13,
+        3390.13,
+        3670.13,
+        3950.13,
+        4230.13,
+        4510.13,
+        4790.13,
+        5070.13,
+        5350.13,
+        5630.13
+      ],
+      "level_heights_cm": [
+        61,
+        136,
+        204,
+        291,
+        376,
+        461,
+        546,
+        631,
+        700
+      ]
+    },
+    {
+      "codex_idx": 9,
+      "letter": "C",
+      "role": "normal",
+      "label": true,
+      "skip": false,
+      "dir": "x",
+      "x0": 2269.8500000000004,
+      "x1": 5629.85,
+      "y0": 3261.63,
+      "y1": 3356.63,
+      "bays": 12,
+      "bay_pitch_cm": 280.0,
+      "posts": [
+        2269.85,
+        2549.85,
+        2829.85,
+        3109.85,
+        3389.85,
+        3669.85,
+        3949.85,
+        4229.85,
+        4509.85,
+        4789.85,
+        5069.85,
+        5349.85,
+        5629.85
+      ],
+      "level_heights_cm": [
+        61,
+        136,
+        206,
+        291,
+        376,
+        461,
+        546,
+        631,
+        700
+      ]
+    },
+    {
+      "codex_idx": 10,
+      "letter": "B",
+      "role": "normal",
+      "label": true,
+      "skip": false,
+      "dir": "x",
+      "x0": 2550.13,
+      "x1": 5630.13,
+      "y0": 3566.65,
+      "y1": 3661.65,
+      "bays": 11,
+      "bay_pitch_cm": 280.0,
+      "posts": [
+        2550.13,
+        2830.13,
+        3110.13,
+        3390.13,
+        3670.13,
+        3950.13,
+        4230.13,
+        4510.13,
+        4790.13,
+        5070.13,
+        5350.13,
+        5630.13
+      ],
+      "level_heights_cm": [
+        61,
+        136,
+        206,
+        291,
+        376,
+        461,
+        546,
+        631,
+        700
+      ]
+    },
+    {
+      "codex_idx": 11,
+      "letter": "A",
+      "role": "normal",
+      "label": true,
+      "skip": false,
+      "dir": "x",
+      "x0": 2539.4399999999996,
+      "x1": 5619.44,
+      "y0": 3971.65,
+      "y1": 4066.65,
+      "bays": 11,
+      "bay_pitch_cm": 280.0,
+      "posts": [
+        2539.44,
+        2819.44,
+        3099.44,
+        3379.44,
+        3659.44,
+        3939.44,
+        4219.44,
+        4499.44,
+        4779.44,
+        5059.44,
+        5339.44,
+        5619.44
+      ],
+      "level_heights_cm": [
+        61,
+        136,
+        206,
+        291,
+        376,
+        461,
+        546,
+        631,
+        700
+      ]
+    },
+    {
+      "codex_idx": 12,
+      "letter": "U",
+      "role": "perpendicular",
+      "label": true,
+      "skip": false,
+      "dir": "y",
+      "x0": 1736.13,
+      "x1": 1831.13,
+      "y0": 508.51,
+      "y1": 3866.51,
+      "bays": 14,
+      "bay_pitch_cm": 239.86,
+      "posts": [
+        508.51,
+        748.37,
+        988.22,
+        1228.08,
+        1467.94,
+        1707.8,
+        1947.65,
+        2187.51,
+        2427.37,
+        2667.22,
+        2907.08,
+        3146.94,
+        3386.8,
+        3626.65,
+        3866.51
+      ],
+      "level_heights_cm": [
+        118,
+        222,
+        346,
+        455,
+        564,
+        676,
+        700
+      ]
+    },
+    {
+      "codex_idx": 13,
+      "letter": "J",
+      "role": "j-fragment",
+      "label": false,
+      "skip": false,
+      "dir": "y",
+      "x0": 2175.13,
+      "x1": 2270.13,
+      "y0": 573.24,
+      "y1": 853.24,
+      "bays": 1,
+      "bay_pitch_cm": 280.0,
+      "posts": [
+        573.24,
+        853.24
+      ],
+      "level_heights_cm": [
+        61,
+        136,
+        206,
+        322,
+        438,
+        554,
+        670,
+        700
+      ]
+    },
+    {
+      "codex_idx": 14,
+      "letter": null,
+      "role": "unmapped-post",
+      "label": false,
+      "skip": true,
+      "dir": "y",
+      "x0": 5185.14,
+      "x1": 5280.14,
+      "y0": 682.71,
+      "y1": 876.72,
+      "bays": 1,
+      "bay_pitch_cm": 194.01,
+      "posts": [
+        682.71,
+        876.72
+      ],
+      "level_heights_cm": []
+    },
+    {
+      "codex_idx": 15,
+      "letter": "J",
+      "role": "j-east-vertical",
+      "label": false,
+      "skip": false,
+      "dir": "y",
+      "x0": 5639.85,
+      "x1": 5734.85,
+      "y0": 691.65,
+      "y1": 1811.65,
+      "bays": 4,
+      "bay_pitch_cm": 280.0,
+      "posts": [
+        691.65,
+        971.65,
+        1251.65,
+        1531.65,
+        1811.65
+      ],
+      "level_heights_cm": [
+        61,
+        136,
+        206,
+        322,
+        438,
+        554,
+        670,
+        700
+      ]
+    }
+  ],
+  "floor_labels": [
+    {
+      "text": "PUTAWAY",
+      "x": 3807.35,
+      "y": 1192.91,
+      "axis_x": 1,
+      "axis_y": 0
+    },
+    {
+      "text": "KITTING",
+      "x": 1695.86,
+      "y": 2372.3,
+      "axis_x": 0,
+      "axis_y": -1
+    },
+    {
+      "text": "KITTING",
+      "x": 3622.32,
+      "y": 813.47,
+      "axis_x": 1,
+      "axis_y": 0
+    },
+    {
+      "text": "(GMH)",
+      "x": 1690.42,
+      "y": 1814.3,
+      "axis_x": 0,
+      "axis_y": -1
+    },
+    {
+      "text": "(RI-P7 SD-POLE)",
+      "x": 3910.71,
+      "y": 824.98,
+      "axis_x": 1,
+      "axis_y": 0
+    },
+    {
+      "text": "ÇÖP KOVASI",
+      "x": 5682.55,
+      "y": 654.6,
+      "axis_x": 0,
+      "axis_y": -1
+    },
+    {
+      "text": "KITTING",
+      "x": 3592.11,
+      "y": 4187.04,
+      "axis_x": 1,
+      "axis_y": 0
+    },
+    {
+      "text": "PUTAWAY",
+      "x": 4128.29,
+      "y": 3168.09,
+      "axis_x": 1,
+      "axis_y": 0
+    },
+    {
+      "text": "KITTING",
+      "x": 3916.22,
+      "y": 3541.83,
+      "axis_x": 1,
+      "axis_y": 0
+    },
+    {
+      "text": "PUTAWAY",
+      "x": 4080.71,
+      "y": 2484.01,
+      "axis_x": 1,
+      "axis_y": 0
+    },
+    {
+      "text": "PUTAWAY",
+      "x": 3973.24,
+      "y": 1743.52,
+      "axis_x": 1,
+      "axis_y": 0
+    },
+    {
+      "text": "(MCset-Aksesuar)",
+      "x": 4022.5,
+      "y": 4185.9,
+      "axis_x": 1,
+      "axis_y": 0
+    },
+    {
+      "text": "(Blokset-Fason)",
+      "x": 4176.29,
+      "y": 3549.25,
+      "axis_x": 1,
+      "axis_y": 0
+    },
+    {
+      "text": "(SM6-Premset)",
+      "x": 4302.47,
+      "y": 2811.11,
+      "axis_x": 1,
+      "axis_y": 0
+    },
+    {
+      "text": "(F400)",
+      "x": 4178.19,
+      "y": 2058.14,
+      "axis_x": 1,
+      "axis_y": 0
+    },
+    {
+      "text": "PUTAWAY",
+      "x": 3585.04,
+      "y": 3884.47,
+      "axis_x": 1,
+      "axis_y": 0
+    },
+    {
+      "text": "KITTING",
+      "x": 4001.99,
+      "y": 2809.2,
+      "axis_x": 1,
+      "axis_y": 0
+    },
+    {
+      "text": "KITTING",
+      "x": 3885.52,
+      "y": 2048.88,
+      "axis_x": 1,
+      "axis_y": 0
+    },
+    {
+      "text": "PUTAWAY",
+      "x": 1867.59,
+      "y": 2061.37,
+      "axis_x": 0,
+      "axis_y": 1
+    }
+  ],
+  "special_objects": [
+    {
+      "kind": "trash_bin",
+      "x": 5682.55,
+      "y": 654.6,
+      "label": "ÇÖP KOVASI",
+      "size_cm": [
+        50,
+        50,
+        95
+      ]
+    },
+    {
+      "kind": "column",
+      "x": 2125.72,
+      "y": 2061.74,
+      "label": "structural column near (F400)",
+      "diameter_cm": 48,
+      "height_cm": 480
+    },
+    {
+      "kind": "flow_arrows",
+      "x_start": 3900,
+      "y": 650,
+      "x_step": -280,
+      "count": 7,
+      "dir": [
+        -1,
+        0,
+        0
+      ],
+      "label": "incoming kit flow indicator at south-edge"
+    }
+  ]
+}

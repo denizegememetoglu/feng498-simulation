@@ -1,0 +1,255 @@
+{
+  "source_file": "/home/dege/feng498-simulation/data/F400 Kit Cansu Nehir.xlsx",
+  "sheets_processed": [
+    "Zaman Analizi Formatı",
+    "Zaman Analizi Formatı (2)",
+    "F400 Kit",
+    "ist 1.1.2"
+  ],
+  "total_observations": 2319,
+  "total_observed_minutes": 296.6,
+  "nva_breakdown_pct": {
+    "cnva_pct": 8.45,
+    "fnva_pct": 0.0,
+    "other_nva_pct": 0.39,
+    "dt_nva_pct": 0.0
+  },
+  "category_stats": {
+    "rt_travel": {
+      "n": 240,
+      "mean_s": 12.483,
+      "median_s": 5.0,
+      "p95_s": 44.0,
+      "stdev_s": 14.225,
+      "mean_min": 0.2081,
+      "median_min": 0.0833
+    },
+    "rt_pick": {
+      "n": 69,
+      "mean_s": 6.594,
+      "median_s": 3.0,
+      "p95_s": 18.0,
+      "stdev_s": 9.307,
+      "mean_min": 0.1099,
+      "median_min": 0.05
+    },
+    "descend_rt": {
+      "n": 1,
+      "mean_s": 10.0,
+      "median_s": 10.0,
+      "p95_s": 10.0,
+      "stdev_s": 0.0,
+      "mean_min": 0.1667,
+      "median_min": 0.1667
+    },
+    "ascend_rt": {
+      "n": 0,
+      "mean_s": null,
+      "median_s": null,
+      "p95_s": null,
+      "stdev_s": null,
+      "mean_min": null,
+      "median_min": null
+    },
+    "rf_scan": {
+      "n": 658,
+      "mean_s": 6.374,
+      "median_s": 3.0,
+      "p95_s": 20.0,
+      "stdev_s": 14.158,
+      "mean_min": 0.1062,
+      "median_min": 0.05
+    },
+    "place_on_cart": {
+      "n": 177,
+      "mean_s": 5.424,
+      "median_s": 4.0,
+      "p95_s": 11.0,
+      "stdev_s": 4.771,
+      "mean_min": 0.0904,
+      "median_min": 0.0667
+    },
+    "cart_move": {
+      "n": 329,
+      "mean_s": 6.444,
+      "median_s": 3.0,
+      "p95_s": 21.0,
+      "stdev_s": 9.547,
+      "mean_min": 0.1074,
+      "median_min": 0.05
+    },
+    "manual_pick": {
+      "n": 242,
+      "mean_s": 7.186,
+      "median_s": 5.0,
+      "p95_s": 19.0,
+      "stdev_s": 7.387,
+      "mean_min": 0.1198,
+      "median_min": 0.0833
+    },
+    "walk_corridor": {
+      "n": 157,
+      "mean_s": 6.115,
+      "median_s": 2.0,
+      "p95_s": 21.0,
+      "stdev_s": 12.428,
+      "mean_min": 0.1019,
+      "median_min": 0.0333
+    },
+    "talking": {
+      "n": 173,
+      "mean_s": 11.277,
+      "median_s": 7.0,
+      "p95_s": 30.0,
+      "stdev_s": 11.241,
+      "mean_min": 0.188,
+      "median_min": 0.1167
+    },
+    "wait": {
+      "n": 38,
+      "mean_s": 13.763,
+      "median_s": 7.0,
+      "p95_s": 52.0,
+      "stdev_s": 22.132,
+      "mean_min": 0.2294,
+      "median_min": 0.1167
+    },
+    "check_quality": {
+      "n": 9,
+      "mean_s": 5.667,
+      "median_s": 4.0,
+      "p95_s": 8.0,
+      "stdev_s": 5.142,
+      "mean_min": 0.0944,
+      "median_min": 0.0667
+    }
+  },
+  "config_mapping": {
+    "OPERATOR_PICK_TIME": 0.113,
+    "MANUAL_PICK_TIME_PENALTY": 0.1019,
+    "REACH_TRUCK_PICK_PLACE_TIME": 0.1099
+  },
+  "unclassified_sample": [
+    [
+      "Yer arabası tutacağının yerine götürülmesi",
+      9.0
+    ],
+    [
+      "Çöp atılması",
+      3.0
+    ],
+    [
+      "Malzeme strecinin açılması",
+      3.0
+    ],
+    [
+      "Malzeme strecinin açılması",
+      3.0
+    ],
+    [
+      "Malzeme strecinin açılması",
+      7.0
+    ],
+    [
+      "Malzeme strecinin açılması",
+      5.0
+    ],
+    [
+      "Çöpün rafa bırakılması",
+      1.0
+    ],
+    [
+      "Yanlış alınan malzemenin besleme rafına geri bırakılması",
+      6.0
+    ],
+    [
+      "Çöpün rafa bırakılması",
+      2.0
+    ],
+    [
+      "Raf arabasının itilmesi",
+      5.0
+    ],
+    [
+      "Raf arabasının itilmesi (düzeltilmesi)",
+      3.0
+    ],
+    [
+      "Malzemenin raf arabasın bırakılması",
+      1.0
+    ],
+    [
+      "Çöpün raftan alınması",
+      1.0
+    ],
+    [
+      "Çöpün rafa bırakılması",
+      3.0
+    ],
+    [
+      "Raftaki malzemenin düzeltilmesi",
+      1.0
+    ],
+    [
+      "Çöpün rafa koyulması",
+      1.0
+    ],
+    [
+      "Raftaki malzemenin düzeltilmesi",
+      1.0
+    ],
+    [
+      "Raftan çöpün alınması",
+      2.0
+    ],
+    [
+      "Çöpün atılması",
+      1.0
+    ],
+    [
+      "Reach truck 2 No'luya gidiyor",
+      94.0
+    ],
+    [
+      "Reach truck 2 No'lunun dış alanına paleti koyuyor",
+      3.0
+    ],
+    [
+      "Reach truck paleti indiriyor",
+      3.0
+    ],
+    [
+      "Reach truck trafoları kaldırıyor",
+      7.0
+    ],
+    [
+      "Reach truck trafoları indiriyor",
+      4.0
+    ],
+    [
+      "Reach truck paleti indiriyor",
+      3.0
+    ],
+    [
+      "Reach truck trafoları kaldırıyor",
+      4.0
+    ],
+    [
+      "Reach truck trafoları indiriyor",
+      1.0
+    ],
+    [
+      "Reach truck trafoları kaldırıyor",
+      3.0
+    ],
+    [
+      "Trafo kasalarının üstüne yazı yazılması",
+      6.0
+    ],
+    [
+      "Malzemenin rafa bırakılması",
+      7.0
+    ]
+  ],
+  "unclassified_count": 226
+}

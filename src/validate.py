@@ -23,14 +23,16 @@ Output:
    output/validation_report.txt
 """
 
+import argparse
 import json
 import os
+import shutil
 from collections import Counter
 
 from scipy import stats
 
 from src import config
-from src.data_loader import preprocess
+from src.data_loader import decode_storage_bin, preprocess
 from src.warehouse import Warehouse
 from src.simulation import WarehouseSimulation
 from src.slotting import RealBaselinePolicy
@@ -124,6 +126,88 @@ def _sim_picks_per_day(kpi, sim_days):
     return {mid: cnt / sim_days for mid, cnt in kpi.picks_by_material.items()}
 
 
+def _static_sanity_checks(data, warehouse) -> dict:
+    issues = []
+    warnings = []
+    capacity = warehouse.pallet_capacity_from_pdf
+    modelled = len(warehouse.positions)
+    if capacity != 3203:
+        issues.append(f"PDF pallet canary changed: {capacity} != 3203")
+    if modelled != data["stats"].get("warehouse_positions"):
+        issues.append("Warehouse position count changed between preprocess and validation")
+    if decode_storage_bin("BRA-02-02") != ("A", 2, 2):
+        issues.append("Storage-bin decoder failed canary BRA-02-02 -> (A,2,2)")
+    if data["stats"].get("bins_unmapped_position", 0) > 0:
+        warnings.append(
+            f"{data['stats']['bins_unmapped_position']} decoded SAP bins do not map to a layout slot"
+        )
+    if data["stats"].get("bins_malformed", 0) > 0:
+        warnings.append(f"{data['stats']['bins_malformed']} storage-bin strings are malformed/non-rack")
+    return {
+        "status": "FAIL" if issues else ("WARN" if warnings else "PASS"),
+        "issues": issues,
+        "warnings": warnings,
+        "pdf_capacity": capacity,
+        "modelled_positions": modelled,
+    }
+
+
+def _assignment_sanity(materials, warehouse, kardex_materials) -> dict:
+    issues = []
+    warnings = []
+    assigned_positions = []
+    for mid, locs in warehouse.material_locations.items():
+        if mid in kardex_materials:
+            issues.append(f"Kardex material assigned to rack slot: {mid}")
+        for pid in locs:
+            if pid not in warehouse.positions:
+                issues.append(f"{mid} assigned to nonexistent position {pid}")
+            assigned_positions.append(pid)
+    if len(assigned_positions) != len(set(assigned_positions)):
+        issues.append("Capacity overflow: at least one pallet position has multiple materials")
+    rack_materials = {m["material_id"] for m in materials if m["material_id"] not in kardex_materials}
+    unplaced = rack_materials - set(warehouse.material_locations)
+    if unplaced:
+        warnings.append(f"{len(unplaced)} rack materials are unplaced; capacity/input mismatch is explicit")
+    return {
+        "status": "FAIL" if issues else ("WARN" if warnings else "PASS"),
+        "issues": issues,
+        "warnings": warnings,
+        "assigned_rack_materials": len(warehouse.material_locations),
+        "unplaced_rack_materials": len(unplaced),
+    }
+
+
+def _reproducibility_check(materials, material_to_line, kardex_materials) -> dict:
+    def _signature():
+        wh = Warehouse()
+        sim = WarehouseSimulation(
+            wh,
+            materials,
+            material_to_line=material_to_line,
+            kardex_materials=kardex_materials,
+            seed=config.RANDOM_SEED,
+        )
+        seq = []
+        for _ in range(10):
+            order = sim.order_gen.next_order()
+            seq.append({
+                "items": order["items"],
+                "line": order.get("line"),
+                "iat": round(order["inter_arrival_time"], 6),
+            })
+        return seq
+
+    a = _signature()
+    b = _signature()
+    ok = a == b
+    return {
+        "status": "PASS" if ok else "FAIL",
+        "issues": [] if ok else ["Fixed seed does not reproduce the first 10 generated orders"],
+        "sample_size": 10,
+    }
+
+
 def _chi_square_per_rack(sim_counts: dict, expected_weights: dict):
     """Chi-square goodness of fit. Aligns observed and expected on the
     intersection of racks. Returns (statistic, p, dof, observed, expected).
@@ -186,24 +270,69 @@ def _t_test_per_material(sim_rates: dict, expected_rates: dict):
     }
 
 
-def run_validation():
+def run_validation(
+    full_routes: bool = False,
+    route_sample_per_segment: int = 3,
+    sim_days: float = 0.5,
+):
     print("Validation: preprocessing data...")
     data = preprocess()
     materials = data["materials"]
     print(f"  Materials: {len(materials)} active")
+
+    print("  Route/layout sanity...")
+    route_wh = Warehouse()
+    static_sanity = _static_sanity_checks(data, route_wh)
+    route_report = route_wh.validate_route_model(
+        full=full_routes,
+        sample_per_segment=route_sample_per_segment,
+    )
+    os.makedirs("output", exist_ok=True)
+    route_wh.write_route_debug("output/route_debug.json", route_report)
+    for mirror in ("web/route_debug.json", "docs/route_debug.json"):
+        os.makedirs(os.path.dirname(mirror), exist_ok=True)
+        shutil.copyfile("output/route_debug.json", mirror)
+    if route_report["issues"]:
+        print(f"  Route model: FAIL ({len(route_report['issues'])} issue(s))")
+        raise SystemExit("Route model failed; see output/route_debug.json")
+    if route_report["warnings"]:
+        print(f"  Route model: WARN ({len(route_report['warnings'])} assumptions/TODOs; "
+              f"{route_report['validation_scope']} scope, "
+              f"{route_report['validated_routes']} routes checked)")
+    if static_sanity["issues"]:
+        raise SystemExit(f"Static sanity failed: {static_sanity['issues']}")
 
     expected_by_rack = _expected_picks_by_rack(data)
     expected_per_mat = _expected_picks_per_material(data)
     print(f"  Expected: {len(expected_by_rack)} racks weighted, "
           f"{len(expected_per_mat)} materials with consumption")
 
-    print("\nRunning Actual SAP baseline policy for validation...")
+    original_sim_days = config.SIM_DAYS
+    if sim_days <= 0:
+        raise SystemExit("--sim-days must be positive")
+    config.SIM_DAYS = float(sim_days)
+
+    print(f"\nRunning Actual SAP baseline policy for validation "
+          f"({config.SIM_DAYS:g} simulated day(s); use --full-sim for "
+          f"{original_sim_days:g} day(s))...")
     warehouse = Warehouse()
     policy = RealBaselinePolicy(
         decoded_bins=data["decoded_bins"],
         kardex_materials=data["kardex_materials"],
     )
     policy.assign(materials, warehouse)
+    assignment_sanity = _assignment_sanity(materials, warehouse, data["kardex_materials"])
+    if assignment_sanity["issues"]:
+        raise SystemExit(f"Assignment sanity failed: {assignment_sanity['issues']}")
+    if assignment_sanity["warnings"]:
+        print(f"  Assignment sanity: WARN ({len(assignment_sanity['warnings'])})")
+    reproducibility = _reproducibility_check(
+        materials,
+        data["material_to_line"],
+        data["kardex_materials"],
+    )
+    if reproducibility["issues"]:
+        raise SystemExit(f"Reproducibility failed: {reproducibility['issues']}")
 
     sim = WarehouseSimulation(
         warehouse, materials,
@@ -216,8 +345,8 @@ def run_validation():
     print(f"  Sim picks: {sum(kpi.picks_by_rack.values())} total across "
           f"{len(kpi.picks_by_rack)} racks")
 
-    sim_days = config.SIM_DAYS
-    sim_rates = _sim_picks_per_day(kpi, sim_days)
+    actual_sim_days = config.SIM_DAYS
+    sim_rates = _sim_picks_per_day(kpi, actual_sim_days)
 
     # Two chi-square tests:
     # (a) sim distribution over ALL picks vs. SAP-expected over only the
@@ -238,6 +367,21 @@ def run_validation():
                        else "consumption proxy (özet bins × zppq11)")
     report = {
         "expected_source": expected_source,
+        "static_sanity": static_sanity,
+        "assignment_sanity": assignment_sanity,
+        "reproducibility": reproducibility,
+        "route_model": {
+            "status": route_report["status"],
+            "issues_count": len(route_report["issues"]),
+            "warnings_count": len(route_report["warnings"]),
+            "validation_scope": route_report["validation_scope"],
+            "validated_routes": route_report["validated_routes"],
+            "overlapping_rack_geometry_count": len(route_report["overlapping_rack_geometry"]),
+            "debug_json": "output/route_debug.json",
+            "notes": route_report["notes"],
+        },
+        "sim_days": actual_sim_days,
+        "full_sim_days": original_sim_days,
         "chi_square_per_rack_restricted": chi_restricted,
         "chi_square_per_rack_all_sim_picks": chi_all,
         "t_test_per_material": ttest,
@@ -255,8 +399,12 @@ def run_validation():
             "ZWM92 (167,784 rows, 2026-01-02 to 2026-05-18, 9 product "
             "families) closes the prior validation gap — we now compare "
             "against real per-rack dispatch counts, not a consumption proxy.",
+            "Default src.validate uses a short validation sim sample so the "
+            "command stays interactive; run python -m src.validate --full-sim "
+            "for the configured full-horizon statistical validation.",
         ],
     }
+    config.SIM_DAYS = original_sim_days
 
     os.makedirs("output", exist_ok=True)
     with open("output/validation_report.json", "w") as f:
@@ -304,5 +452,40 @@ def run_validation():
         print(f"  T-test p     = {ttest['p_value']:.4f}")
 
 
+def _parse_args(argv=None):
+    parser = argparse.ArgumentParser(
+        description="Run data, assignment, reproducibility, route, and SAP/ZWM92 validation."
+    )
+    parser.add_argument(
+        "--full-routes",
+        action="store_true",
+        help="Check every modeled level-0 bay access route. Default checks a representative sample.",
+    )
+    parser.add_argument(
+        "--route-sample-per-segment",
+        type=int,
+        default=3,
+        help="Representative bays per rack segment for default route validation.",
+    )
+    parser.add_argument(
+        "--sim-days",
+        type=float,
+        default=0.5,
+        help="Simulation days for the default validation run. Use a short value for fast checks.",
+    )
+    parser.add_argument(
+        "--full-sim",
+        action="store_true",
+        help="Run the full configured validation horizon instead of the quick default.",
+    )
+    return parser.parse_args(argv)
+
+
 if __name__ == "__main__":
-    run_validation()
+    args = _parse_args()
+    sim_days = config.SIM_DAYS if args.full_sim else args.sim_days
+    run_validation(
+        full_routes=args.full_routes,
+        route_sample_per_segment=args.route_sample_per_segment,
+        sim_days=sim_days,
+    )

@@ -1,0 +1,162 @@
+{
+  "expected_source": "ZWM92 actuals (real per-bin dispatch counts)",
+  "static_sanity": {
+    "status": "WARN",
+    "issues": [],
+    "warnings": [
+      "9 decoded SAP bins do not map to a layout slot",
+      "412 storage-bin strings are malformed/non-rack"
+    ],
+    "pdf_capacity": 3203,
+    "modelled_positions": 3137
+  },
+  "assignment_sanity": {
+    "status": "PASS",
+    "issues": [],
+    "warnings": [],
+    "assigned_rack_materials": 3069,
+    "unplaced_rack_materials": 0
+  },
+  "reproducibility": {
+    "status": "PASS",
+    "issues": [],
+    "sample_size": 10
+  },
+  "route_model": {
+    "status": "WARN",
+    "issues_count": 0,
+    "warnings_count": 16,
+    "validation_scope": "sample",
+    "validated_routes": 78,
+    "overlapping_rack_geometry_count": 10,
+    "debug_json": "output/route_debug.json",
+    "notes": [
+      "Simulation routes use rack bodies + explicit blocked_zones as blockers.",
+      "decorations are exported as visual_only_zones and do not affect KPIs unless promoted to blocked_zones in layout.json."
+    ]
+  },
+  "sim_days": 0.5,
+  "full_sim_days": 5,
+  "chi_square_per_rack_restricted": {
+    "racks": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J",
+      "U"
+    ],
+    "observed": [
+      6.0,
+      0.0,
+      2.0,
+      2.0,
+      15.0,
+      2.0,
+      2.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "expected": [
+      1.92,
+      1.24,
+      1.88,
+      4.51,
+      9.93,
+      2.6,
+      4.86,
+      2.21,
+      0.24,
+      0.36,
+      0.24
+    ],
+    "chi_square": 17.216970830119696,
+    "p_value": 0.06969873218461152,
+    "dof": 10,
+    "cochran_low_cells": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J",
+      "U"
+    ],
+    "cochran_warning": "Cochran's rule violated: 10 of 11 cells have expected count < 5 \u2014 [('A', 1.92), ('B', 1.24), ('C', 1.88), ('D', 4.51), ('F', 2.6), ('G', 4.86), ('H', 2.21), ('I', 0.24), ('J', 0.36), ('U', 0.24)]. Chi-square p-value is approximate; consider Fisher's exact or pooling low cells."
+  },
+  "chi_square_per_rack_all_sim_picks": {
+    "racks": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J",
+      "U"
+    ],
+    "observed": [
+      10,
+      8,
+      12,
+      5,
+      20,
+      4,
+      6,
+      11,
+      4,
+      6,
+      3
+    ],
+    "expected": [
+      5.7,
+      3.67,
+      5.58,
+      13.37,
+      29.46,
+      7.7,
+      14.43,
+      6.57,
+      0.72,
+      1.08,
+      0.72
+    ],
+    "chi_square": 78.17059066756464,
+    "p_value": 1.1451830929194276e-12,
+    "dof": 10,
+    "cochran_low_cells": [
+      "B",
+      "I",
+      "J",
+      "U"
+    ],
+    "cochran_warning": "Cochran's rule violated: 4 of 11 cells have expected count < 5 \u2014 [('B', 3.67), ('I', 0.72), ('J', 1.08), ('U', 0.72)]. Chi-square p-value is approximate; consider Fisher's exact or pooling low cells."
+  },
+  "t_test_per_material": {
+    "n_materials_paired": 132,
+    "t_statistic": 1.7758479312306679,
+    "p_value": 0.07807970855331771,
+    "mean_log_diff": 0.19588807367346212
+  },
+  "notes": [
+    "Expected rack distribution source: ZWM92 actuals (real per-bin dispatch counts).",
+    "Chi-square (restricted): simulation pick distribution is restricted to materials that have a decoded SAP bin (apples-to-apples vs. expected). H0 = same shape.",
+    "Chi-square (all sim picks): biased because the simulation places ~5600 materials without a SAP bin via fallback, shifting the rack distribution away from SAP \u2014 kept for completeness but the restricted test is the headline number.",
+    "T-test runs on log(daily picks + 1e-3) over materials common to both sim and expected; H0 = same mean.",
+    "ZWM92 (167,784 rows, 2026-01-02 to 2026-05-18, 9 product families) closes the prior validation gap \u2014 we now compare against real per-rack dispatch counts, not a consumption proxy.",
+    "Default src.validate uses a short validation sim sample so the command stays interactive; run python -m src.validate --full-sim for the configured full-horizon statistical validation."
+  ]
+}

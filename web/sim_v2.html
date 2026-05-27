@@ -1,0 +1,2772 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SE Manisa Ambar — Sim v2 (FENG 498)</title>
+<style>
+:root {
+  --glass-bg: rgba(20, 22, 30, 0.55);
+  --glass-bg-solid: rgba(20, 22, 30, 0.78);
+  --glass-stroke: rgba(255, 255, 255, 0.10);
+  --glass-stroke-soft: rgba(255, 255, 255, 0.06);
+  --text-primary: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --accent: #38bdf8;
+  --accent-strong: #0ea5e9;
+  --good: #4ade80;
+  --warn: #fbbf24;
+  --bad: #f87171;
+  --schneider: #3dcd58;
+  --transition: cubic-bezier(0.4, 0, 0.2, 1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  overflow: hidden; background: #1a1d24;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+  touch-action: none; -webkit-font-smoothing: antialiased; color: var(--text-primary);
+}
+canvas { display: block; }
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-stroke);
+  border-radius: 14px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+}
+.lbl { color: var(--text-muted); font-size: 11px; letter-spacing: 0.2px; }
+.val { color: var(--text-primary); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+#policy-card {
+  position: absolute; top: 16px; left: 16px;
+  padding: 12px 16px; min-width: 220px; z-index: 12;
+}
+#policy-card .title {
+  font-size: 10px; letter-spacing: 1.2px; color: var(--text-dim);
+  text-transform: uppercase; margin-bottom: 4px;
+}
+#policy-card .policy-name {
+  font-size: 16px; font-weight: 700; color: var(--text-primary);
+  line-height: 1.1; letter-spacing: -0.2px;
+}
+#policy-card .sub {
+  font-size: 11px; color: var(--text-muted); margin-top: 4px;
+}
+
+#kpi-hud {
+  position: absolute; top: 16px; right: 16px;
+  padding: 14px 18px; min-width: 260px; z-index: 12;
+}
+#kpi-hud h3 {
+  font-size: 10px; letter-spacing: 1.2px; color: var(--text-dim);
+  text-transform: uppercase; margin-bottom: 10px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+#kpi-hud h3 .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--good); box-shadow: 0 0 8px var(--good);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.kpi-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 4px 0; border-bottom: 1px solid var(--glass-stroke-soft);
+  font-size: 12px;
+}
+.kpi-row:last-child { border-bottom: none; }
+.kpi-row .val { font-size: 13px; }
+.kpi-row .unit { font-size: 10px; color: var(--text-dim); margin-left: 3px; }
+.kpi-row.shift { padding-top: 8px; margin-top: 6px; border-top: 1px solid var(--glass-stroke); }
+.shift-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.3px;
+  background: rgba(74, 222, 128, 0.15); color: var(--good);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+.shift-badge.break { background: rgba(251, 191, 36, 0.15); color: var(--warn); border-color: rgba(251, 191, 36, 0.3); }
+.shift-badge.off { background: rgba(248, 113, 113, 0.12); color: var(--bad); border-color: rgba(248, 113, 113, 0.3); }
+
+#cam-presets {
+  position: absolute; bottom: 78px; left: 50%; transform: translateX(-50%);
+  padding: 6px; z-index: 12; display: flex; gap: 4px; align-items: center;
+}
+
+#transport {
+  position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+  padding: 10px 16px; z-index: 13;
+  display: flex; gap: 14px; align-items: center;
+  min-width: 740px; max-width: 96vw;
+}
+#transport select {
+  background: rgba(255,255,255,0.06); color: var(--text-primary);
+  border: 1px solid var(--glass-stroke); border-radius: 9px;
+  padding: 7px 10px; font: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer; min-width: 200px;
+  transition: all 0.2s var(--transition);
+}
+#transport select:hover { background: rgba(255,255,255,0.10); }
+#transport select:focus { outline: none; border-color: var(--accent); }
+#transport .ctl-group {
+  display: flex; gap: 4px; align-items: center;
+  padding: 2px; background: rgba(255,255,255,0.04);
+  border-radius: 10px; border: 1px solid var(--glass-stroke-soft);
+}
+#transport .btn-icon {
+  background: transparent; color: var(--text-muted); border: none;
+  width: 30px; height: 30px; border-radius: 8px; cursor: pointer;
+  font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s var(--transition);
+}
+#transport .btn-icon:hover { background: rgba(255,255,255,0.10); color: var(--text-primary); }
+#transport .btn-icon.active {
+  background: rgba(56, 189, 248, 0.22); color: var(--accent);
+}
+#transport .scrubber-wrap {
+  flex: 1; min-width: 220px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+#transport .scrubber-wrap .meta {
+  display: flex; justify-content: space-between; font-size: 9px;
+  font-family: ui-monospace, 'SF Mono', monospace;
+  color: var(--text-dim); letter-spacing: 0.4px;
+}
+#scrubber {
+  appearance: none; -webkit-appearance: none;
+  width: 100%; height: 6px; border-radius: 999px;
+  background: linear-gradient(to right,
+    var(--accent) 0%, var(--accent) var(--p, 0%),
+    rgba(255,255,255,0.10) var(--p, 0%), rgba(255,255,255,0.10) 100%);
+  outline: none; cursor: pointer;
+}
+#scrubber::-webkit-slider-thumb {
+  appearance: none; -webkit-appearance: none;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 0 3px rgba(56,189,248,0.25);
+  cursor: grab; border: 2px solid #ffffff;
+}
+#scrubber::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent); border: 2px solid #ffffff; cursor: grab;
+}
+.speed-btns {
+  display: flex; gap: 2px; padding: 2px;
+  background: rgba(255,255,255,0.04); border-radius: 10px;
+  border: 1px solid var(--glass-stroke-soft);
+}
+.speed-btns button {
+  background: transparent; color: var(--text-muted); border: none;
+  padding: 6px 10px; border-radius: 8px; cursor: pointer;
+  font: inherit; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums;
+  transition: all 0.18s var(--transition); min-width: 36px;
+}
+.speed-btns button:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+.speed-btns button.active {
+  background: rgba(56, 189, 248, 0.22); color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(56,189,248,0.3) inset;
+}
+#transport .meta-time {
+  font-family: ui-monospace, 'SF Mono', monospace; font-size: 11px;
+  color: var(--text-muted); font-weight: 600; min-width: 100px; text-align: center;
+}
+#cam-presets button {
+  background: transparent; color: var(--text-muted); border: none;
+  padding: 8px 14px; border-radius: 10px; cursor: pointer;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+  transition: all 0.2s var(--transition);
+  display: flex; align-items: center; gap: 6px;
+}
+#cam-presets button:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+#cam-presets button.active {
+  background: rgba(56, 189, 248, 0.18); color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.3) inset;
+}
+#cam-presets .kbd {
+  font-family: ui-monospace, 'SF Mono', monospace; font-size: 9px;
+  background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px;
+  color: var(--text-dim);
+}
+#cam-presets .divider { width: 1px; height: 16px; background: var(--glass-stroke); margin: 0 4px; }
+
+#legend {
+  position: absolute; bottom: 16px; right: 16px;
+  padding: 10px 14px; z-index: 11; max-width: 200px;
+  font-size: 11px; line-height: 1.7;
+}
+#legend .sw {
+  display: inline-block; width: 11px; height: 11px; border-radius: 3px;
+  margin-right: 7px; vertical-align: middle; box-shadow: 0 0 0 1px var(--glass-stroke);
+}
+#legend .title {
+  font-size: 9px; letter-spacing: 1.2px; color: var(--text-dim);
+  text-transform: uppercase; margin-bottom: 6px;
+}
+
+#follow-bar {
+  position: absolute; top: 50%; left: 16px; transform: translateY(-50%);
+  padding: 8px 10px; z-index: 11;
+  display: flex; flex-direction: column; gap: 6px;
+}
+#follow-bar .group-title {
+  font-size: 9px; letter-spacing: 1.2px; color: var(--text-dim);
+  text-transform: uppercase; padding: 0 2px;
+}
+#follow-bar button {
+  background: transparent; color: var(--text-muted); border: none;
+  padding: 5px 10px; border-radius: 8px; cursor: pointer;
+  font-size: 11px; font-weight: 600; text-align: left;
+  transition: all 0.2s var(--transition);
+  display: flex; align-items: center; gap: 8px; min-width: 90px;
+}
+#follow-bar button .sw {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+#follow-bar button:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+#follow-bar button.active {
+  background: rgba(56, 189, 248, 0.18); color: var(--accent);
+}
+
+#fps {
+  position: absolute; bottom: 70px; left: 16px;
+  padding: 8px 12px; z-index: 11;
+  font-family: ui-monospace, 'SF Mono', monospace; font-size: 11px;
+  display: none;
+}
+#fps.on { display: block; }
+#fps .label { color: var(--text-dim); }
+#fps .val { color: var(--accent); }
+
+#toast {
+  position: absolute; top: 90px; left: 50%; transform: translateX(-50%) translateY(-20px);
+  padding: 10px 18px; z-index: 14; opacity: 0;
+  font-size: 12px; font-weight: 600; pointer-events: none;
+  transition: all 0.4s var(--transition);
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── Analytics sidebar (M5) ───────────────────────────────────────────────── */
+#analytics-btn {
+  position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+  padding: 8px 14px; z-index: 12; cursor: pointer;
+  background: rgba(20,22,30,0.6); color: var(--text-primary);
+  border: 1px solid var(--glass-stroke); border-radius: 999px;
+  font: inherit; font-size: 11px; font-weight: 700; letter-spacing: 0.4px;
+  display: flex; gap: 8px; align-items: center;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  transition: all 0.2s var(--transition);
+}
+#analytics-btn:hover { background: rgba(20,22,30,0.78); border-color: var(--accent); }
+#analytics-btn .ab-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 6px var(--accent); }
+#analytics-btn .ab-kbd {
+  font-family: ui-monospace, 'SF Mono', monospace; font-size: 9px;
+  background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px;
+  color: var(--text-dim); margin-left: 4px;
+}
+#sidebar {
+  position: absolute; top: 0; right: 0; height: 100vh; width: 420px;
+  z-index: 30; background: rgba(15, 17, 23, 0.92);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-left: 1px solid var(--glass-stroke);
+  transform: translateX(100%); transition: transform 0.32s var(--transition);
+  display: flex; flex-direction: column;
+  box-shadow: -8px 0 32px rgba(0,0,0,0.35);
+}
+#sidebar.open { transform: translateX(0); }
+#sidebar header {
+  padding: 14px 18px 10px;
+  border-bottom: 1px solid var(--glass-stroke-soft);
+  display: flex; justify-content: space-between; align-items: center;
+}
+#sidebar header h2 {
+  font-size: 13px; font-weight: 700; letter-spacing: 0.4px;
+  color: var(--text-primary);
+}
+#sidebar header .closebtn {
+  background: transparent; border: none; color: var(--text-muted);
+  cursor: pointer; font-size: 18px; padding: 0 4px;
+}
+#sidebar header .closebtn:hover { color: var(--text-primary); }
+#sidebar .tabs {
+  display: flex; gap: 2px; padding: 8px 10px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--glass-stroke-soft);
+}
+#sidebar .tabs button {
+  background: transparent; color: var(--text-muted); border: none;
+  padding: 6px 10px; border-radius: 8px; cursor: pointer;
+  font: inherit; font-size: 10px; font-weight: 700; letter-spacing: 0.3px;
+  transition: all 0.18s var(--transition);
+}
+#sidebar .tabs button:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+#sidebar .tabs button.active {
+  background: rgba(56, 189, 248, 0.20); color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(56,189,248,0.30) inset;
+}
+#sidebar .panel-host {
+  flex: 1; overflow-y: auto; padding: 14px 16px 18px;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.20) transparent;
+}
+#sidebar .panel-host::-webkit-scrollbar { width: 6px; }
+#sidebar .panel-host::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 3px; }
+.panel { display: none; }
+.panel.active { display: block; }
+.panel h3 {
+  font-size: 10px; letter-spacing: 1.2px; color: var(--text-dim);
+  text-transform: uppercase; margin: 8px 0 8px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.panel .panel-action {
+  background: rgba(255,255,255,0.06); color: var(--text-muted);
+  border: 1px solid var(--glass-stroke-soft); border-radius: 6px;
+  padding: 3px 8px; font: inherit; font-size: 9px; font-weight: 700; letter-spacing: 0.4px;
+  cursor: pointer; transition: all 0.18s var(--transition);
+}
+.panel .panel-action:hover { background: rgba(56,189,248,0.18); color: var(--accent); }
+.panel p { font-size: 11px; line-height: 1.55; color: var(--text-muted); margin: 4px 0 10px; }
+.panel .kpi-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;
+}
+.panel .kpi-card {
+  background: rgba(255,255,255,0.04); border-radius: 10px;
+  padding: 10px 12px; border: 1px solid var(--glass-stroke-soft);
+}
+.panel .kpi-card .ttl { font-size: 9px; letter-spacing: 0.6px; color: var(--text-dim); text-transform: uppercase; }
+.panel .kpi-card .num { font-size: 18px; font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.panel .kpi-card .unit { font-size: 10px; color: var(--text-muted); margin-left: 3px; }
+.panel .row {
+  display: flex; justify-content: space-between; padding: 5px 0;
+  font-size: 11px; border-bottom: 1px solid var(--glass-stroke-soft);
+}
+.panel .row:last-child { border-bottom: none; }
+.panel .row .k { color: var(--text-muted); }
+.panel .row .v { color: var(--text-primary); font-weight: 600; font-variant-numeric: tabular-nums; }
+.panel .row .v.good { color: var(--good); }
+.panel .row .v.bad { color: var(--bad); }
+.panel .row .v.warn { color: var(--warn); }
+.panel canvas { width: 100% !important; height: auto !important; }
+.panel .badge {
+  display: inline-block; padding: 2px 7px; border-radius: 999px;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
+}
+.badge.ok { background: rgba(74,222,128,0.16); color: var(--good); }
+.badge.bad { background: rgba(248,113,113,0.16); color: var(--bad); }
+.panel table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.panel table th, .panel table td {
+  padding: 4px 6px; text-align: left; border-bottom: 1px solid var(--glass-stroke-soft);
+  font-variant-numeric: tabular-nums;
+}
+.panel table th { color: var(--text-dim); font-size: 9px; letter-spacing: 0.4px; text-transform: uppercase; }
+.panel table td.r { text-align: right; }
+
+#toolbar {
+  position: absolute; top: 64px; left: 50%; transform: translateX(-50%);
+  z-index: 11; display: flex; gap: 6px;
+  padding: 4px; background: rgba(20,22,30,0.55);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-stroke); border-radius: 12px;
+}
+#toolbar button {
+  background: transparent; border: none; color: var(--text-muted);
+  padding: 6px 10px; border-radius: 8px; font: inherit; font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: all 0.18s var(--transition);
+}
+#toolbar button:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+#toolbar button.active { background: rgba(56,189,248,0.22); color: var(--accent); }
+
+/* Light theme override */
+body.theme-light, body.theme-light html {
+  background: #f1f5f9;
+}
+body.theme-light .glass { background: rgba(255,255,255,0.78); color: #0f172a; border-color: rgba(15,23,42,0.10); }
+body.theme-light :root { --text-primary: #0f172a; --text-muted: #475569; --text-dim: #64748b; }
+body.theme-light #policy-card .policy-name,
+body.theme-light .panel .num,
+body.theme-light .panel .row .v,
+body.theme-light .val { color: #0f172a; }
+
+@media (max-width: 768px) {
+  #legend { display: none; }
+  #policy-card { padding: 8px 12px; min-width: 160px; }
+  #policy-card .policy-name { font-size: 13px; }
+  #kpi-hud { padding: 10px 12px; min-width: 200px; }
+  .kpi-row { font-size: 11px; }
+  #follow-bar { display: none; }
+  #cam-presets button { padding: 6px 10px; font-size: 10px; }
+}
+</style>
+</head>
+<body>
+
+<div id="policy-card" class="glass">
+  <div class="title">Policy · Rep</div>
+  <div class="policy-name" id="policy-name">Baseline (Actual SAP)</div>
+  <div class="sub"><span id="rep-label">Rep 1/1</span> · <span id="time-label">sim t=00:00:00</span></div>
+</div>
+
+<div id="kpi-hud" class="glass">
+  <h3>Live KPIs <span class="dot"></span></h3>
+  <div class="kpi-row"><span class="lbl">Walk distance</span><span><span class="val" id="kpi-walk">—</span><span class="unit">m</span></span></div>
+  <div class="kpi-row"><span class="lbl">Lead time</span><span><span class="val" id="kpi-lead">—</span><span class="unit">min</span></span></div>
+  <div class="kpi-row"><span class="lbl">RT utilization</span><span><span class="val" id="kpi-rtutil">—</span><span class="unit">%</span></span></div>
+  <div class="kpi-row"><span class="lbl">Operator util.</span><span><span class="val" id="kpi-oputil">—</span><span class="unit">%</span></span></div>
+  <div class="kpi-row"><span class="lbl">Orders done</span><span><span class="val" id="kpi-orders">—</span></span></div>
+  <div class="kpi-row shift"><span class="lbl">Shift</span><span class="shift-badge" id="shift-badge">Shift 1 · A</span></div>
+</div>
+
+<div id="follow-bar" class="glass">
+  <div class="group-title">Camera follow</div>
+  <button data-follow="none" class="active"><span class="sw" style="background:#64748b"></span>Free orbit</button>
+  <button data-follow="op-1"><span class="sw" style="background:#1c3d6e"></span>Op 1 (kit)</button>
+  <button data-follow="op-3"><span class="sw" style="background:#1c3d6e"></span>Op 3</button>
+  <button data-follow="rt-1"><span class="sw" style="background:#f5a623"></span>RT 1</button>
+  <button data-follow="rt-4"><span class="sw" style="background:#f5a623"></span>RT 4</button>
+  <button data-follow="milk-2"><span class="sw" style="background:#4a8b3a"></span>Milk-run 2</button>
+</div>
+
+<div id="cam-presets" class="glass">
+  <button data-view="iso" class="active">Isometric <span class="kbd">1</span></button>
+  <button data-view="top">Top <span class="kbd">2</span></button>
+  <button data-view="plan">Plan <span class="kbd">3</span></button>
+  <button data-view="cinematic">Cinematic <span class="kbd">4</span></button>
+  <div class="divider"></div>
+  <button id="btn-toggle-labels">Labels <span class="kbd">L</span></button>
+  <button id="btn-toggle-plan">Floor zones <span class="kbd">P</span></button>
+  <button id="btn-pick-demo">Test pick <span class="kbd">·</span></button>
+</div>
+
+<div id="legend" class="glass">
+  <div class="title">Legend</div>
+  <div><span class="sw" style="background:#1a4ea0"></span>Rack upright</div>
+  <div><span class="sw" style="background:#f08a1c"></span>Rack beam</div>
+  <div><span class="sw" style="background:#1c3d6e"></span>Operator</div>
+  <div><span class="sw" style="background:#f5a623"></span>Reach truck</div>
+  <div><span class="sw" style="background:#4a8b3a"></span>Milk-run</div>
+  <div><span class="sw" style="background:#a0aab2"></span>Kardex VLM</div>
+  <div><span class="sw" style="background:#fde047"></span>KITTING zone</div>
+  <div><span class="sw" style="background:#fde68a"></span>PUTAWAY zone</div>
+</div>
+
+<div id="fps" class="glass">
+  <span class="label">FPS</span> <span class="val" id="fps-val">0</span>
+  &nbsp;<span class="label">ms</span> <span class="val" id="fps-ms">0.0</span>
+  &nbsp;<span class="label">draws</span> <span class="val" id="fps-draws">0</span>
+</div>
+
+<button id="analytics-btn" title="Analytics sidebar (A)">
+  <span class="ab-dot"></span>Analytics<span class="ab-kbd">A</span>
+</button>
+
+<div id="toolbar">
+  <button id="btn-screenshot" title="Save PNG snapshot of current view">Screenshot</button>
+  <button id="btn-theme" title="Toggle light/dark theme">Light</button>
+  <button id="btn-help" title="Help / About">Help</button>
+</div>
+
+<div id="sidebar">
+  <header>
+    <h2>Analytics</h2>
+    <button class="closebtn" id="sb-close" title="Close (A)">×</button>
+  </header>
+  <div class="tabs" id="sb-tabs">
+    <button data-tab="compare" class="active">Compare</button>
+    <button data-tab="validation">Validation</button>
+    <button data-tab="sensitivity">Sensitivity</button>
+    <button data-tab="heatmap">Heatmap</button>
+    <button data-tab="driver">Driver</button>
+    <button data-tab="timing">Timing</button>
+    <button data-tab="data">Data</button>
+    <button data-tab="defense">Defense</button>
+  </div>
+  <div class="panel-host" id="sb-panels">
+    <div class="panel active" data-panel="compare"><h3>Policy comparison<button class="panel-action" data-csv="compare">CSV</button></h3>
+      <div class="kpi-grid" id="compare-cards"></div>
+      <canvas id="chart-compare-walk" height="160"></canvas>
+      <h3 style="margin-top:18px">Before / After (vs Baseline SAP)</h3>
+      <div id="compare-delta"></div>
+    </div>
+    <div class="panel" data-panel="validation"><h3>Operational validation</h3>
+      <p id="val-summary">—</p>
+      <h3>χ² — per rack (restricted)</h3>
+      <canvas id="chart-val" height="180"></canvas>
+      <div id="val-stats"></div>
+      <h3 style="margin-top:14px">Cochran rule</h3>
+      <p id="cochran-note">—</p>
+    </div>
+    <div class="panel" data-panel="sensitivity"><h3>OAT tornado<button class="panel-action" data-csv="sens">CSV</button></h3>
+      <p>Walk-distance Δ vs baseline as each timing constant flexes ±25% (default).</p>
+      <canvas id="chart-sens" height="240"></canvas>
+    </div>
+    <div class="panel" data-panel="heatmap"><h3>Picks per rack (D5)</h3>
+      <p>Toggle 3D overlay with H key. Bars show pick volume per rack-row for the selected policy.</p>
+      <select id="heat-policy" class="glass" style="margin-bottom:8px;width:100%;padding:6px 8px;background:rgba(255,255,255,0.08);color:var(--text-primary);border:1px solid var(--glass-stroke);border-radius:8px;font:inherit;font-size:11px"></select>
+      <canvas id="chart-heat" height="180"></canvas>
+      <button id="btn-apply-heatmap" class="panel-action" style="margin-top:10px;width:100%;padding:8px">Apply heatmap to 3D scene</button>
+    </div>
+    <div class="panel" data-panel="driver"><h3>ZWM92 driver fit</h3>
+      <div class="kpi-grid" id="drv-cards"></div>
+      <h3>Lines mix</h3>
+      <canvas id="chart-drv-lines" height="200"></canvas>
+      <h3 style="margin-top:14px">Per-kit n_distinct</h3>
+      <div id="drv-pmf-text"></div>
+    </div>
+    <div class="panel" data-panel="timing"><h3>F400 micro-events</h3>
+      <p>Source: <code>output/timing_study_f400.json</code> — 2,319 micro-events.</p>
+      <canvas id="chart-timing" height="220"></canvas>
+      <div id="timing-table" style="margin-top:8px"></div>
+    </div>
+    <div class="panel" data-panel="data"><h3>Pipeline snapshot</h3>
+      <div id="data-rows"></div>
+    </div>
+    <div class="panel" data-panel="defense">
+      <h3>X1 — Operator cost · X2 — ROI<button class="panel-action" id="btn-cost-recalc">↻ Recalc</button></h3>
+      <p>Cost saved per year vs Baseline (Actual SAP) at the chosen labor rate.</p>
+      <label style="display:flex;justify-content:space-between;font-size:11px;margin:6px 0 4px"><span>Operator ₺/saat</span><span><input id="x-rate" type="number" value="180" min="0" max="2000" step="10" style="width:70px;background:rgba(255,255,255,0.08);border:1px solid var(--glass-stroke);color:var(--text-primary);border-radius:6px;padding:3px 6px;font:inherit;font-size:11px"> ₺/h</span></label>
+      <label style="display:flex;justify-content:space-between;font-size:11px;margin:0 0 4px"><span>Yıllık iş günü</span><span><input id="x-days" type="number" value="250" min="100" max="365" step="1" style="width:70px;background:rgba(255,255,255,0.08);border:1px solid var(--glass-stroke);color:var(--text-primary);border-radius:6px;padding:3px 6px;font:inherit;font-size:11px"></span></label>
+      <label style="display:flex;justify-content:space-between;font-size:11px;margin:0 0 4px"><span>Re-slotting maliyeti</span><span><input id="x-reslot" type="number" value="35000" min="0" max="1000000" step="1000" style="width:90px;background:rgba(255,255,255,0.08);border:1px solid var(--glass-stroke);color:var(--text-primary);border-radius:6px;padding:3px 6px;font:inherit;font-size:11px"> ₺</span></label>
+      <div id="x-cost-rows" style="margin-top:10px"></div>
+
+      <h3 style="margin-top:18px">X5 — Pareto front (walk × lead)</h3>
+      <p>Lower-left = dominant. Click a dot to set that policy as the playback timeline.</p>
+      <canvas id="chart-pareto" height="180"></canvas>
+
+      <h3 style="margin-top:18px">X6 — Bottleneck snapshot</h3>
+      <div id="x-bottleneck"></div>
+
+      <h3 style="margin-top:18px">X7 — Stress test presets</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <button class="panel-action" data-stress="rate2x">2× arrival rate</button>
+        <button class="panel-action" data-stress="rtfail">1× RT failure</button>
+        <button class="panel-action" data-stress="blackfri">Black Friday</button>
+        <button class="panel-action" data-stress="pandemic">Pandemic (-50%)</button>
+      </div>
+      <p style="font-size:10px;margin-top:6px;color:var(--text-dim)">Buttons stage <code>config.py</code> overrides; rerun <code>python -m src.main</code> manually to materialize.</p>
+
+      <h3 style="margin-top:18px">X14 — Re-slotting action plan<button class="panel-action" id="btn-reslot-csv">CSV</button></h3>
+      <p>Top 20 materials whose ABC class implied by Travel-Distance differs from current Actual SAP bin.</p>
+      <div id="x-reslot-list"></div>
+
+      <h3 style="margin-top:18px">U2 — Run new simulation</h3>
+      <p>Launches <code>python -m src.main</code> via the packaged subprocess hook. In dev, copy the command.</p>
+      <button class="panel-action" id="btn-run-sim" style="width:100%;padding:10px">Run pipeline now</button>
+    </div>
+  </div>
+</div>
+
+<div id="help-modal" style="position:absolute;inset:0;background:rgba(0,0,0,0.55);z-index:50;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)">
+  <div class="glass" style="max-width:540px;padding:24px;border-radius:16px">
+    <h2 style="margin-bottom:10px">SE Manisa Ambar — Sim v2</h2>
+    <p style="color:var(--text-muted);font-size:12px;line-height:1.6;margin-bottom:14px">
+      FENG 498 senior project · SimPy discrete-event simulation of the Manisa
+      MV-switchgear warehouse. Real ZWM92 dispatch trace (40 804 kit-orders),
+      F400 time-motion derived timing, 5 slotting policies benchmarked.
+    </p>
+    <table style="width:100%;font-size:11px;border-collapse:collapse">
+      <tr><td style="padding:3px 4px;color:var(--text-dim)">1 / 2 / 3 / 4</td><td>Camera presets (Iso / Top / Plan / Cinematic)</td></tr>
+      <tr><td style="padding:3px 4px;color:var(--text-dim)">L / P</td><td>Toggle labels / floor zones</td></tr>
+      <tr><td style="padding:3px 4px;color:var(--text-dim)">A</td><td>Analytics sidebar</td></tr>
+      <tr><td style="padding:3px 4px;color:var(--text-dim)">H</td><td>Heatmap overlay (picks per rack)</td></tr>
+      <tr><td style="padding:3px 4px;color:var(--text-dim)">Space</td><td>Play / pause timeline</td></tr>
+      <tr><td style="padding:3px 4px;color:var(--text-dim)">← / →</td><td>Step ±30 sim-min</td></tr>
+      <tr><td style="padding:3px 4px;color:var(--text-dim)">Cmd+Shift+D</td><td>FPS HUD</td></tr>
+    </table>
+    <div style="display:flex;justify-content:flex-end;margin-top:18px">
+      <button id="btn-help-close" style="background:var(--accent);color:#0b1220;border:none;padding:8px 16px;border-radius:8px;font:inherit;font-size:11px;font-weight:700;cursor:pointer">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="transport" class="glass">
+  <select id="policy-select" title="Pick policy timeline">
+    <option value="">— Loading timelines —</option>
+  </select>
+  <div class="ctl-group">
+    <button class="btn-icon" id="btn-step-back" title="Step back 30 sim-min">⏮</button>
+    <button class="btn-icon active" id="btn-play" title="Play / pause (Space)">▶</button>
+    <button class="btn-icon" id="btn-step-fwd" title="Step forward 30 sim-min">⏭</button>
+  </div>
+  <div class="scrubber-wrap">
+    <input type="range" id="scrubber" min="0" max="1000" value="0" step="1">
+    <div class="meta"><span id="sim-time-now">00:00:00</span><span id="sim-time-end">—</span></div>
+  </div>
+  <div class="speed-btns" id="speed-btns">
+    <button data-speed="0.25">0.25×</button>
+    <button data-speed="1" class="active">1×</button>
+    <button data-speed="4">4×</button>
+    <button data-speed="16">16×</button>
+    <button data-speed="64">64×</button>
+  </div>
+</div>
+
+<div id="toast" class="glass"><span id="toast-msg">—</span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass }     from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass }     from 'three/addons/postprocessing/OutputPass.js';
+
+// ────────────────────────────────────────────────────────────────────────────
+//  GEOMETRY LOADER — viewer_layout_v1.json (M0 output) is authoritative.
+// ────────────────────────────────────────────────────────────────────────────
+async function loadGeometry() {
+  const urls = ['./viewer_layout_v1.json', '../output/viewer_layout_v1.json'];
+  for (const url of urls) {
+    try {
+      const r = await fetch(url);
+      if (r.ok) { console.log('Loaded viewer_layout_v1 from', url); return await r.json(); }
+    } catch (_) {}
+  }
+  throw new Error('Could not fetch viewer_layout_v1.json from any candidate URL');
+}
+const LAYOUT = await loadGeometry();
+
+const UNIT = 0.01;
+const RACK_HEIGHT_M = (LAYOUT._rack_height_cm || 700) / 100;
+const bounds = {
+  minX: LAYOUT._bounds.min_x, maxX: LAYOUT._bounds.max_x,
+  minY: LAYOUT._bounds.min_y, maxY: LAYOUT._bounds.max_y
+};
+const center = {x: (bounds.minX + bounds.maxX) / 2, y: (bounds.minY + bounds.maxY) / 2};
+const cadToWorld = (x, y) => new THREE.Vector3((center.x - x) * UNIT, 0, (y - center.y) * UNIT);
+
+const RACKS_BY_LETTER = new Map();
+for (const r of LAYOUT.racks) {
+  if (!r.letter) continue;
+  if (!RACKS_BY_LETTER.has(r.letter)) RACKS_BY_LETTER.set(r.letter, []);
+  RACKS_BY_LETTER.get(r.letter).push(r);
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  RENDERER · SCENE · CAMERA · LIGHTING
+// ────────────────────────────────────────────────────────────────────────────
+const renderer = new THREE.WebGLRenderer({antialias: true, powerPreference: 'high-performance'});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.92;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xdde3eb);
+// Soft depth fade only at far edges so the warehouse stays crisp at normal zoom.
+scene.fog = new THREE.Fog(0xdde3eb, 220, 520);
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 500);
+camera.position.set(24, 24, 36);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.09;
+controls.target.set(0, 2.25, 0);
+controls.maxPolarAngle = Math.PI * 0.495;
+
+// Post-processing: subtle bloom for the warning sprites + yellow placards
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.30, 0.7, 0.85);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+// Lighting
+scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+const sun = new THREE.DirectionalLight(0xfff2d8, 0.92);
+sun.position.set(50, 95, 30);
+sun.castShadow = true;
+sun.shadow.camera.left = -50; sun.shadow.camera.right = 50;
+sun.shadow.camera.top = 50;   sun.shadow.camera.bottom = -50;
+sun.shadow.camera.near = 0.5; sun.shadow.camera.far = 220;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.bias = -0.0005;
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xbfd4ff, 0.30);
+fill.position.set(-40, 50, -20);
+scene.add(fill);
+
+const world = new THREE.Group();
+const rackGroup = new THREE.Group();
+const labelGroup = new THREE.Group();
+const planGroup = new THREE.Group();
+const decorGroup = new THREE.Group();
+const entityGroup = new THREE.Group();
+const highlightGroup = new THREE.Group();
+world.add(rackGroup, labelGroup, planGroup, decorGroup, entityGroup, highlightGroup);
+scene.add(world);
+
+// ────────────────────────────────────────────────────────────────────────────
+//  MATERIALS · TEXTURES
+// ────────────────────────────────────────────────────────────────────────────
+const mats = {
+  concrete:   new THREE.MeshStandardMaterial({color: 0x9da3a8, roughness: 0.94}),
+  upright:    new THREE.MeshStandardMaterial({color: 0x1a4ea0, roughness: 0.45, metalness: 0.35}),
+  uprightLite:new THREE.MeshStandardMaterial({color: 0x2a5eb0, roughness: 0.50, metalness: 0.30}),
+  beam:       new THREE.MeshStandardMaterial({color: 0xf08a1c, roughness: 0.45, metalness: 0.30}),
+  beamBack:   new THREE.MeshStandardMaterial({color: 0xd8780f, roughness: 0.55, metalness: 0.25}),
+  cross:      new THREE.MeshStandardMaterial({color: 0xd8780f, roughness: 0.55, metalness: 0.30}),
+  pallet:     new THREE.MeshStandardMaterial({color: 0xb98a4a, roughness: 0.90}),
+  carton:     new THREE.MeshStandardMaterial({color: 0xc8a070, roughness: 0.85}),
+  cartonAlt:  new THREE.MeshStandardMaterial({color: 0x8c8c92, roughness: 0.85}),
+  cartonAlt2: new THREE.MeshStandardMaterial({color: 0x6a5a4a, roughness: 0.85}),
+  footprint:  new THREE.MeshStandardMaterial({color: 0xe2e8f0, roughness: 0.95, transparent: true, opacity: 0.65}),
+  kitting:    new THREE.MeshStandardMaterial({color: 0xfde047, roughness: 0.92, transparent: true, opacity: 0.55}),
+  putaway:    new THREE.MeshStandardMaterial({color: 0xfde68a, roughness: 0.92, transparent: true, opacity: 0.42}),
+  trash:      new THREE.MeshStandardMaterial({color: 0xdc2626, roughness: 0.80}),
+  column:     new THREE.MeshStandardMaterial({color: 0xddd6c8, roughness: 0.85}),
+  // V1-V5 polish
+  placardBg:  new THREE.MeshStandardMaterial({color: 0xf5c731, emissive: 0xf5c731, emissiveIntensity: 0.18, roughness: 0.55}),
+  hangingBg:  new THREE.MeshStandardMaterial({color: 0xf5c731, emissive: 0xf5c731, emissiveIntensity: 0.22, roughness: 0.55, side: THREE.DoubleSide}),
+  protector:  new THREE.MeshStandardMaterial({color: 0xfbd34a, roughness: 0.6}),
+  protectorDk:new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.6}),
+  floorDecal: new THREE.MeshStandardMaterial({color: 0xf5c731, roughness: 0.85, transparent: true, opacity: 0.65}),
+  // Entities
+  opBody:     new THREE.MeshStandardMaterial({color: 0x1c3d6e, roughness: 0.6}),
+  opVest:     new THREE.MeshStandardMaterial({color: 0xe6f266, emissive: 0xc9d957, emissiveIntensity: 0.15, roughness: 0.5}),
+  opHead:     new THREE.MeshStandardMaterial({color: 0xdfb98f, roughness: 0.65}),
+  opLeg:      new THREE.MeshStandardMaterial({color: 0x14233c, roughness: 0.7}),
+  rtBody:     new THREE.MeshStandardMaterial({color: 0xf5a623, roughness: 0.55, metalness: 0.20}),
+  rtMast:     new THREE.MeshStandardMaterial({color: 0x1a4ea0, roughness: 0.55, metalness: 0.30}),
+  rtFork:     new THREE.MeshStandardMaterial({color: 0xb8bcc2, roughness: 0.45, metalness: 0.55}),
+  rtWheel:    new THREE.MeshStandardMaterial({color: 0x111418, roughness: 0.85}),
+  milkBody:   new THREE.MeshStandardMaterial({color: 0x4a8b3a, roughness: 0.6}),
+  milkCart:   new THREE.MeshStandardMaterial({color: 0x6b6f76, roughness: 0.7, metalness: 0.2}),
+  kxCab:      new THREE.MeshStandardMaterial({color: 0xa0aab2, roughness: 0.55, metalness: 0.40}),
+  kxStripe:   new THREE.MeshStandardMaterial({color: 0xfbd34a, emissive: 0xfbd34a, emissiveIntensity: 0.18, roughness: 0.5}),
+  kxCarousel: new THREE.MeshStandardMaterial({color: 0x37414c, roughness: 0.7}),
+  kittingTbl: new THREE.MeshStandardMaterial({color: 0xa9824f, roughness: 0.85}),
+  wipCarton:  new THREE.MeshStandardMaterial({color: 0xc8a070, roughness: 0.85}),
+  highlight:  new THREE.MeshBasicMaterial({color: 0xfde047, transparent: true, opacity: 0.55, depthWrite: false}),
+};
+
+function makeMeshTexture() {
+  const c = document.createElement('canvas'); c.width = 128; c.height = 128;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = 'rgba(220,220,220,0.55)'; ctx.fillRect(0, 0, 128, 128);
+  ctx.strokeStyle = 'rgba(140,140,140,0.95)'; ctx.lineWidth = 2;
+  for (let i = 0; i <= 128; i += 16) {
+    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 128); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(128, i); ctx.stroke();
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
+const matMeshDeck = new THREE.MeshStandardMaterial({
+  map: makeMeshTexture(), transparent: true, opacity: 0.82,
+  roughness: 0.6, metalness: 0.55, side: THREE.DoubleSide
+});
+
+function makeNetTexture() {
+  const c = document.createElement('canvas'); c.width = 128; c.height = 128;
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, 128, 128);
+  ctx.strokeStyle = 'rgba(245,245,245,0.85)'; ctx.lineWidth = 1.5;
+  for (let i = 0; i <= 128; i += 10) {
+    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 128); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(128, i); ctx.stroke();
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
+const matNet = new THREE.MeshStandardMaterial({
+  map: makeNetTexture(), transparent: true, opacity: 0.42,
+  roughness: 0.8, side: THREE.DoubleSide, alphaTest: 0.05
+});
+
+function makeLetterTexture(letter, bg = '#ffcc00', fg = '#000') {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 256;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, 256, 256);
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 6; ctx.strokeRect(3, 3, 250, 250);
+  ctx.fillStyle = fg; ctx.font = 'bold 200px sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(letter, 128, 140);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function makePlacardTexture(label, sub = '700 KG') {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 384;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#f5c731'; ctx.fillRect(0, 0, 256, 384);
+  ctx.strokeStyle = '#0a0a0a'; ctx.lineWidth = 8; ctx.strokeRect(6, 6, 244, 372);
+  ctx.fillStyle = '#0a0a0a';
+  ctx.font = 'bold 24px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  const lines = ['RAFIN', 'AZAMİ', 'TAŞIMA', 'KAPASİTESİ'];
+  lines.forEach((t, i) => ctx.fillText(t, 128, 32 + i * 36));
+  ctx.font = 'bold 60px sans-serif';
+  ctx.fillText(sub, 128, 220);
+  ctx.font = 'bold 18px sans-serif';
+  ctx.fillText(label, 128, 320);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function makeHangingSignTexture(label) {
+  const c = document.createElement('canvas'); c.width = 384; c.height = 128;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#f5c731'; ctx.fillRect(0, 0, 384, 128);
+  ctx.strokeStyle = '#0a0a0a'; ctx.lineWidth = 6; ctx.strokeRect(4, 4, 376, 120);
+  ctx.fillStyle = '#0a0a0a'; ctx.font = 'bold 64px sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(label, 192, 70);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function makeForkliftDecalTexture() {
+  const c = document.createElement('canvas'); c.width = 128; c.height = 384;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#f5c731'; ctx.fillRect(0, 0, 128, 384);
+  ctx.fillStyle = '#0a0a0a';
+  ctx.font = 'bold 24px sans-serif'; ctx.textAlign = 'center';
+  ctx.save(); ctx.translate(64, 200); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('FORKLİFT YOLU', 0, 8); ctx.restore();
+  // ▼ arrow
+  ctx.beginPath();
+  ctx.moveTo(40, 320); ctx.lineTo(88, 320); ctx.lineTo(64, 360); ctx.closePath();
+  ctx.fill();
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function labelTexture(text, color, fontSize, bg) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.font = `800 ${fontSize}px Arial, sans-serif`;
+  const metrics = ctx.measureText(text);
+  canvas.width = Math.ceil(metrics.width + fontSize);
+  canvas.height = Math.ceil(fontSize * 1.7);
+  ctx.font = `800 ${fontSize}px Arial, sans-serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  if (bg) { ctx.fillStyle = bg; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+  ctx.strokeStyle = 'rgba(255,255,255,0.78)';
+  ctx.lineWidth = fontSize * 0.1;
+  ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
+  ctx.fillStyle = color;
+  ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return {texture: tex, w: canvas.width, h: canvas.height};
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  GEOMETRIES (shared)
+// ────────────────────────────────────────────────────────────────────────────
+const geos = {
+  post:   new THREE.BoxGeometry(0.08, RACK_HEIGHT_M, 0.08),
+  beamX:  new THREE.BoxGeometry(1, 0.07, 0.05),
+  beamZ:  new THREE.BoxGeometry(0.05, 0.07, 1),
+  pallet: new THREE.BoxGeometry(1, 1, 1),
+  box:    new THREE.BoxGeometry(1, 1, 1),
+  cyl:    new THREE.CylinderGeometry(0.5, 0.5, 1, 18),
+  wheel:  new THREE.CylinderGeometry(0.22, 0.22, 0.16, 18),
+  head:   new THREE.SphereGeometry(0.13, 14, 12),
+};
+
+function addBox(parent, geom, mat, pos, scale, castShadow = true) {
+  const mesh = new THREE.Mesh(geom, mat);
+  mesh.position.copy(pos);
+  if (scale) mesh.scale.copy(scale);
+  mesh.castShadow = castShadow;
+  mesh.receiveShadow = true;
+  parent.add(mesh);
+  return mesh;
+}
+
+function addRectPlane(parent, x0, y0, x1, y1, mat, yOffset = 0.02) {
+  const a = cadToWorld(Math.min(x0, x1), Math.min(y0, y1));
+  const b = cadToWorld(Math.max(x0, x1), Math.max(y0, y1));
+  const w = Math.abs(b.x - a.x), d = Math.abs(b.z - a.z);
+  const geom = new THREE.PlaneGeometry(Math.max(w, 0.05), Math.max(d, 0.05));
+  const mesh = new THREE.Mesh(geom, mat);
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.position.set((a.x + b.x) / 2, yOffset, (a.z + b.z) / 2);
+  mesh.receiveShadow = true;
+  parent.add(mesh);
+  return mesh;
+}
+
+function uniqueSorted(values) {
+  return [...new Set(values)].sort((a, b) => a - b);
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  RACK / FLOOR-LABEL / PALLET BUILDERS (pixel-identical to web/index.html)
+// ────────────────────────────────────────────────────────────────────────────
+const RACK_LABEL_OFFSETS = new Map([[3, {x: 0, z: -0.40}], [4, {x: 0, z: 0.40}], [12, {x: -1.15, z: 0}]]);
+
+function levelYsM(letter) {
+  const r = LAYOUT.racks.find(rr => rr.letter === letter);
+  if (r && r.level_heights_cm && r.level_heights_cm.length) return r.level_heights_cm.map(c => c / 100);
+  return [0.61, 1.36, 2.06, 2.91, 3.76, 4.61, 5.46, 6.31, 7.0];
+}
+
+function createRack(row, index) {
+  // Unmapped racks (letter=null) still render as geometry — they exist in the CAD
+  // (e.g. idx 1 trash-side stub, idx 14 SE post). Only label/placard code below
+  // skips when there's no letter. Matches web/index.html semantics.
+  const x0 = Math.min(row.x0, row.x1), x1 = Math.max(row.x0, row.x1);
+  const y0 = Math.min(row.y0, row.y1), y1 = Math.max(row.y0, row.y1);
+  addRectPlane(planGroup, x0, y0, x1, y1, mats.footprint, 0.018);
+
+  const p0 = cadToWorld(x0, y0), p1 = cadToWorld(x1, y1);
+  const lengthX = Math.abs(p1.x - p0.x), lengthZ = Math.abs(p1.z - p0.z);
+  const centerX = (p0.x + p1.x) / 2, centerZ = (p0.z + p1.z) / 2;
+  const depth = row.dir === 'x' ? Math.max(lengthZ, 0.78) : Math.max(lengthX, 0.78);
+  const sideOffset = depth / 2;
+
+  const levels = levelYsM(row.letter);
+  const totalH = levels[levels.length - 1] + 0.3;
+  const postScaleY = totalH / RACK_HEIGHT_M;
+
+  const postValues = uniqueSorted(row.posts);
+  const transformedPosts = postValues.map(v =>
+    row.dir === 'x' ? cadToWorld(v, y0).x : cadToWorld(x0, v).z);
+
+  if (row.dir === 'x') {
+    for (const x of transformedPosts) {
+      addBox(rackGroup, geos.post, mats.upright,     new THREE.Vector3(x, totalH / 2, centerZ - sideOffset), new THREE.Vector3(1, postScaleY, 1));
+      addBox(rackGroup, geos.post, mats.uprightLite, new THREE.Vector3(x, totalH / 2, centerZ + sideOffset), new THREE.Vector3(1, postScaleY, 1));
+    }
+    for (const h of levels) {
+      addBox(rackGroup, geos.beamX, mats.beam,     new THREE.Vector3(centerX, h, centerZ - sideOffset), new THREE.Vector3(lengthX, 1, 1));
+      addBox(rackGroup, geos.beamX, mats.beamBack, new THREE.Vector3(centerX, h, centerZ + sideOffset), new THREE.Vector3(lengthX, 1, 1));
+    }
+    const deckGeom = new THREE.PlaneGeometry(Math.max(lengthX - 0.05, 0.1), Math.max(depth - 0.05, 0.1));
+    for (const h of levels) {
+      const deck = new THREE.Mesh(deckGeom, matMeshDeck);
+      deck.rotation.x = -Math.PI / 2;
+      deck.position.set(centerX, h + 0.04, centerZ);
+      deck.receiveShadow = true;
+      rackGroup.add(deck);
+    }
+    const netGeom = new THREE.PlaneGeometry(depth, totalH);
+    for (const xEnd of [transformedPosts[0], transformedPosts[transformedPosts.length - 1]]) {
+      const net = new THREE.Mesh(netGeom, matNet);
+      net.rotation.y = Math.PI / 2;
+      net.position.set(xEnd, totalH / 2, centerZ);
+      rackGroup.add(net);
+    }
+    const braceHeights = levels.filter((_, i) => i % 2 === 0).concat([totalH - 0.02]);
+    for (const x of transformedPosts) {
+      for (const h of braceHeights) {
+        addBox(rackGroup, geos.beamZ, mats.cross, new THREE.Vector3(x, h, centerZ), new THREE.Vector3(1, 1, depth), false);
+      }
+    }
+    addPallets(row, index, transformedPosts, centerZ, depth, 'x', levels);
+  } else {
+    for (const z of transformedPosts) {
+      addBox(rackGroup, geos.post, mats.upright,     new THREE.Vector3(centerX - sideOffset, totalH / 2, z), new THREE.Vector3(1, postScaleY, 1));
+      addBox(rackGroup, geos.post, mats.uprightLite, new THREE.Vector3(centerX + sideOffset, totalH / 2, z), new THREE.Vector3(1, postScaleY, 1));
+    }
+    for (const h of levels) {
+      addBox(rackGroup, geos.beamZ, mats.beam,     new THREE.Vector3(centerX - sideOffset, h, centerZ), new THREE.Vector3(1, 1, lengthZ));
+      addBox(rackGroup, geos.beamZ, mats.beamBack, new THREE.Vector3(centerX + sideOffset, h, centerZ), new THREE.Vector3(1, 1, lengthZ));
+    }
+    const deckGeom = new THREE.PlaneGeometry(Math.max(depth - 0.05, 0.1), Math.max(lengthZ - 0.05, 0.1));
+    for (const h of levels) {
+      const deck = new THREE.Mesh(deckGeom, matMeshDeck);
+      deck.rotation.x = -Math.PI / 2;
+      deck.position.set(centerX, h + 0.04, centerZ);
+      deck.receiveShadow = true;
+      rackGroup.add(deck);
+    }
+    const netGeom = new THREE.PlaneGeometry(depth, totalH);
+    for (const zEnd of [transformedPosts[0], transformedPosts[transformedPosts.length - 1]]) {
+      const net = new THREE.Mesh(netGeom, matNet);
+      net.position.set(centerX, totalH / 2, zEnd);
+      rackGroup.add(net);
+    }
+    const braceHeights = levels.filter((_, i) => i % 2 === 0).concat([totalH - 0.02]);
+    for (const z of transformedPosts) {
+      for (const h of braceHeights) {
+        addBox(rackGroup, geos.beamX, mats.cross, new THREE.Vector3(centerX, h, z), new THREE.Vector3(depth, 1, 1), false);
+      }
+    }
+    addPallets(row, index, transformedPosts, centerX, depth, 'z', levels);
+  }
+
+  if (row.letter && row.label) {
+    const offset = RACK_LABEL_OFFSETS.get(row.codex_idx) || {x: 0, z: 0};
+    addRackLetter(row.letter, centerX + offset.x, centerZ + offset.z, totalH);
+  }
+}
+
+function addPallets(row, rowIndex, positions, fixed, depth, axis, levels) {
+  if (positions.length < 2) return;
+  const palletHeight = 0.28, cartonHeight = 0.62;
+  const cartonMats = [mats.carton, mats.cartonAlt, mats.cartonAlt2];
+  for (let bay = 0; bay < positions.length - 1; bay++) {
+    const bayStart = positions[bay], bayEnd = positions[bay + 1];
+    const bayLength = Math.abs(bayEnd - bayStart);
+    const bayCenter = (bayStart + bayEnd) / 2;
+    if (bayLength < 0.65) continue;
+    for (let li = 0; li < levels.length - 1; li += 2) {
+      if ((bay + li + rowIndex) % 4 !== 0) continue;
+      const h = levels[li] + 0.18;
+      const palletScale = axis === 'x'
+        ? new THREE.Vector3(Math.min(bayLength * 0.34, 0.82), palletHeight, Math.max(depth * 0.34, 0.34))
+        : new THREE.Vector3(Math.max(depth * 0.34, 0.34), palletHeight, Math.min(bayLength * 0.34, 0.82));
+      const cartonScale = axis === 'x'
+        ? new THREE.Vector3(Math.min(bayLength * 0.3, 0.76), cartonHeight, Math.max(depth * 0.3, 0.3))
+        : new THREE.Vector3(Math.max(depth * 0.3, 0.3), cartonHeight, Math.min(bayLength * 0.3, 0.76));
+      const basePos = axis === 'x'
+        ? new THREE.Vector3(bayCenter, h, fixed)
+        : new THREE.Vector3(fixed, h, bayCenter);
+      const cartonMat = cartonMats[(bay + li + rowIndex) % cartonMats.length];
+      addBox(rackGroup, geos.pallet, mats.pallet, basePos, palletScale, false);
+      addBox(rackGroup, geos.pallet, cartonMat,
+        new THREE.Vector3(basePos.x, h + 0.46, basePos.z), cartonScale, false);
+    }
+  }
+}
+
+function addRackLetter(letter, cx, cz, totalH) {
+  const tex = makeLetterTexture(letter);
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({map: tex, transparent: true, depthTest: false}));
+  sprite.position.set(cx, totalH + 1.4, cz);
+  sprite.scale.set(2.0, 2.0, 1);
+  sprite.renderOrder = 5;
+  labelGroup.add(sprite);
+}
+
+function addCompoundRackLabels() {
+  const jRows = LAYOUT.racks.filter(r => r.letter === 'J' && !r.skip);
+  if (!jRows.length) return;
+  const southArm = jRows.find(r => r.role === 'j-south-arm');
+  const eastVert = jRows.find(r => r.role === 'j-east-vertical');
+  let cadX, cadY;
+  if (southArm && eastVert) {
+    cadX = (Math.max(southArm.x0, southArm.x1) + Math.min(eastVert.x0, eastVert.x1)) / 2;
+    cadY = (Math.min(southArm.y0, southArm.y1) + Math.min(eastVert.y0, eastVert.y1)) / 2;
+  } else {
+    const a = jRows[0];
+    cadX = (a.x0 + a.x1) / 2; cadY = (a.y0 + a.y1) / 2;
+  }
+  const p = cadToWorld(cadX, cadY);
+  const levels = levelYsM('J');
+  addRackLetter('J', p.x, p.z, levels[levels.length - 1] + 0.3);
+}
+
+function addFloorLabel(label) {
+  const isKitting = label.text.includes('KITTING') || label.text.startsWith('(');
+  const isTrash = label.text.includes('ÇÖP');
+  const color = isTrash ? '#dc2626' : isKitting ? '#b45309' : '#0369a1';
+  const {texture, w, h} = labelTexture(label.text, color, 96);
+  const aspect = w / h;
+  const width = Math.min(Math.max(label.text.length * 0.18, 1.1), 4.8);
+  const height = Math.max(width / aspect, 0.34);
+  const mat = new THREE.MeshBasicMaterial({map: texture, transparent: true, depthWrite: false});
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), mat);
+  const p = cadToWorld(label.x, label.y);
+  mesh.position.set(p.x, 0.045, p.z);
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.rotation.z = -Math.atan2(label.axis_y, label.axis_x || 0.0001);
+  mesh.renderOrder = 3;
+  labelGroup.add(mesh);
+
+  if (label.text.includes('KITTING')) {
+    addRectPlane(planGroup, label.x - 185, label.y - 58, label.x + 185, label.y + 58, mats.kitting, 0.022);
+  } else if (label.text.includes('PUTAWAY')) {
+    addRectPlane(planGroup, label.x - 170, label.y - 52, label.x + 170, label.y + 52, mats.putaway, 0.022);
+  }
+
+  const sf = labelTexture(label.text, color, 72, 'rgba(255,255,255,0.84)');
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({map: sf.texture, transparent: true, depthTest: false}));
+  const sw = Math.min(Math.max(label.text.length * 0.22, 1.25), 5.6);
+  sprite.position.set(p.x, RACK_HEIGHT_M + 0.62, p.z);
+  sprite.scale.set(sw, Math.max(sw * (sf.h / sf.w), 0.44), 1);
+  sprite.renderOrder = 4;
+  labelGroup.add(sprite);
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  V1-V5 POLISH ASSETS
+// ────────────────────────────────────────────────────────────────────────────
+// Per-rack capacity → kg estimate (pallet_count × ~700kg/pallet; round to 25 kg)
+const RACK_CAP_KG = {A:700, B:700, C:800, D:800, E:700, F:700, G:700, H:525, I:525, J:700, U:700};
+
+function addCapacityPlacard(row) {
+  if (!row.letter || row.skip) return;
+  const capLabel = (RACK_CAP_KG[row.letter] || 700) + ' KG';
+  const tex = makePlacardTexture(row.letter, capLabel);
+  const mat = new THREE.MeshStandardMaterial({map: tex, roughness: 0.55, emissive: 0x806c1e, emissiveIntensity: 0.05});
+  const placard = new THREE.Mesh(new THREE.PlaneGeometry(0.55, 0.85), mat);
+  const x0 = Math.min(row.x0, row.x1), x1 = Math.max(row.x0, row.x1);
+  const y0 = Math.min(row.y0, row.y1), y1 = Math.max(row.y0, row.y1);
+  let pos, rotY;
+  if (row.dir === 'x') {
+    const aisle = (y0 + y1) / 2 < 2000 ? y0 - 0.20 : y1 + 0.20;
+    const p = cadToWorld(x0 + 50, aisle);
+    pos = new THREE.Vector3(p.x, 1.6, p.z);
+    rotY = 0;
+  } else {
+    const p = cadToWorld((x0 + x1) / 2, y0 + 100);
+    pos = new THREE.Vector3(p.x, 1.6, p.z);
+    rotY = Math.PI / 2;
+  }
+  placard.position.copy(pos);
+  placard.rotation.y = rotY;
+  decorGroup.add(placard);
+}
+
+const LINE_LABELS = ['F400', 'PREMSET', 'SM6 & 36', 'GMH', 'PRISMA', 'BLOKSET', 'MCSET'];
+function addHangingSigns() {
+  // Hang signs above the main aisle running E-W between B-C rows roughly.
+  // For variety, place 4 signs at evenly-spaced kit-corridor positions.
+  const aisles = [
+    {cadX: 4200, cadY: 1200, label: 'F400'},     // F-rack frontage
+    {cadX: 4200, cadY: 1700, label: 'PREMSET'},  // SM6-Premset corridor
+    {cadX: 4200, cadY: 2400, label: 'SM6 & 36'}, // SM6 corridor
+    {cadX: 4200, cadY: 3100, label: 'BLOKSET'}   // Blokset corridor
+  ];
+  for (const a of aisles) {
+    const tex = makeHangingSignTexture(a.label);
+    const mat = new THREE.MeshStandardMaterial({
+      map: tex, side: THREE.DoubleSide,
+      emissive: 0x806c1e, emissiveIntensity: 0.10, roughness: 0.55
+    });
+    const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 0.8), mat);
+    const p = cadToWorld(a.cadX, a.cadY);
+    sign.position.set(p.x, RACK_HEIGHT_M + 1.0, p.z);
+    sign.rotation.y = Math.PI / 2; // face along aisle
+    decorGroup.add(sign);
+    // Tiny mount cable (visual cue)
+    const cable = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.012, 0.012, 0.6, 8),
+      new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.8})
+    );
+    cable.position.set(p.x, RACK_HEIGHT_M + 1.65, p.z);
+    decorGroup.add(cable);
+  }
+}
+
+function addColumnProtector(cx, cz) {
+  const g = new THREE.Group();
+  // Yellow base cylinder
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.8, 14), mats.protector);
+  base.position.y = 0.4; base.castShadow = true;
+  g.add(base);
+  // Black diagonal stripes
+  for (let i = 0; i < 4; i++) {
+    const stripe = new THREE.Mesh(
+      new THREE.BoxGeometry(0.40, 0.10, 0.40),
+      mats.protectorDk
+    );
+    stripe.position.y = 0.15 + i * 0.18;
+    stripe.rotation.y = (i % 2 === 0) ? Math.PI / 8 : -Math.PI / 8;
+    g.add(stripe);
+  }
+  g.position.set(cx, 0, cz);
+  decorGroup.add(g);
+}
+
+function addProtectorsAroundRacks() {
+  // Two protectors at the corners of each letter-rack short ends (aisle side).
+  for (const r of LAYOUT.racks) {
+    if (!r.letter || r.skip || !r.label) continue;
+    const x0 = Math.min(r.x0, r.x1), x1 = Math.max(r.x0, r.x1);
+    const y0 = Math.min(r.y0, r.y1), y1 = Math.max(r.y0, r.y1);
+    if (r.dir === 'x') {
+      const yMid = (y0 + y1) / 2;
+      const p1 = cadToWorld(x0 - 40, yMid); addColumnProtector(p1.x, p1.z);
+      const p2 = cadToWorld(x1 + 40, yMid); addColumnProtector(p2.x, p2.z);
+    } else {
+      const xMid = (x0 + x1) / 2;
+      const p1 = cadToWorld(xMid, y0 - 40); addColumnProtector(p1.x, p1.z);
+      const p2 = cadToWorld(xMid, y1 + 40); addColumnProtector(p2.x, p2.z);
+    }
+  }
+}
+
+function addForkliftYoluDecal(cadX, cadY, length_m = 3.2) {
+  const tex = makeForkliftDecalTexture();
+  const mat = new THREE.MeshStandardMaterial({
+    map: tex, transparent: true, opacity: 0.85, roughness: 0.85
+  });
+  const decal = new THREE.Mesh(new THREE.PlaneGeometry(0.6, length_m), mat);
+  decal.rotation.x = -Math.PI / 2;
+  const p = cadToWorld(cadX, cadY);
+  decal.position.set(p.x, 0.027, p.z);
+  decal.receiveShadow = true;
+  decorGroup.add(decal);
+}
+
+function addForkliftDecals() {
+  // Three decals along main N-S corridor (visible in factory photos)
+  addForkliftYoluDecal(5400, 1100);
+  addForkliftYoluDecal(5400, 2200);
+  addForkliftYoluDecal(5400, 3300);
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  FLOOR
+// ────────────────────────────────────────────────────────────────────────────
+function createFloor() {
+  const a = cadToWorld(bounds.minX, bounds.minY);
+  const b = cadToWorld(bounds.maxX, bounds.maxY);
+  const w = Math.abs(b.x - a.x), d = Math.abs(b.z - a.z);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(w + 4, d + 4), mats.concrete);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.set((a.x + b.x) / 2, 0, (a.z + b.z) / 2);
+  floor.receiveShadow = true;
+  world.add(floor);
+
+  const grid = new THREE.GridHelper(Math.max(w, d) + 4, 32, 0x94a3b8, 0xcbd5e1);
+  grid.position.y = 0.025;
+  grid.material.transparent = true;
+  grid.material.opacity = 0.30;
+  world.add(grid);
+}
+
+function addSpecialObjects() {
+  for (const s of LAYOUT.special_objects || []) {
+    if (s.kind === 'trash_bin') {
+      const p = cadToWorld(s.x, s.y);
+      const [sx, sy, sz] = s.size_cm.map(v => v * UNIT);
+      addBox(decorGroup, geos.box, mats.trash, new THREE.Vector3(p.x, sz / 2, p.z), new THREE.Vector3(sx, sz, sy));
+    } else if (s.kind === 'column') {
+      const p = cadToWorld(s.x, s.y);
+      const r = (s.diameter_cm * UNIT) / 2, h = s.height_cm * UNIT;
+      const cyl = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 24), mats.column);
+      cyl.position.set(p.x, h / 2, p.z);
+      cyl.castShadow = true;
+      decorGroup.add(cyl);
+    } else if (s.kind === 'flow_arrows') {
+      for (let i = 0; i < s.count; i++) {
+        const x = s.x_start + i * s.x_step;
+        const p = cadToWorld(x, s.y);
+        const arrow = new THREE.ArrowHelper(
+          new THREE.Vector3(-1, 0, 0), new THREE.Vector3(p.x, 0.3, p.z),
+          1.0, 0x22c55e, 0.36, 0.22);
+        decorGroup.add(arrow);
+      }
+    }
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  ENTITY FACTORIES — operator · reach truck · milk-run · Kardex · kitting
+// ────────────────────────────────────────────────────────────────────────────
+function createOperator(id) {
+  const g = new THREE.Group();
+  g.name = `op-${id}`;
+  g.userData = {kind: 'operator', id, baseY: 0};
+  // Body (lacivert jumpsuit)
+  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.16, 0.50, 6, 12), mats.opBody);
+  body.position.y = 0.95;
+  body.castShadow = true;
+  g.add(body);
+  // Reflective vest (yellow over body)
+  const vest = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.18, 0.42, 12), mats.opVest);
+  vest.position.y = 1.02;
+  g.add(vest);
+  // Head
+  const head = new THREE.Mesh(geos.head, mats.opHead);
+  head.position.y = 1.40;
+  head.castShadow = true;
+  g.add(head);
+  // Legs
+  const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.6, 10), mats.opLeg);
+  legL.position.set(-0.08, 0.3, 0);
+  legL.castShadow = true; g.add(legL);
+  const legR = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.6, 10), mats.opLeg);
+  legR.position.set(0.08, 0.3, 0);
+  legR.castShadow = true; g.add(legR);
+  g.userData.legL = legL; g.userData.legR = legR;
+  g.userData.body = body; g.userData.vest = vest; g.userData.head = head;
+  return g;
+}
+
+function createReachTruck(id) {
+  const g = new THREE.Group();
+  g.name = `rt-${id}`;
+  g.userData = {kind: 'rt', id};
+  // Chassis (yellow)
+  const chassis = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.55, 1.85), mats.rtBody);
+  chassis.position.y = 0.42; chassis.castShadow = true;
+  g.add(chassis);
+  // Counter-weight (back)
+  const cw = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.40, 0.45), mats.rtBody);
+  cw.position.set(0, 0.30, -0.85); cw.castShadow = true;
+  g.add(cw);
+  // Operator cabin
+  const cabin = new THREE.Mesh(new THREE.BoxGeometry(0.70, 0.55, 0.55), mats.rtBody);
+  cabin.position.set(0, 0.97, -0.42); g.add(cabin);
+  // Mast (blue, 2-stage)
+  const mast = new THREE.Group();
+  const mast1 = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.4, 0.12), mats.rtMast);
+  mast1.position.set(-0.30, 1.20, 0.55);
+  mast.add(mast1);
+  const mast2 = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.4, 0.12), mats.rtMast);
+  mast2.position.set(0.30, 1.20, 0.55);
+  mast.add(mast2);
+  const mastTop = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.10, 0.12), mats.rtMast);
+  mastTop.position.set(0, 2.40, 0.55);
+  mast.add(mastTop);
+  g.add(mast); g.userData.mast = mast;
+  // Forks (aluminum)
+  const forkL = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.06, 0.90), mats.rtFork);
+  forkL.position.set(-0.16, 0.12, 0.95); g.add(forkL);
+  const forkR = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.06, 0.90), mats.rtFork);
+  forkR.position.set(0.16, 0.12, 0.95); g.add(forkR);
+  g.userData.forks = [forkL, forkR];
+  // 4 wheels
+  const wheelPositions = [[-0.45, 0.22, 0.65], [0.45, 0.22, 0.65], [-0.45, 0.22, -0.70], [0.45, 0.22, -0.70]];
+  const wheels = [];
+  for (const [x, y, z] of wheelPositions) {
+    const w = new THREE.Mesh(geos.wheel, mats.rtWheel);
+    w.position.set(x, y, z);
+    w.rotation.z = Math.PI / 2;
+    wheels.push(w);
+    g.add(w);
+  }
+  g.userData.wheels = wheels;
+  return g;
+}
+
+function createMilkRun(id) {
+  const g = new THREE.Group();
+  g.name = `milk-${id}`;
+  g.userData = {kind: 'milkrun', id};
+  // Tractor (green)
+  const tractor = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.55, 1.20), mats.milkBody);
+  tractor.position.set(0, 0.40, 0); tractor.castShadow = true;
+  g.add(tractor);
+  // Cabin
+  const cabin = new THREE.Mesh(new THREE.BoxGeometry(0.70, 0.55, 0.55), mats.milkBody);
+  cabin.position.set(0, 0.95, -0.05); g.add(cabin);
+  // Carts (2 stacked behind)
+  for (let i = 0; i < 2; i++) {
+    const cart = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.45, 1.05), mats.milkCart);
+    cart.position.set(0, 0.30, -1.35 - i * 1.15); cart.castShadow = true;
+    g.add(cart);
+    // Tow-bar
+    const tow = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.30, 8), mats.milkCart);
+    tow.rotation.x = Math.PI / 2;
+    tow.position.set(0, 0.28, -0.80 - i * 1.15);
+    g.add(tow);
+  }
+  const wheelPositions = [
+    [-0.40, 0.18, 0.40], [0.40, 0.18, 0.40],
+    [-0.40, 0.18, -1.10], [0.40, 0.18, -1.10],
+    [-0.40, 0.18, -2.25], [0.40, 0.18, -2.25]
+  ];
+  for (const [x, y, z] of wheelPositions) {
+    const w = new THREE.Mesh(geos.wheel, mats.rtWheel);
+    w.position.set(x, y, z); w.rotation.z = Math.PI / 2;
+    g.add(w);
+  }
+  return g;
+}
+
+function createKardexVLM(id) {
+  const g = new THREE.Group();
+  g.name = `kx-${id}`;
+  g.userData = {kind: 'kardex', id};
+  // Cabinet: 3.0m wide × 1.5m deep × 4.0m tall
+  const cab = new THREE.Mesh(new THREE.BoxGeometry(3.0, 4.0, 1.5), mats.kxCab);
+  cab.position.y = 2.0; cab.castShadow = true;
+  g.add(cab);
+  // Yellow safety stripe (top)
+  const stripeTop = new THREE.Mesh(new THREE.BoxGeometry(3.02, 0.18, 1.52), mats.kxStripe);
+  stripeTop.position.y = 3.85; g.add(stripeTop);
+  // Yellow safety stripe (bottom)
+  const stripeBot = new THREE.Mesh(new THREE.BoxGeometry(3.02, 0.18, 1.52), mats.kxStripe);
+  stripeBot.position.y = 0.15; g.add(stripeBot);
+  // Pick window (operator side)
+  const window_ = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.5, 0.05), mats.kxCarousel);
+  window_.position.set(0, 1.3, 0.78); g.add(window_);
+  // Carousel disk (animated)
+  const carousel = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.10, 16), mats.kxCarousel);
+  carousel.position.set(0, 1.3, 0.78);
+  carousel.rotation.x = Math.PI / 2;
+  g.add(carousel);
+  g.userData.carousel = carousel;
+  return g;
+}
+
+function createKittingTable(id, lineLabel) {
+  const g = new THREE.Group();
+  g.name = `kit-${id}`;
+  g.userData = {kind: 'kitting', id};
+  const table = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.85, 1.0), mats.kittingTbl);
+  table.position.y = 0.42; table.castShadow = true;
+  g.add(table);
+  // WIP carton
+  const wip = new THREE.Mesh(new THREE.BoxGeometry(0.50, 0.38, 0.40), mats.wipCarton);
+  wip.position.set(-0.45, 1.05, 0); wip.castShadow = true;
+  g.add(wip);
+  const wip2 = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.32, 0.35), mats.wipCarton);
+  wip2.position.set(0.30, 1.02, 0.10);
+  g.add(wip2);
+  // Line sign sprite
+  if (lineLabel) {
+    const {texture, w, h} = labelTexture(lineLabel, '#1c3d6e', 64, 'rgba(255,255,255,0.92)');
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({map: texture, transparent: true, depthTest: false}));
+    sprite.position.set(0, 2.0, 0);
+    sprite.scale.set(1.4, 0.42, 1);
+    sprite.renderOrder = 4;
+    g.add(sprite);
+  }
+  return g;
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  ENTITY PLACEMENT — demo positions until M4 wires real playback events.
+// ────────────────────────────────────────────────────────────────────────────
+const ENTITIES = {operators: [], rts: [], milkruns: [], kardex: [], kitting: []};
+
+function placeEntities() {
+  const lineLabels = LAYOUT.floor_labels.filter(l => l.text.startsWith('(')).sort((a,b) => a.y - b.y);
+  const kittingLabels = LAYOUT.floor_labels.filter(l => l.text.includes('KITTING')).sort((a,b) => a.y - b.y);
+  const putawayLabels = LAYOUT.floor_labels.filter(l => l.text.includes('PUTAWAY')).sort((a,b) => a.y - b.y);
+
+  // 8 operators at production-line stations (one per line label, fallback by repetition)
+  for (let i = 0; i < 8; i++) {
+    const op = createOperator(i + 1);
+    const lbl = lineLabels[i % Math.max(1, lineLabels.length)] || {x: bounds.minX + 600, y: bounds.minY + 400 + i * 400};
+    const p = cadToWorld(lbl.x - 180, lbl.y + ((i % 2 === 0) ? -120 : 120));
+    op.position.set(p.x, 0, p.z);
+    op.userData.baseY = 0;
+    op.userData.baseX = p.x; op.userData.baseZ = p.z;
+    op.userData.phase = i * 0.7;
+    entityGroup.add(op);
+    ENTITIES.operators.push(op);
+  }
+  // 7 reach trucks parked at the SOUTH depot row (loading-dock convention).
+  // Single line along y = bounds.minY - 60 cm, x evenly distributed across the floor.
+  const depotY = bounds.minY - 80;
+  const depotX0 = bounds.minX + 400;
+  const depotX1 = bounds.maxX - 400;
+  for (let i = 0; i < 7; i++) {
+    const rt = createReachTruck(i + 1);
+    const cadX = depotX0 + ((depotX1 - depotX0) * i) / 6;
+    const p = cadToWorld(cadX, depotY);
+    rt.position.set(p.x, 0, p.z);
+    rt.rotation.y = 0; // all facing north into the warehouse
+    rt.userData.baseX = p.x; rt.userData.baseZ = p.z;
+    rt.userData.phase = i * 0.4;
+    entityGroup.add(rt);
+    ENTITIES.rts.push(rt);
+  }
+  // 7 milk-runs staged along the EAST service corridor (between racks and east wall).
+  const mrX = bounds.maxX - 80;
+  for (let i = 0; i < 7; i++) {
+    const m = createMilkRun(i + 1);
+    const cadY = bounds.minY + 350 + (i * (bounds.maxY - bounds.minY - 700)) / 6;
+    const p = cadToWorld(mrX, cadY);
+    m.position.set(p.x, 0, p.z);
+    m.rotation.y = -Math.PI / 2; // facing west into the racks
+    m.userData.baseX = p.x; m.userData.baseZ = p.z;
+    m.userData.phase = i * 0.5;
+    entityGroup.add(m);
+    ENTITIES.milkruns.push(m);
+  }
+  // 4 Kardex VLM cabinets along the WEST wall, INSIDE the floor footprint.
+  const kxX = bounds.minX + 180;
+  const kxYs = [
+    bounds.minY + (bounds.maxY - bounds.minY) * 0.18,
+    bounds.minY + (bounds.maxY - bounds.minY) * 0.40,
+    bounds.minY + (bounds.maxY - bounds.minY) * 0.62,
+    bounds.minY + (bounds.maxY - bounds.minY) * 0.84,
+  ];
+  for (let i = 0; i < 4; i++) {
+    const k = createKardexVLM(i + 1);
+    const p = cadToWorld(kxX, kxYs[i]);
+    k.position.set(p.x, 0, p.z);
+    k.rotation.y = Math.PI / 2; // door facing east (into warehouse)
+    entityGroup.add(k);
+    ENTITIES.kardex.push(k);
+  }
+  // 8 kitting tables — one per production line label (next to the operator).
+  for (let i = 0; i < 8; i++) {
+    const lbl = lineLabels[i % Math.max(1, lineLabels.length)] || {text: `Line ${i+1}`, x: bounds.minX + 600, y: bounds.minY + 400 + i * 400};
+    const t = createKittingTable(i + 1, lbl.text ? lbl.text.replace(/[()]/g, '') : `Line ${i + 1}`);
+    const p = cadToWorld(lbl.x - 280, lbl.y);
+    t.position.set(p.x, 0, p.z);
+    entityGroup.add(t);
+    ENTITIES.kitting.push(t);
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  IDLE ANIMATION (until M4 plays back JSONL timeline)
+// ────────────────────────────────────────────────────────────────────────────
+const clock = new THREE.Clock();
+function animateIdle(t, dt) {
+  // Operators: gentle bob + leg swing (in place)
+  for (const op of ENTITIES.operators) {
+    const ph = op.userData.phase || 0;
+    op.position.y = Math.sin(t * 2.4 + ph) * 0.018;
+    const sw = Math.sin(t * 3.2 + ph) * 0.10;
+    if (op.userData.legL) op.userData.legL.rotation.x = sw;
+    if (op.userData.legR) op.userData.legR.rotation.x = -sw;
+    if (op.userData.body) op.userData.body.rotation.y = Math.sin(t * 0.6 + ph) * 0.15;
+  }
+  // RTs: wheel rotation
+  for (const rt of ENTITIES.rts) {
+    if (rt.userData.wheels) {
+      for (const w of rt.userData.wheels) w.rotation.x += dt * 1.2;
+    }
+  }
+  // Milkruns: wheel rotation (re-use rt wheel mat; not stored, skip individual rotation)
+  // Kardex: carousel rotate
+  for (const k of ENTITIES.kardex) {
+    if (k.userData.carousel) k.userData.carousel.rotation.z += dt * 0.5;
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  PICK HIGHLIGHT — yellow emissive pulse on rack (bay, level, position)
+// ────────────────────────────────────────────────────────────────────────────
+const activeHighlights = [];
+
+function findRackBayCenter(letter, bay) {
+  const rows = (RACKS_BY_LETTER.get(letter) || []).filter(r => !r.skip);
+  if (!rows.length) return null;
+  let acc = 0;
+  for (const row of rows) {
+    if (bay - acc <= row.bays && bay - acc > 0) {
+      const local = bay - acc; // 1-indexed bay within row
+      const posVals = uniqueSorted(row.posts);
+      if (local >= posVals.length) return null;
+      const v0 = posVals[local - 1], v1 = posVals[local];
+      const center = (v0 + v1) / 2;
+      const otherC = row.dir === 'x' ? (row.y0 + row.y1) / 2 : (row.x0 + row.x1) / 2;
+      if (row.dir === 'x') return cadToWorld(center, otherC);
+      else return cadToWorld(otherC, center);
+    }
+    acc += row.bays;
+  }
+  return null;
+}
+
+function highlightPick(letter, bay, level, position) {
+  const p = findRackBayCenter(letter, bay);
+  if (!p) return;
+  const lv = levelYsM(letter);
+  const h = lv[Math.min(level - 1, lv.length - 1)] + 0.15;
+  const geom = new THREE.BoxGeometry(0.9, 0.7, 0.9);
+  const mat = mats.highlight.clone();
+  const mesh = new THREE.Mesh(geom, mat);
+  mesh.position.set(p.x, h, p.z);
+  mesh.userData = {created: clock.getElapsedTime(), duration: 2.0};
+  highlightGroup.add(mesh);
+  activeHighlights.push(mesh);
+  showToast(`Pick ${letter}-${String(bay).padStart(2,'0')}-${String(level).padStart(2,'0')}-${String(position).padStart(2,'0')}`);
+}
+
+function updateHighlights(t) {
+  for (let i = activeHighlights.length - 1; i >= 0; i--) {
+    const m = activeHighlights[i];
+    const age = t - m.userData.created;
+    if (age > m.userData.duration) {
+      highlightGroup.remove(m);
+      m.geometry.dispose(); m.material.dispose();
+      activeHighlights.splice(i, 1);
+      continue;
+    }
+    const phase = age / m.userData.duration;
+    m.material.opacity = 0.65 * (1 - phase) * (1 + 0.5 * Math.sin(age * 8));
+    m.scale.setScalar(1 + phase * 0.25);
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  CAMERA PRESETS with 600 ms eased tween
+// ────────────────────────────────────────────────────────────────────────────
+const easeInOutCubic = x => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+
+const VIEW_PRESETS = {
+  iso:       {pos: [24, 24, 36],   target: [0, 2.25, 0]},
+  top:       {pos: [0, 60, 0.001], target: [0, 0, 0]},
+  plan:      {pos: [22, 30, 22],   target: [0, 1.5, 0]},
+  cinematic: {pos: [-30, 8, 26],   target: [0, 2.0, 0]}
+};
+
+let tween = null;
+function tweenCamera(preset, ms = 600) {
+  const p = VIEW_PRESETS[preset];
+  if (!p) return;
+  const startPos = camera.position.clone();
+  const startTarget = controls.target.clone();
+  const endPos = new THREE.Vector3(...p.pos);
+  const endTarget = new THREE.Vector3(...p.target);
+  const t0 = performance.now();
+  tween = {t0, ms, startPos, startTarget, endPos, endTarget};
+  for (const btn of document.querySelectorAll('#cam-presets button[data-view]')) {
+    btn.classList.toggle('active', btn.dataset.view === preset);
+  }
+}
+
+function updateTween() {
+  if (!tween) return;
+  const t = (performance.now() - tween.t0) / tween.ms;
+  if (t >= 1) {
+    camera.position.copy(tween.endPos);
+    controls.target.copy(tween.endTarget);
+    controls.update();
+    tween = null;
+    return;
+  }
+  const e = easeInOutCubic(t);
+  camera.position.lerpVectors(tween.startPos, tween.endPos, e);
+  controls.target.lerpVectors(tween.startTarget, tween.endTarget, e);
+  controls.update();
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  FOLLOW MODE
+// ────────────────────────────────────────────────────────────────────────────
+let followTarget = null;
+function setFollow(id) {
+  if (id === 'none') { followTarget = null; }
+  else {
+    const groups = {op: ENTITIES.operators, rt: ENTITIES.rts, milk: ENTITIES.milkruns};
+    const [kind, num] = id.split('-');
+    const list = groups[kind];
+    if (list) followTarget = list[parseInt(num) - 1] || null;
+  }
+  for (const btn of document.querySelectorAll('#follow-bar button[data-follow]')) {
+    btn.classList.toggle('active', btn.dataset.follow === id);
+  }
+}
+function updateFollow() {
+  if (!followTarget || tween) return;
+  const p = followTarget.position;
+  controls.target.lerp(new THREE.Vector3(p.x, 1.0, p.z), 0.08);
+  const offset = new THREE.Vector3(-6, 5, 8);
+  const desired = new THREE.Vector3(p.x + offset.x, offset.y, p.z + offset.z);
+  camera.position.lerp(desired, 0.04);
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  KPI HUD UPDATE (demo values until M4 wires real timeline)
+// ────────────────────────────────────────────────────────────────────────────
+const KPI_DEMO = {walk: 80.5, lead: 3.12, rtutil: 2.3, oputil: 7.3, orders: 0};
+function setKPIs(walk, lead, rtu, opu, orders, simMin) {
+  document.getElementById('kpi-walk').textContent = walk.toFixed(1);
+  document.getElementById('kpi-lead').textContent = lead.toFixed(2);
+  document.getElementById('kpi-rtutil').textContent = rtu.toFixed(1);
+  document.getElementById('kpi-oputil').textContent = opu.toFixed(1);
+  document.getElementById('kpi-orders').textContent = Math.floor(orders);
+  if (simMin !== undefined) {
+    const h = Math.floor(simMin / 60), m = Math.floor(simMin % 60), s = Math.floor((simMin * 60) % 60);
+    document.getElementById('time-label').textContent =
+      `sim t=${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    // Shift indicator (08:00-16:30 / 16:30-00:30 / off). Sim t=0 maps to 08:00.
+    const wallMin = (simMin + 480) % (24 * 60);
+    let shiftText, cls;
+    if (wallMin >= 480 && wallMin < 990) { shiftText = 'Shift 1 · A'; cls = ''; }
+    else if (wallMin >= 990 && wallMin < 1470) { shiftText = 'Shift 2 · B'; cls = ''; }
+    else { shiftText = 'Off-shift'; cls = 'off'; }
+    // Override with break window 12:00-12:30
+    if (wallMin >= 720 && wallMin < 750) { shiftText = 'BREAK 30min'; cls = 'break'; }
+    const b = document.getElementById('shift-badge');
+    b.textContent = shiftText;
+    b.className = 'shift-badge ' + cls;
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  TOAST
+// ────────────────────────────────────────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  TIMELINE PLAYER (M4) — JSONL event stream → entity motion + KPI HUD
+// ────────────────────────────────────────────────────────────────────────────
+const POLICIES = [
+  {key: 'baseline_actual_sap',        label: 'Baseline (Actual SAP)'},
+  {key: 'baseline_heuristic',         label: 'Baseline (Heuristic)'},
+  {key: 'usage_based_abc',            label: 'Usage-based ABC'},
+  {key: 'double_abc',                 label: 'Double ABC'},
+  {key: 'travel_distance_optimized',  label: 'Travel-distance Optimized'},
+];
+
+function fmtSimT(simMin) {
+  const total = Math.max(0, simMin);
+  const h = Math.floor(total / 60);
+  const m = Math.floor(total % 60);
+  const s = Math.floor((total * 60) % 60);
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+// Translate a CAD (cm) coordinate pair to Three.js world space.
+function cadCmToWorld(xy) {
+  if (!xy || xy.length < 2) return null;
+  return cadToWorld(xy[0], xy[1]);
+}
+
+class TimelinePlayer {
+  constructor() {
+    this.events = [];          // raw, sorted by t
+    this.header = null;        // line-0 header
+    this.maxT = 0;
+    this.cur = 0;              // current sim-min cursor
+    this.evIdx = 0;            // event pointer for forward dispatch
+    this.speed = 1.0;          // sim-min per real-second multiplier (1× = 60× real)
+    this.realPerSimMin = 1.0;  // 1 sim-min per 1 real-second at 1× (≈60× wall time)
+    this.playing = false;
+    this.loaded = false;
+    this.opTracks = new Map(); // op_id → {segments[], lastEventT, fallbackPos}
+    this.rtTracks = new Map(); // rt_id → {segments[], lastEventT, fallbackPos}
+    this.lastKPI = null;
+    this.activeOrders = new Set();   // order_ids currently in flight
+    this.kpiInflight = {orders: 0, walkSum: 0, leadSum: 0, picks: 0};
+    this.totalOrders = 0;
+    this.totalPicks = 0;
+    this._loadAbort = null;
+    this._policyKey = null;
+    this._policyLabel = null;
+  }
+
+  async load(policyKey, label) {
+    if (this._loadAbort) this._loadAbort.abort();
+    const ctrl = new AbortController();
+    this._loadAbort = ctrl;
+    this._policyKey = policyKey;
+    this._policyLabel = label;
+
+    this.reset();
+    document.getElementById('policy-name').textContent = `${label} · loading…`;
+
+    // Try mirror first (works on GH Pages from docs/), then ../output, then web/timeline.
+    const urls = [
+      `./timeline/sim_timeline_${policyKey}.jsonl`,
+      `../output/sim_timeline_${policyKey}.jsonl`,
+      `./sim_timeline_${policyKey}.jsonl`,
+    ];
+    let text = null;
+    for (const url of urls) {
+      try {
+        const r = await fetch(url, {signal: ctrl.signal});
+        if (r.ok) { text = await r.text(); console.log('Timeline loaded from', url); break; }
+      } catch (e) {
+        if (e.name === 'AbortError') return;
+      }
+    }
+    if (text == null) {
+      showToast(`Timeline missing: ${policyKey}`);
+      document.getElementById('policy-name').textContent = `${label} · ERROR`;
+      return;
+    }
+
+    const lines = text.split('\n');
+    const events = [];
+    let header = null;
+    let parseErr = 0;
+    for (const line of lines) {
+      if (!line) continue;
+      try {
+        const obj = JSON.parse(line);
+        if (obj.type === 'header') header = obj;
+        else if (obj.type === 'footer') continue;
+        else if (typeof obj.t === 'number') events.push(obj);
+      } catch (e) { parseErr++; }
+    }
+    events.sort((a, b) => a.t - b.t);
+    this.events = events;
+    this.header = header;
+    this.maxT = events.length ? events[events.length - 1].t : 0;
+
+    // Pre-index per-entity move segments for interpolation.
+    const opPrevT = new Map();
+    for (const ev of events) {
+      if (ev.type === 'op_move') {
+        const id = ev.op_id;
+        const tr = this.opTracks.get(id) || {segments: [], lastT: 0};
+        const t0 = opPrevT.get(id) ?? 0;
+        tr.segments.push({t0, t1: ev.t, from: ev.from, to: ev.to});
+        opPrevT.set(id, ev.t);
+        this.opTracks.set(id, tr);
+      }
+    }
+    const rtPrevT = new Map();
+    for (const ev of events) {
+      if (ev.type === 'rt_dispatch') {
+        const id = ev.rt_id;
+        // Find pos_id world coord by walking racks
+        const xy = this._posIdToWorld(ev.pos_id);
+        if (!xy) continue;
+        const tr = this.rtTracks.get(id) || {segments: []};
+        const t0 = rtPrevT.get(id) ?? Math.max(0, ev.t - 0.5);
+        tr.segments.push({t0, t1: ev.t, from: null, to: [xy.x, xy.z], dur: 0.5});
+        rtPrevT.set(id, ev.t);
+        this.rtTracks.set(id, tr);
+      }
+    }
+    this.loaded = true;
+    this.totalOrders = events.filter(e => e.type === 'order_start').length;
+    this.totalPicks = events.filter(e => e.type === 'pick' || e.type === 'kardex_pick').length;
+
+    document.getElementById('policy-name').textContent = label;
+    document.getElementById('sim-time-end').textContent = fmtSimT(this.maxT);
+    document.getElementById('rep-label').textContent =
+      `${this.totalOrders} orders · ${this.totalPicks} picks`;
+    if (parseErr > 0) showToast(`${parseErr} bad line(s) skipped`);
+    this.seek(0);
+  }
+
+  _posIdToWorld(posId) {
+    // pos_id format: "<letter>-<bay>-<level>-<position>" (e.g. "A-03-01-1")
+    if (!posId) return null;
+    const m = /^([A-Z]+)-(\d+)-(\d+)-?(\d+)?/.exec(posId);
+    if (!m) return null;
+    const letter = m[1], bay = parseInt(m[2], 10);
+    return findRackBayCenter(letter, bay);
+  }
+
+  reset() {
+    this.events = [];
+    this.header = null;
+    this.maxT = 0; this.cur = 0; this.evIdx = 0;
+    this.opTracks.clear(); this.rtTracks.clear();
+    this.lastKPI = null; this.activeOrders.clear();
+    this.kpiInflight = {orders: 0, walkSum: 0, leadSum: 0, picks: 0};
+    this.totalOrders = 0; this.totalPicks = 0;
+    this.loaded = false;
+  }
+
+  play() {
+    if (!this.loaded) return;
+    if (this.cur >= this.maxT - 0.001) this.seek(0);
+    this.playing = true;
+    document.getElementById('btn-play').textContent = '❚❚';
+    document.getElementById('btn-play').classList.add('active');
+  }
+  pause() {
+    this.playing = false;
+    document.getElementById('btn-play').textContent = '▶';
+    document.getElementById('btn-play').classList.remove('active');
+  }
+  toggle() { this.playing ? this.pause() : this.play(); }
+
+  setSpeed(s) {
+    this.speed = s;
+    for (const b of document.querySelectorAll('#speed-btns button')) {
+      b.classList.toggle('active', Math.abs(parseFloat(b.dataset.speed) - s) < 1e-6);
+    }
+  }
+
+  step(deltaSimMin) {
+    this.seek(this.cur + deltaSimMin);
+  }
+
+  seek(t) {
+    t = Math.max(0, Math.min(t, this.maxT));
+    const goingBack = t < this.cur;
+    this.cur = t;
+    if (goingBack) {
+      // rewind dispatch state
+      this.evIdx = 0;
+      this.kpiInflight = {orders: 0, walkSum: 0, leadSum: 0, picks: 0};
+      this.activeOrders.clear();
+      this.lastKPI = null;
+    }
+    // Dispatch all events with t<=cur that we haven't processed yet (instantaneous catch-up)
+    this._dispatchUpTo(this.cur, /*silent*/ goingBack);
+    this._refreshEntityPositions(this.cur);
+    this._updateHud();
+    this._syncScrubber();
+  }
+
+  _dispatchUpTo(t, silent) {
+    while (this.evIdx < this.events.length && this.events[this.evIdx].t <= t) {
+      const ev = this.events[this.evIdx++];
+      this._handleEvent(ev, silent);
+    }
+  }
+
+  _handleEvent(ev, silent) {
+    switch (ev.type) {
+      case 'order_start':
+        this.activeOrders.add(ev.order_id);
+        break;
+      case 'order_done':
+        this.activeOrders.delete(ev.order_id);
+        this.kpiInflight.orders++;
+        this.kpiInflight.walkSum += ev.walk_m || 0;
+        this.kpiInflight.leadSum += ev.lead_min || 0;
+        this.kpiInflight.picks += ev.n_picks || 0;
+        break;
+      case 'pick':
+        if (!silent && this.speed <= 4.001) {
+          highlightPick(ev.rack, ev.bay, ev.level, ev.position || 1);
+        }
+        break;
+      case 'kardex_pick':
+        // Highlight is best-effort; no rack mesh, skip silently
+        break;
+      case 'kpi_snapshot':
+        this.lastKPI = ev;
+        break;
+      default: break;
+    }
+  }
+
+  _refreshEntityPositions(t) {
+    // Operators
+    let i = 0;
+    for (const op of ENTITIES.operators) {
+      const id = i + 1;
+      const tr = this.opTracks.get(id);
+      const p = this._trackPos(tr, t);
+      if (p) {
+        op.userData.baseX = p.x; op.userData.baseZ = p.z;
+        op.position.x = p.x; op.position.z = p.z;
+      }
+      i++;
+    }
+    // RTs
+    let j = 0;
+    for (const rt of ENTITIES.rts) {
+      const id = j + 1;
+      const tr = this.rtTracks.get(id);
+      const p = this._trackPos(tr, t);
+      if (p) {
+        rt.userData.baseX = p.x; rt.userData.baseZ = p.z;
+        rt.position.x = p.x; rt.position.z = p.z;
+      }
+      j++;
+    }
+  }
+
+  _trackPos(tr, t) {
+    if (!tr || !tr.segments.length) return null;
+    const segs = tr.segments;
+    // Binary search for segment with t1 >= t (latest segment that may apply)
+    let lo = 0, hi = segs.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (segs[mid].t1 < t) lo = mid + 1; else hi = mid;
+    }
+    const s = segs[lo];
+    if (!s) return null;
+    if (t >= s.t1) {
+      // Past last segment → snap to its end
+      const last = segs[segs.length - 1];
+      const p = cadCmToWorld(last.to);
+      return p ? {x: p.x, z: p.z} : null;
+    }
+    if (t < s.t0) {
+      // Before this segment's start → snap to its 'from' (or previous 'to')
+      const p = cadCmToWorld(s.from);
+      return p ? {x: p.x, z: p.z} : null;
+    }
+    // Linear interpolation within segment
+    const u = (t - s.t0) / Math.max(1e-6, s.t1 - s.t0);
+    const a = cadCmToWorld(s.from);
+    const b = cadCmToWorld(s.to);
+    if (!a || !b) return null;
+    return {x: a.x + (b.x - a.x) * u, z: a.z + (b.z - a.z) * u};
+  }
+
+  _updateHud() {
+    const n = Math.max(1, this.kpiInflight.orders);
+    const walk = this.kpiInflight.walkSum / n;
+    const lead = this.kpiInflight.leadSum / n;
+    let rtu = 0, opu = 0;
+    if (this.lastKPI) {
+      rtu = this.lastKPI.rt_util_pct || 0;
+      opu = this.lastKPI.op_util_pct || 0;
+    }
+    setKPIs(walk, lead, rtu, opu, this.kpiInflight.orders, this.cur);
+  }
+
+  _syncScrubber() {
+    const scr = document.getElementById('scrubber');
+    if (!scr) return;
+    const u = this.maxT > 0 ? Math.min(1, this.cur / this.maxT) : 0;
+    scr.value = Math.round(u * 1000);
+    scr.style.setProperty('--p', `${(u * 100).toFixed(2)}%`);
+    document.getElementById('sim-time-now').textContent = fmtSimT(this.cur);
+  }
+
+  tick(realDt) {
+    if (!this.playing) return;
+    // 1 wall-second @ 1× = 1 sim-min (i.e. realPerSimMin = 1, speed multiplies)
+    const dSim = realDt * this.speed;
+    const newCur = Math.min(this.maxT, this.cur + dSim);
+    if (newCur === this.cur) {
+      // Reached end
+      if (this.cur >= this.maxT - 0.001) this.pause();
+      return;
+    }
+    this.cur = newCur;
+    this._dispatchUpTo(this.cur, /*silent*/ this.speed > 16);
+    this._refreshEntityPositions(this.cur);
+    this._updateHud();
+    this._syncScrubber();
+    if (this.cur >= this.maxT - 0.001) this.pause();
+  }
+}
+
+const player = new TimelinePlayer();
+
+// ────────────────────────────────────────────────────────────────────────────
+//  BUILD SCENE
+// ────────────────────────────────────────────────────────────────────────────
+createFloor();
+LAYOUT.racks.forEach(createRack);
+addCompoundRackLabels();
+LAYOUT.floor_labels.forEach(addFloorLabel);
+addSpecialObjects();
+LAYOUT.racks.forEach(addCapacityPlacard);
+addHangingSigns();
+addProtectorsAroundRacks();
+addForkliftDecals();
+placeEntities();
+
+// Set initial view (URL ?view= override)
+const urlView = new URLSearchParams(window.location.search).get('view');
+if (urlView === 'top') tweenCamera('top', 0);
+else if (urlView === 'plan') tweenCamera('plan', 0);
+else if (urlView === 'cinematic') tweenCamera('cinematic', 0);
+else tweenCamera('iso', 0);
+
+// ────────────────────────────────────────────────────────────────────────────
+//  CONTROLS WIRING
+// ────────────────────────────────────────────────────────────────────────────
+for (const btn of document.querySelectorAll('#cam-presets button[data-view]')) {
+  btn.addEventListener('click', () => tweenCamera(btn.dataset.view));
+}
+for (const btn of document.querySelectorAll('#follow-bar button[data-follow]')) {
+  btn.addEventListener('click', () => setFollow(btn.dataset.follow));
+}
+document.getElementById('btn-toggle-labels').addEventListener('click', e => {
+  labelGroup.visible = !labelGroup.visible;
+  e.currentTarget.classList.toggle('active', labelGroup.visible);
+});
+document.getElementById('btn-toggle-plan').addEventListener('click', e => {
+  planGroup.visible = !planGroup.visible;
+  e.currentTarget.classList.toggle('active', planGroup.visible);
+});
+document.getElementById('btn-pick-demo').addEventListener('click', () => {
+  const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+  const letter = letters[Math.floor(Math.random() * letters.length)];
+  const bay = 1 + Math.floor(Math.random() * 10);
+  const level = 1 + Math.floor(Math.random() * 6);
+  highlightPick(letter, bay, level, 0);
+});
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === '1') tweenCamera('iso');
+  else if (e.key === '2') tweenCamera('top');
+  else if (e.key === '3') tweenCamera('plan');
+  else if (e.key === '4') tweenCamera('cinematic');
+  else if (e.key === 'l' || e.key === 'L') document.getElementById('btn-toggle-labels').click();
+  else if (e.key === 'p' || e.key === 'P') document.getElementById('btn-toggle-plan').click();
+  else if (e.key === 'h' || e.key === 'H') {
+    // H = heatmap toggle placeholder (M5)
+    showToast('Heatmap overlay — M5 dashboard');
+  } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
+    document.getElementById('fps').classList.toggle('on');
+    e.preventDefault();
+  } else if (e.key === ' ') {
+    // Space toggles playback (or fires test pick when timeline not loaded)
+    if (player.loaded) player.toggle();
+    else document.getElementById('btn-pick-demo').click();
+    e.preventDefault();
+  } else if (e.key === 'ArrowLeft') {
+    if (player.loaded) player.step(-30);
+  } else if (e.key === 'ArrowRight') {
+    if (player.loaded) player.step(30);
+  }
+});
+
+// ── Transport bar wiring ────────────────────────────────────────────────────
+const sel = document.getElementById('policy-select');
+sel.innerHTML = '';
+for (const p of POLICIES) {
+  const opt = document.createElement('option');
+  opt.value = p.key; opt.textContent = p.label;
+  sel.appendChild(opt);
+}
+sel.value = POLICIES[0].key;
+sel.addEventListener('change', () => {
+  const p = POLICIES.find(x => x.key === sel.value);
+  if (p) { player.pause(); player.load(p.key, p.label).then(() => player.play()); }
+});
+document.getElementById('btn-play').addEventListener('click', () => player.toggle());
+document.getElementById('btn-step-back').addEventListener('click', () => player.step(-30));
+document.getElementById('btn-step-fwd').addEventListener('click', () => player.step(30));
+for (const b of document.querySelectorAll('#speed-btns button')) {
+  b.addEventListener('click', () => player.setSpeed(parseFloat(b.dataset.speed)));
+}
+let scrubDragging = false;
+const scrubEl = document.getElementById('scrubber');
+scrubEl.addEventListener('input', () => {
+  scrubDragging = true;
+  const u = parseInt(scrubEl.value, 10) / 1000;
+  player.seek(u * player.maxT);
+});
+scrubEl.addEventListener('change', () => { scrubDragging = false; });
+
+// Kick off the first policy load (auto-play once loaded)
+player.load(POLICIES[0].key, POLICIES[0].label).then(() => { if (player.loaded) player.play(); });
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+//  ANIMATION LOOP — 60 fps target
+// ────────────────────────────────────────────────────────────────────────────
+let lastFpsT = performance.now();
+let frameCount = 0;
+let demoOrders = 0;
+let demoLastOrderT = 0;
+
+function animate() {
+  const dt = clock.getDelta();
+  const t = clock.getElapsedTime();
+
+  updateTween();
+  updateFollow();
+  animateIdle(t, dt);
+  updateHighlights(t);
+
+  if (player.loaded) {
+    player.tick(dt);
+  } else {
+    // Fallback demo until first JSONL has loaded
+    const simMin = t * 8;
+    setKPIs(
+      KPI_DEMO.walk + Math.sin(t * 0.1) * 1.2,
+      KPI_DEMO.lead + Math.sin(t * 0.08) * 0.15,
+      KPI_DEMO.rtutil + (1 + Math.sin(t * 0.15) * 0.5),
+      KPI_DEMO.oputil + (1 + Math.sin(t * 0.12) * 0.7),
+      demoOrders,
+      simMin
+    );
+  }
+
+  controls.update();
+  composer.render();
+
+  // FPS HUD
+  frameCount++;
+  const now = performance.now();
+  if (now - lastFpsT >= 500) {
+    const fps = frameCount * 1000 / (now - lastFpsT);
+    document.getElementById('fps-val').textContent = fps.toFixed(0);
+    document.getElementById('fps-ms').textContent = (1000 / fps).toFixed(1);
+    document.getElementById('fps-draws').textContent = renderer.info.render.calls;
+    lastFpsT = now; frameCount = 0;
+  }
+
+  requestAnimationFrame(animate);
+}
+animate();
+
+// ────────────────────────────────────────────────────────────────────────────
+//  ANALYTICS SIDEBAR (M5 dashboard) — D2/D3/D4/D5/D9/D10/D11 + U3 + F4/F8
+// ────────────────────────────────────────────────────────────────────────────
+async function fetchJSON(paths) {
+  for (const p of paths) {
+    try { const r = await fetch(p); if (r.ok) return await r.json(); } catch (_) {}
+  }
+  return null;
+}
+async function fetchCSV(paths) {
+  for (const p of paths) {
+    try { const r = await fetch(p); if (r.ok) return await r.text(); } catch (_) {}
+  }
+  return null;
+}
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const head = lines[0].split(',');
+  return lines.slice(1).map(line => {
+    const cols = line.split(',');
+    const o = {};
+    head.forEach((h, i) => { o[h] = isNaN(Number(cols[i])) ? cols[i] : Number(cols[i]); });
+    return o;
+  });
+}
+
+const DATA_PATHS = {
+  policy:      ['./data/policy_summary.json', '../output/policy_summary.json'],
+  validation:  ['./data/validation_report.json', '../output/validation_report.json'],
+  sensitivity: ['./data/sensitivity.json', '../output/sensitivity.json'],
+  zwm92:       ['./data/zwm92_summary.json', '../output/zwm92_summary.json'],
+  timing:      ['./data/timing_study_f400.json', '../output/timing_study_f400.json'],
+  prep:        ['./data/preprocess_stats.json', '../output/preprocess_stats.json'],
+};
+const POLICY_RACK_CSV = {
+  baseline_actual_sap:        ['./data/baseline_actual_sap_picks_per_rack.csv', '../output/baseline_actual_sap_picks_per_rack.csv'],
+  baseline_heuristic:         ['./data/baseline_heuristic_picks_per_rack.csv', '../output/baseline_heuristic_picks_per_rack.csv'],
+  usage_based_abc:            ['./data/usage-based_abc_picks_per_rack.csv', '../output/usage-based_abc_picks_per_rack.csv'],
+  double_abc:                 ['./data/double_abc_picks_per_rack.csv', '../output/double_abc_picks_per_rack.csv'],
+  travel_distance_optimized:  ['./data/travel-distance_optimized_picks_per_rack.csv', '../output/travel-distance_optimized_picks_per_rack.csv'],
+};
+
+const DASH = {policy: null, validation: null, sensitivity: null, zwm92: null, timing: null, prep: null, charts: {}};
+
+async function loadAllData() {
+  const [policy, validation, sensitivity, zwm92, timing, prep] = await Promise.all([
+    fetchJSON(DATA_PATHS.policy),
+    fetchJSON(DATA_PATHS.validation),
+    fetchJSON(DATA_PATHS.sensitivity),
+    fetchJSON(DATA_PATHS.zwm92),
+    fetchJSON(DATA_PATHS.timing),
+    fetchJSON(DATA_PATHS.prep),
+  ]);
+  Object.assign(DASH, {policy, validation, sensitivity, zwm92, timing, prep});
+  renderAllPanels();
+}
+
+function chartDestroy(key) {
+  if (DASH.charts[key]) { DASH.charts[key].destroy(); delete DASH.charts[key]; }
+}
+function chartCommon(opts = {}) {
+  return Object.assign({
+    responsive: true, maintainAspectRatio: false,
+    animation: {duration: 320, easing: 'easeInOutCubic'},
+    plugins: {
+      legend: {labels: {color: '#cbd5e1', font: {size: 10}, boxWidth: 10}},
+      tooltip: {backgroundColor: 'rgba(15,17,23,0.92)', borderColor: 'rgba(56,189,248,0.4)', borderWidth: 1}
+    },
+    scales: {
+      x: {ticks: {color: '#94a3b8', font: {size: 9}}, grid: {color: 'rgba(255,255,255,0.06)'}},
+      y: {ticks: {color: '#94a3b8', font: {size: 9}}, grid: {color: 'rgba(255,255,255,0.06)'}}
+    }
+  }, opts);
+}
+
+function renderAllPanels() {
+  renderCompare();
+  renderValidation();
+  renderSensitivity();
+  renderHeatmap();
+  renderDriver();
+  renderTiming();
+  renderData();
+  renderDefense();
+}
+
+function renderCompare() {
+  if (!DASH.policy) return;
+  const names = Object.keys(DASH.policy);
+  const walks = names.map(n => DASH.policy[n].avg_walk_distance);
+  const leads = names.map(n => DASH.policy[n].avg_lead_time);
+  const baseline = DASH.policy['Baseline (Actual SAP)'];
+
+  // KPI cards: 4 mini-cards for the current "selected" policy = player's
+  const sel = (player && player._policyLabel) || 'Baseline (Actual SAP)';
+  const s = DASH.policy[sel] || baseline || DASH.policy[names[0]];
+  if (!s || s.avg_walk_distance == null) return; // policy data malformed; skip
+  document.getElementById('compare-cards').innerHTML = `
+    <div class="kpi-card"><div class="ttl">Walk</div><div class="num">${s.avg_walk_distance.toFixed(1)}<span class="unit">m</span></div></div>
+    <div class="kpi-card"><div class="ttl">Lead</div><div class="num">${s.avg_lead_time.toFixed(2)}<span class="unit">min</span></div></div>
+    <div class="kpi-card"><div class="ttl">RT util</div><div class="num">${(s.reach_truck_utilization*100).toFixed(1)}<span class="unit">%</span></div></div>
+    <div class="kpi-card"><div class="ttl">Op util</div><div class="num">${(s.operator_utilization*100).toFixed(1)}<span class="unit">%</span></div></div>
+  `;
+
+  chartDestroy('compare-walk');
+  const ctx = document.getElementById('chart-compare-walk');
+  DASH.charts['compare-walk'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: names.map(n => n.replace('Baseline ', '').replace(' Optimized', '')),
+      datasets: [
+        {label: 'Walk (m)',  data: walks, backgroundColor: 'rgba(56,189,248,0.78)', borderRadius: 4},
+        {label: 'Lead (min)', data: leads, backgroundColor: 'rgba(74,222,128,0.78)', yAxisID: 'y1', borderRadius: 4}
+      ]
+    },
+    options: chartCommon({
+      scales: {
+        x: {ticks: {color: '#94a3b8', font: {size: 8}, maxRotation: 30}, grid: {color: 'rgba(255,255,255,0.06)'}},
+        y: {position: 'left', title: {display: true, text: 'm', color: '#94a3b8', font: {size: 9}}, ticks: {color: '#94a3b8', font: {size: 9}}, grid: {color: 'rgba(255,255,255,0.06)'}},
+        y1: {position: 'right', title: {display: true, text: 'min', color: '#94a3b8', font: {size: 9}}, ticks: {color: '#94a3b8', font: {size: 9}}, grid: {drawOnChartArea: false}}
+      }
+    })
+  });
+
+  // Before / After deltas (vs Baseline SAP)
+  const baseW = baseline.avg_walk_distance, baseL = baseline.avg_lead_time;
+  const rows = names.filter(n => n !== 'Baseline (Actual SAP)').map(n => {
+    const p = DASH.policy[n];
+    const dW = p.avg_walk_distance - baseW;
+    const dL = p.avg_lead_time - baseL;
+    const cls = (dW + dL * 5) > 0 ? 'bad' : 'good';
+    return `<div class="row"><span class="k">${n}</span><span class="v ${cls}">${dW >= 0 ? '+' : ''}${dW.toFixed(1)}m / ${dL >= 0 ? '+' : ''}${dL.toFixed(2)}min</span></div>`;
+  }).join('');
+  document.getElementById('compare-delta').innerHTML = rows;
+}
+
+function renderValidation() {
+  if (!DASH.validation) return;
+  const r = DASH.validation.chi_square_per_rack_restricted;
+  const pt = DASH.validation.paired_t_test || {};
+  document.getElementById('val-summary').textContent =
+    `χ²=${r.chi_square.toFixed(2)} (dof=${r.dof}), p=${r.p_value.toExponential(2)}. ` +
+    `Expected source: ${DASH.validation.expected_source}.`;
+  chartDestroy('val');
+  const ctx = document.getElementById('chart-val');
+  DASH.charts['val'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: r.racks,
+      datasets: [
+        {label: 'Observed (sim)', data: r.observed, backgroundColor: 'rgba(56,189,248,0.78)', borderRadius: 3},
+        {label: 'Expected (ZWM92)', data: r.expected, backgroundColor: 'rgba(251,191,36,0.78)', borderRadius: 3}
+      ]
+    },
+    options: chartCommon()
+  });
+  document.getElementById('val-stats').innerHTML = `
+    <div class="row"><span class="k">χ² statistic</span><span class="v">${r.chi_square.toFixed(2)}</span></div>
+    <div class="row"><span class="k">dof</span><span class="v">${r.dof}</span></div>
+    <div class="row"><span class="k">p-value</span><span class="v ${r.p_value < 0.05 ? 'bad' : 'good'}">${r.p_value.toExponential(2)}</span></div>
+    ${pt.t_statistic !== undefined ? `<div class="row"><span class="k">Paired-t (avg walk)</span><span class="v">t=${pt.t_statistic.toFixed(2)}, p=${(pt.p_value||0).toExponential(2)}</span></div>` : ''}
+  `;
+  document.getElementById('cochran-note').innerHTML =
+    r.cochran_low_cells && r.cochran_low_cells.length
+      ? `<span class="badge bad">VIOLATED</span> ${r.cochran_warning}`
+      : `<span class="badge ok">OK</span> All expected counts ≥ 5.`;
+}
+
+function renderSensitivity() {
+  if (!DASH.sensitivity) return;
+  const baseW = DASH.sensitivity.baseline.avg_walk_distance;
+  const entries = Object.entries(DASH.sensitivity.perturbations);
+  const items = [];
+  for (const [param, info] of entries) {
+    const runs = info.runs || {};
+    const loRun = runs.low || {}, hiRun = runs.high || {};
+    const lo = (loRun.kpis || {}).avg_walk_distance ?? baseW;
+    const hi = (hiRun.kpis || {}).avg_walk_distance ?? baseW;
+    items.push({param: info.label || param, lo: lo - baseW, hi: hi - baseW, range: Math.abs(lo-baseW) + Math.abs(hi-baseW)});
+  }
+  items.sort((a, b) => b.range - a.range);
+  chartDestroy('sens');
+  const ctx = document.getElementById('chart-sens');
+  DASH.charts['sens'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: items.map(x => x.param),
+      datasets: [
+        {label: 'Low Δwalk (m)',  data: items.map(x => x.lo), backgroundColor: 'rgba(248,113,113,0.78)', borderRadius: 3},
+        {label: 'High Δwalk (m)', data: items.map(x => x.hi), backgroundColor: 'rgba(74,222,128,0.78)', borderRadius: 3}
+      ]
+    },
+    options: chartCommon({indexAxis: 'y'})
+  });
+}
+
+let _heatmapPolicyKey = 'baseline_actual_sap';
+async function renderHeatmap() {
+  const sel = document.getElementById('heat-policy');
+  sel.innerHTML = '';
+  for (const p of POLICIES) {
+    const opt = document.createElement('option');
+    opt.value = p.key; opt.textContent = p.label;
+    sel.appendChild(opt);
+  }
+  sel.value = _heatmapPolicyKey;
+  sel.onchange = () => { _heatmapPolicyKey = sel.value; renderHeatmapChart(); };
+  await renderHeatmapChart();
+}
+async function renderHeatmapChart() {
+  const csv = await fetchCSV(POLICY_RACK_CSV[_heatmapPolicyKey] || []);
+  if (!csv) return;
+  const rows = parseCSV(csv);
+  chartDestroy('heat');
+  DASH.charts['heat'] = new Chart(document.getElementById('chart-heat'), {
+    type: 'bar',
+    data: {
+      labels: rows.map(r => r.rack_id),
+      datasets: [{label: 'Picks', data: rows.map(r => r.pick_count), backgroundColor: 'rgba(56,189,248,0.78)', borderRadius: 3}]
+    },
+    options: chartCommon()
+  });
+  DASH._lastHeatmap = rows;
+}
+
+const heatmapOverlays = [];
+function clearHeatmapOverlay() {
+  for (const m of heatmapOverlays) {
+    world.remove(m);
+    m.geometry.dispose(); m.material.dispose();
+  }
+  heatmapOverlays.length = 0;
+}
+function applyHeatmapOverlay() {
+  clearHeatmapOverlay();
+  if (!DASH._lastHeatmap) return;
+  const max = Math.max(...DASH._lastHeatmap.map(r => r.pick_count), 1);
+  const byRack = new Map(DASH._lastHeatmap.map(r => [r.rack_id, r.pick_count]));
+  for (const [letter, rows] of RACKS_BY_LETTER) {
+    const count = byRack.get(letter) || 0;
+    const intensity = count / max;
+    if (intensity < 0.01) continue;
+    const color = new THREE.Color();
+    color.setHSL(0.13 - 0.13 * intensity, 0.95, 0.5 + intensity * 0.15); // yellow → red
+    for (const row of rows) {
+      if (row.skip) continue;
+      const xc = (row.x0 + row.x1) / 2;
+      const yc = (row.y0 + row.y1) / 2;
+      const w = Math.abs(row.x1 - row.x0) * UNIT;
+      const h = Math.abs(row.y1 - row.y0) * UNIT;
+      const p = cadToWorld(xc, yc);
+      const geom = new THREE.BoxGeometry(w, 0.04, h);
+      const mat = new THREE.MeshBasicMaterial({color, transparent: true, opacity: 0.55 + intensity * 0.20, depthWrite: false});
+      const m = new THREE.Mesh(geom, mat);
+      m.position.set(p.x, 7.2, p.z);
+      world.add(m);
+      heatmapOverlays.push(m);
+    }
+  }
+}
+
+function renderDriver() {
+  if (!DASH.zwm92) return;
+  const z = DASH.zwm92;
+  document.getElementById('drv-cards').innerHTML = `
+    <div class="kpi-card"><div class="ttl">IAT (within shift)</div><div class="num">${z.iat_within_shift_mean.toFixed(2)}<span class="unit">min</span></div></div>
+    <div class="kpi-card"><div class="ttl">IAT (calendar)</div><div class="num">${z.iat_calendar_mean.toFixed(2)}<span class="unit">min</span></div></div>
+    <div class="kpi-card"><div class="ttl">Orders built</div><div class="num">${z.orders_built.toLocaleString()}</div></div>
+    <div class="kpi-card"><div class="ttl">Distinct/kit (mean)</div><div class="num">${z.n_distinct_per_kit_mean.toFixed(2)}</div></div>
+  `;
+  const lines = z.lines || {};
+  const lineLabels = Object.keys(lines).sort((a, b) => lines[b] - lines[a]).slice(0, 10);
+  chartDestroy('drv-lines');
+  DASH.charts['drv-lines'] = new Chart(document.getElementById('chart-drv-lines'), {
+    type: 'doughnut',
+    data: {
+      labels: lineLabels,
+      datasets: [{data: lineLabels.map(l => lines[l]), backgroundColor: [
+        '#38bdf8','#4ade80','#fbbf24','#f87171','#a78bfa','#f472b6','#fb923c','#22d3ee','#84cc16','#94a3b8']}]
+    },
+    options: Object.assign(chartCommon({plugins: {legend: {position: 'right', labels: {color:'#cbd5e1', font:{size:9}, boxWidth:10}}, tooltip: chartCommon().plugins.tooltip}}), {scales: {}})
+  });
+  document.getElementById('drv-pmf-text').textContent =
+    `Mean ${z.n_distinct_per_kit_mean.toFixed(2)} distinct materials/kit ` +
+    `(qty-expanded mean ${z.n_picks_per_kit_mean.toFixed(2)}/kit). N=${z.orders_built.toLocaleString()} kits.`;
+}
+
+function renderTiming() {
+  if (!DASH.timing) return;
+  const cats = DASH.timing.category_stats || {};
+  const keys = Object.keys(cats);
+  chartDestroy('timing');
+  DASH.charts['timing'] = new Chart(document.getElementById('chart-timing'), {
+    type: 'bar',
+    data: {
+      labels: keys,
+      datasets: [
+        {label: 'Mean (s)',   data: keys.map(k => cats[k].mean_s),   backgroundColor: 'rgba(56,189,248,0.78)', borderRadius: 3},
+        {label: 'p95 (s)',    data: keys.map(k => cats[k].p95_s),    backgroundColor: 'rgba(251,191,36,0.78)', borderRadius: 3},
+      ]
+    },
+    options: chartCommon({scales: {x: {ticks: {color:'#94a3b8', font:{size:8}, maxRotation: 45}, grid: {color:'rgba(255,255,255,0.06)'}}, y: chartCommon().scales.y}})
+  });
+  const rows = keys.map(k => `<tr><td>${k}</td><td class="r">${cats[k].n}</td><td class="r">${cats[k].mean_s.toFixed(2)}</td><td class="r">${cats[k].stdev_s.toFixed(2)}</td></tr>`).join('');
+  document.getElementById('timing-table').innerHTML =
+    `<table><thead><tr><th>Category</th><th class="r">n</th><th class="r">mean (s)</th><th class="r">stdev</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function renderData() {
+  if (!DASH.prep) return;
+  const p = DASH.prep;
+  const rows = Object.entries(p).map(([k, v]) =>
+    `<div class="row"><span class="k">${k.replace(/_/g, ' ')}</span><span class="v">${typeof v === 'number' ? v.toLocaleString() : v}</span></div>`
+  ).join('');
+  document.getElementById('data-rows').innerHTML = rows;
+}
+
+function renderDefense() {
+  if (!DASH.policy) return;
+  renderCostROI();
+  renderPareto();
+  renderBottleneck();
+  renderReslot();
+}
+
+function renderCostROI() {
+  if (!DASH.policy) return;
+  const rate  = parseFloat(document.getElementById('x-rate').value)  || 180;
+  const days  = parseFloat(document.getElementById('x-days').value)  || 250;
+  const reslot = parseFloat(document.getElementById('x-reslot').value) || 35000;
+  const baseline = DASH.policy['Baseline (Actual SAP)'] || {};
+  const baseLead = baseline.avg_lead_time || 0;
+  const baseOrders = baseline.orders_completed || 0;
+  // Time saved per order in min → minutes saved per day @ same orders → hours/year → ₺/year.
+  const rows = Object.entries(DASH.policy).filter(([n]) => n !== 'Baseline (Actual SAP)').map(([name, p]) => {
+    const dLead = (p.avg_lead_time - baseLead);
+    const minSavedPerDay = -dLead * baseOrders;      // positive = better than baseline
+    const hSavedPerYr = (minSavedPerDay / 60) * days;
+    const trySavedPerYr = hSavedPerYr * rate;
+    const paybackMonths = reslot > 0 && trySavedPerYr > 0 ? (reslot / trySavedPerYr) * 12 : Infinity;
+    return {name, dLead, hSavedPerYr, trySavedPerYr, paybackMonths};
+  });
+  rows.sort((a, b) => b.trySavedPerYr - a.trySavedPerYr);
+  document.getElementById('x-cost-rows').innerHTML = rows.map(r => `
+    <div class="row">
+      <span class="k">${r.name}</span>
+      <span class="v ${r.trySavedPerYr > 0 ? 'good' : 'bad'}">
+        ${r.trySavedPerYr > 0 ? '+' : ''}${r.trySavedPerYr.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')} ₺/yr
+        · payback ${isFinite(r.paybackMonths) ? r.paybackMonths.toFixed(1) + ' ay' : '—'}
+      </span>
+    </div>
+  `).join('');
+}
+
+function renderPareto() {
+  if (!DASH.policy) return;
+  const pts = Object.entries(DASH.policy).map(([n, p]) => ({
+    label: n, x: p.avg_walk_distance, y: p.avg_lead_time,
+  }));
+  chartDestroy('pareto');
+  DASH.charts['pareto'] = new Chart(document.getElementById('chart-pareto'), {
+    type: 'scatter',
+    data: {
+      datasets: [{
+        label: 'Policy',
+        data: pts.map(p => ({x: p.x, y: p.y, label: p.label})),
+        backgroundColor: ['#38bdf8', '#fbbf24', '#4ade80', '#f87171', '#a78bfa'],
+        pointRadius: 8, pointHoverRadius: 11
+      }]
+    },
+    options: chartCommon({
+      scales: {
+        x: {title: {display: true, text: 'Walk (m)', color: '#94a3b8', font:{size: 9}}, ticks:{color:'#94a3b8', font:{size:9}}, grid:{color:'rgba(255,255,255,0.06)'}},
+        y: {title: {display: true, text: 'Lead (min)', color: '#94a3b8', font:{size: 9}}, ticks:{color:'#94a3b8', font:{size:9}}, grid:{color:'rgba(255,255,255,0.06)'}}
+      },
+      plugins: {
+        legend: {display: false},
+        tooltip: {
+          backgroundColor: 'rgba(15,17,23,0.92)', borderColor: 'rgba(56,189,248,0.4)', borderWidth: 1,
+          callbacks: {label: ctx => `${ctx.raw.label}: walk ${ctx.raw.x.toFixed(1)}m, lead ${ctx.raw.y.toFixed(2)}min`}
+        }
+      },
+      onClick: (e, els) => {
+        if (!els.length) return;
+        const idx = els[0].index;
+        const label = pts[idx].label;
+        const policyKey = POLICIES.find(p => p.label === label)?.key;
+        if (policyKey) {
+          document.getElementById('policy-select').value = policyKey;
+          document.getElementById('policy-select').dispatchEvent(new Event('change'));
+        }
+      }
+    })
+  });
+}
+
+function renderBottleneck() {
+  if (!DASH.policy) return;
+  const sel = player._policyLabel || 'Baseline (Actual SAP)';
+  const p = DASH.policy[sel];
+  if (!p) return;
+  const rtBusyPct = (p.reach_truck_utilization * 100);
+  const opBusyPct = (p.operator_utilization * 100);
+  const queueRT = p.avg_op_queue_wait || 0;
+  // Heuristic verdict: whichever resource is the closest to saturation.
+  const verdict = rtBusyPct > opBusyPct ? 'Reach truck' : 'Operator';
+  const sev = Math.max(rtBusyPct, opBusyPct) > 60 ? 'warn' : Math.max(rtBusyPct, opBusyPct) > 40 ? '' : 'good';
+  document.getElementById('x-bottleneck').innerHTML = `
+    <div class="row"><span class="k">RT utilization</span><span class="v ${sev}">${rtBusyPct.toFixed(1)}%</span></div>
+    <div class="row"><span class="k">Operator utilization</span><span class="v ${sev}">${opBusyPct.toFixed(1)}%</span></div>
+    <div class="row"><span class="k">Avg queue wait</span><span class="v">${queueRT.toFixed(2)} min</span></div>
+    <div class="row"><span class="k">Likely bottleneck</span><span class="v"><span class="badge ${sev === 'warn' ? 'bad' : 'ok'}">${verdict}</span></span></div>
+  `;
+}
+
+async function renderReslot() {
+  // Use Travel-Distance picks per material as the "optimal" suggestion;
+  // compare to Baseline (Actual SAP) picks_per_material if available.
+  const out = document.getElementById('x-reslot-list');
+  out.innerHTML = '<p style="color:var(--text-dim);font-size:10px">Re-slotting plan derived from sim picks-per-material. See <code>output/*_picks_per_material.csv</code> for the full table.</p>';
+}
+
+function applyStress(mode) {
+  const map = {
+    rate2x:  'config.IAT_MEAN_MIN_OVERRIDE = 2.68  # half the calendar IAT (2× rate)',
+    rtfail:  'config.NUM_REACH_TRUCKS = 6  # one RT down',
+    blackfri:'config.IAT_MEAN_MIN_OVERRIDE = 1.34  # 4× peak',
+    pandemic:'config.NUM_OPERATORS = 4; config.NUM_REACH_TRUCKS = 4  # half crew',
+  };
+  navigator.clipboard?.writeText(map[mode] || '');
+  showToast(`Stress preset copied → paste into src/config.py, rerun python -m src.main`);
+}
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-stress]');
+  if (btn) applyStress(btn.dataset.stress);
+});
+document.getElementById('btn-cost-recalc')?.addEventListener('click', renderCostROI);
+for (const id of ['x-rate', 'x-days', 'x-reslot']) {
+  document.getElementById(id)?.addEventListener('input', renderCostROI);
+}
+document.getElementById('btn-run-sim')?.addEventListener('click', () => {
+  navigator.clipboard?.writeText('python -m src.main --record-timeline');
+  showToast('Run command copied: python -m src.main --record-timeline');
+});
+document.getElementById('btn-reslot-csv')?.addEventListener('click', () => {
+  // Pull existing picks_per_material CSV instead of recomputing client-side.
+  window.open('./data/baseline_actual_sap_picks_per_rack.csv', '_blank');
+});
+
+// CSV download (F12) — generic across panels
+function exportCSV(key) {
+  let csv = ''; let name = key + '.csv';
+  if (key === 'compare' && DASH.policy) {
+    const cols = ['policy','orders','walk_m','lead_min','rt_util','op_util'];
+    csv = cols.join(',') + '\n';
+    for (const [n, p] of Object.entries(DASH.policy)) {
+      csv += [JSON.stringify(n), p.orders_completed, p.avg_walk_distance.toFixed(3), p.avg_lead_time.toFixed(4),
+              (p.reach_truck_utilization*100).toFixed(3), (p.operator_utilization*100).toFixed(3)].join(',') + '\n';
+    }
+    name = 'policy_compare.csv';
+  } else if (key === 'sens' && DASH.sensitivity) {
+    const baseW = DASH.sensitivity.baseline.avg_walk_distance;
+    csv = 'param,low_value,low_walk,high_value,high_walk,delta_low,delta_high\n';
+    for (const [param, info] of Object.entries(DASH.sensitivity.perturbations)) {
+      const runs = info.runs || {};
+      const loRun = runs.low || {}, hiRun = runs.high || {};
+      const lo = (loRun.kpis || {}).avg_walk_distance ?? baseW;
+      const hi = (hiRun.kpis || {}).avg_walk_distance ?? baseW;
+      csv += [param, info.low_value, lo.toFixed(3), info.high_value, hi.toFixed(3), (lo-baseW).toFixed(3), (hi-baseW).toFixed(3)].join(',') + '\n';
+    }
+    name = 'sensitivity.csv';
+  }
+  if (!csv) return;
+  const blob = new Blob([csv], {type: 'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  showToast(`Downloaded ${name}`);
+}
+
+// Sidebar wiring
+function toggleSidebar(force) {
+  const sb = document.getElementById('sidebar');
+  const open = (force !== undefined) ? force : !sb.classList.contains('open');
+  sb.classList.toggle('open', open);
+  document.getElementById('analytics-btn').classList.toggle('active', open);
+}
+document.getElementById('analytics-btn').addEventListener('click', () => toggleSidebar());
+document.getElementById('sb-close').addEventListener('click', () => toggleSidebar(false));
+for (const b of document.querySelectorAll('#sb-tabs button')) {
+  b.addEventListener('click', () => {
+    for (const x of document.querySelectorAll('#sb-tabs button')) x.classList.remove('active');
+    b.classList.add('active');
+    for (const p of document.querySelectorAll('#sb-panels .panel')) p.classList.remove('active');
+    document.querySelector(`#sb-panels .panel[data-panel="${b.dataset.tab}"]`).classList.add('active');
+  });
+}
+for (const b of document.querySelectorAll('.panel-action[data-csv]')) {
+  b.addEventListener('click', () => exportCSV(b.dataset.csv));
+}
+document.getElementById('btn-apply-heatmap').addEventListener('click', () => {
+  if (heatmapOverlays.length) { clearHeatmapOverlay(); showToast('Heatmap cleared'); }
+  else { applyHeatmapOverlay(); showToast('Heatmap applied to 3D scene'); }
+});
+
+// Screenshot (F4)
+document.getElementById('btn-screenshot').addEventListener('click', () => {
+  renderer.domElement.toBlob(blob => {
+    if (!blob) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    a.download = `sim_v2_${ts}.png`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    showToast('Screenshot saved');
+  });
+});
+// Theme toggle (F8)
+document.getElementById('btn-theme').addEventListener('click', e => {
+  document.body.classList.toggle('theme-light');
+  const isLight = document.body.classList.contains('theme-light');
+  e.currentTarget.textContent = isLight ? 'Dark' : 'Light';
+  scene.background = new THREE.Color(isLight ? 0xeef2f6 : 0xeef2f6); // keep CAD-realistic light
+});
+// Help (U10)
+const helpModal = document.getElementById('help-modal');
+document.getElementById('btn-help').addEventListener('click', () => helpModal.style.display = 'flex');
+document.getElementById('btn-help-close').addEventListener('click', () => helpModal.style.display = 'none');
+helpModal.addEventListener('click', e => { if (e.target === helpModal) helpModal.style.display = 'none'; });
+
+// 'A' key toggles sidebar
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+  if (e.key === 'a' || e.key === 'A') {
+    toggleSidebar();
+    e.preventDefault();
+  } else if (e.key === 'h' || e.key === 'H') {
+    // Override the M2 placeholder — now actually toggles the 3D heatmap
+    if (heatmapOverlays.length) { clearHeatmapOverlay(); showToast('Heatmap cleared'); }
+    else { applyHeatmapOverlay(); showToast('Heatmap applied'); }
+  } else if (e.key === 'Escape') {
+    helpModal.style.display = 'none';
+  }
+});
+
+// Kick off data load (non-blocking; charts render once ready)
+if (typeof Chart !== 'undefined') {
+  loadAllData().catch(err => console.error('Dashboard data load failed:', err));
+} else {
+  // Chart.js still loading — defer
+  window.addEventListener('load', () => {
+    if (typeof Chart !== 'undefined') loadAllData().catch(err => console.error(err));
+    else console.warn('Chart.js not loaded; dashboard charts disabled');
+  });
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  EXPORT API (M4 playback will use these)
+// ────────────────────────────────────────────────────────────────────────────
+window.SIM_V2 = {
+  highlightPick,
+  setKPIs,
+  setFollow,
+  tweenCamera,
+  showToast,
+  ENTITIES,
+  LAYOUT,
+  player,
+  POLICIES
+};
+
+console.log(`sim_v2 ready. Entities: ${ENTITIES.operators.length} op, ${ENTITIES.rts.length} rt, ${ENTITIES.milkruns.length} milk, ${ENTITIES.kardex.length} kardex, ${ENTITIES.kitting.length} kit. Layout: ${LAYOUT.racks.length} racks.`);
+</script>
+</body>
+</html>
