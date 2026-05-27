@@ -267,7 +267,7 @@ def _next_active_minute(t: float) -> float:
 
 class WarehouseSimulation:
     def __init__(self, warehouse, materials, material_to_line=None,
-                 kardex_materials=None, seed=None):
+                 kardex_materials=None, seed=None, recorder=None):
         self.warehouse = warehouse
         self.materials = materials
         self.material_to_line = material_to_line or {}
@@ -275,6 +275,13 @@ class WarehouseSimulation:
         seed = seed if seed is not None else config.RANDOM_SEED
         self.rng = np.random.default_rng(seed)
         self.kpi = KPICollector()
+        # Opt-in JSONL recorder for sim_v2.html playback (M3 — AD-2 schema).
+        # None ⇒ zero overhead, normal CI runs unchanged.
+        self.recorder = recorder
+        # Pseudo-IDs for the recorder so playback can render distinct
+        # operators / RTs / orders without us tracking SimPy Resource slots.
+        self._op_round_robin = 0
+        self._rt_round_robin = 0
         if getattr(config, "TRACE_DRIVEN", True):
             self.order_gen = ZWM92DistributionDriver(
                 materials, self.material_to_line, self.rng,
@@ -309,8 +316,9 @@ class WarehouseSimulation:
             # queueing dynamics are underestimated (one shared FIFO instead of
             # 4 parallel queues). Layout-geometry rebuild deferred — see
             # ASSUMPTIONS §23.
-            kx = warehouse.layout["kardex"]["x"]
-            ky = warehouse.layout["kardex"]["y"]
+            kdx = warehouse.layout["kardex"]
+            kx = kdx["x"] + kdx.get("width_m", 0.0) / 2
+            ky = kdx["y"] + kdx.get("depth_m", 0.0) / 2
             self._kardex_stations = [(kx, ky)]
 
     def _position_lock(self, position_id: str) -> simpy.Resource:
@@ -360,14 +368,23 @@ class WarehouseSimulation:
                 break
             order["arrival_time"] = self.env.now
             self.env.process(self._process_order(order))
+            if self.recorder is not None:
+                self.recorder.maybe_kpi_snapshot(self.env.now, self.kpi)
             yield self.env.timeout(order["inter_arrival_time"])
 
     def _process_order(self, order):
         arrival = order["arrival_time"]
+        if self.recorder is not None:
+            self.recorder.order_start(arrival, order["id"], order.get("line"),
+                                      len(order.get("items", [])))
         with self.operators.request() as op_req:
             yield op_req
             op_grant = self.env.now
             op_queue_wait = op_grant - arrival
+            self._op_round_robin = (self._op_round_robin + 1) % max(1, config.NUM_OPERATORS)
+            op_id = self._op_round_robin + 1
+            if self.recorder is not None:
+                self.recorder.op_grant(op_grant, order["id"], op_id, op_queue_wait)
 
             rack_picks, kardex_picks = self._resolve_picks(order["items"])
             if not rack_picks and not kardex_picks:
@@ -398,8 +415,13 @@ class WarehouseSimulation:
             # Rack-side picks
             for mat_id, pos_id in rack_picks:
                 pos = self.warehouse.positions[pos_id]
-                dist = self._distance(current_xy[0], current_xy[1], pos.x, pos.y)
+                route = self.warehouse.route_to_position(current_xy, pos_id, mode="operator")
+                target_xy = route.path[-1]
+                dist = route.distance
                 yield self.env.timeout(dist / config.OPERATOR_WALK_SPEED_M_PER_MIN)
+                if self.recorder is not None and dist > 0.01:
+                    self.recorder.op_move(self.env.now, order["id"], op_id,
+                                          current_xy, target_xy, dist, route.path)
                 total_walk += dist
 
                 pos_lock_ctx = (self._position_lock(pos_id).request()
@@ -414,7 +436,18 @@ class WarehouseSimulation:
                             yield rt_req
                             rt_wait = self.env.now - wait_start
                             total_rt_wait += rt_wait
-                            travel = self.warehouse.reach_truck_travel_time(pos_id)
+                            self._rt_round_robin = (self._rt_round_robin + 1) % max(1, config.NUM_REACH_TRUCKS)
+                            rt_id = self._rt_round_robin + 1
+                            rt_route = self.warehouse.route_to_position(
+                                (config.REACH_TRUCK_DEPOT_X, config.REACH_TRUCK_DEPOT_Y),
+                                pos_id,
+                                mode="reach_truck",
+                            )
+                            if self.recorder is not None:
+                                self.recorder.rt_dispatch(self.env.now, order["id"],
+                                                          rt_id, pos_id, rt_wait,
+                                                          rt_route.path)
+                            travel = rt_route.distance / config.REACH_TRUCK_SPEED_M_PER_MIN
                             # Lift time is a level-dependent constant; only
                             # the pick/place portion is stochastic.
                             base_pp = config.REACH_TRUCK_PICK_PLACE_TIME
@@ -446,7 +479,9 @@ class WarehouseSimulation:
                         self._position_locks[pos_id].release(pos_lock_ctx)
 
                 self.kpi.record_pick(rack_id=pos.rack_id, material_id=mat_id)
-                current_xy = (pos.x, pos.y)
+                if self.recorder is not None:
+                    self.recorder.pick(self.env.now, order["id"], op_id, pos, mat_id)
+                current_xy = target_xy
 
             # Kardex picks: single trip to nearest carousel, ONE carousel
             # rotation amortized across all picks at that station (H1 fix —
@@ -455,8 +490,12 @@ class WarehouseSimulation:
             # instead of re-queueing per item.
             if kardex_picks:
                 kx, ky = self._closest_kardex(current_xy)
-                dist = self._distance(current_xy[0], current_xy[1], kx, ky)
+                route = self.warehouse.route_between_points(current_xy, (kx, ky), mode="operator")
+                dist = route.distance
                 yield self.env.timeout(dist / config.OPERATOR_WALK_SPEED_M_PER_MIN)
+                if self.recorder is not None and dist > 0.01:
+                    self.recorder.op_move(self.env.now, order["id"], op_id,
+                                          current_xy, (kx, ky), dist, route.path)
                 total_walk += dist
                 with self.kardex.request() as kdx_req:
                     yield kdx_req
@@ -470,11 +509,18 @@ class WarehouseSimulation:
                             self.rng, config.KARDEX_PICK_TIME,
                             getattr(config, "KARDEX_PICK_TIME_SIGMA", 0.0)))
                         self.kpi.record_pick(rack_id="KDX", material_id=mat_id)
+                        if self.recorder is not None:
+                            self.recorder.kardex_pick(self.env.now, order["id"],
+                                                      op_id, (kx, ky), mat_id)
                 current_xy = (kx, ky)
 
             # Walk back to the line's kitting point
-            return_dist = self._distance(current_xy[0], current_xy[1], start_xy[0], start_xy[1])
+            return_route = self.warehouse.route_between_points(current_xy, start_xy, mode="operator")
+            return_dist = return_route.distance
             yield self.env.timeout(return_dist / config.OPERATOR_WALK_SPEED_M_PER_MIN)
+            if self.recorder is not None and return_dist > 0.01:
+                self.recorder.op_move(self.env.now, order["id"], op_id,
+                                      current_xy, start_xy, return_dist, return_route.path)
             total_walk += return_dist
 
             op_end = self.env.now
@@ -493,6 +539,10 @@ class WarehouseSimulation:
                 line=order.get("line"),
                 timestamp=op_end,
             )
+            if self.recorder is not None:
+                self.recorder.order_done(op_end, order["id"], total_walk,
+                                         lead_time, prep_time,
+                                         len(rack_picks) + len(kardex_picks))
 
     def _resolve_picks(self, material_ids):
         """Split the order items into rack picks and Kardex picks.
@@ -526,19 +576,22 @@ class WarehouseSimulation:
         while remaining:
             best_idx = 0
             best_pos = None
+            best_route = None
             best_dist = float("inf")
             for i, (_mid, pos_list) in enumerate(remaining):
                 for p in pos_list:
-                    pos = self.warehouse.positions[p]
-                    d = abs(pos.x - cur_x) + abs(pos.y - cur_y)
+                    candidate_route = self.warehouse.route_to_position(
+                        (cur_x, cur_y), p, mode="operator"
+                    )
+                    d = candidate_route.distance
                     if d < best_dist:
                         best_dist = d
                         best_idx = i
                         best_pos = p
+                        best_route = candidate_route
             mid, _ = remaining.pop(best_idx)
             route.append((mid, best_pos))
-            pos = self.warehouse.positions[best_pos]
-            cur_x, cur_y = pos.x, pos.y
+            cur_x, cur_y = best_route.path[-1]
         return route
 
     def _milkrun_cycle(self, duration):

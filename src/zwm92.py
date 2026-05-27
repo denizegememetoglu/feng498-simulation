@@ -27,6 +27,8 @@ from src.data_loader import decode_storage_bin, is_kardex_bin
 
 # Cached single load — load_zwm92_all() is expensive (~14 MB of xlsx).
 _CACHED_DF: pd.DataFrame | None = None
+_CACHED_ORDERS: dict[str, list[dict]] = {}
+_CACHED_FITS: dict[tuple[str, str, float], dict] = {}
 
 
 def load_zwm92_all(directory: str = "data/zwm92", use_cache: bool = True) -> pd.DataFrame:
@@ -293,6 +295,9 @@ def cache_zwm92_views(directory: str = "data/zwm92", output_dir: str = "output")
 
 def load_orders_cached(path: str = "output/zwm92_orders.json") -> list[dict]:
     """Reload orders prepared by cache_zwm92_views()."""
+    cache_key = os.path.abspath(path)
+    if cache_key in _CACHED_ORDERS:
+        return _CACHED_ORDERS[cache_key]
     with open(path) as f:
         raw = json.load(f)
     out = []
@@ -308,6 +313,7 @@ def load_orders_cached(path: str = "output/zwm92_orders.json") -> list[dict]:
             "items": r["items"],
             "distinct_materials": r.get("distinct_materials", []),
         })
+    _CACHED_ORDERS[cache_key] = out
     return out
 
 
@@ -331,6 +337,9 @@ def fit_distributions(orders_path: str = "output/zwm92_orders.json",
         "summary":           {...},            # human-readable provenance
       }
     """
+    cache_key = (os.path.abspath(orders_path), os.path.abspath(summary_path), float(iat_cap_min))
+    if cache_key in _CACHED_FITS:
+        return _CACHED_FITS[cache_key]
     orders = load_orders_cached(orders_path)
 
     # 1) Inter-arrival: filter out long overnight/weekend gaps, then fit a
@@ -379,7 +388,7 @@ def fit_distributions(orders_path: str = "output/zwm92_orders.json",
         per_line_ids[line] = ids
         per_line_w[line] = ws
 
-    return {
+    fit = {
         "iat_mean_min": iat_mean,
         "iat_cap_min": iat_cap_min,
         "n_items_empirical": n_items_emp,
@@ -403,6 +412,8 @@ def fit_distributions(orders_path: str = "output/zwm92_orders.json",
             "distinct_per_order_mean": (sum(n_distinct_emp) / len(n_distinct_emp)) if n_distinct_emp else 0,
         },
     }
+    _CACHED_FITS[cache_key] = fit
+    return fit
 
 
 if __name__ == "__main__":

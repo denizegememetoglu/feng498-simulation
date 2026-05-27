@@ -2,6 +2,23 @@ from abc import ABC, abstractmethod
 
 
 class SlottingPolicy(ABC):
+    def __init__(self, kardex_materials=None):
+        self.kardex_materials = kardex_materials or set()
+
+    def rack_materials(self, materials):
+        """Materials that need rack slots. Kardex materials stay out of rack
+        capacity for every policy so automated-storage items are not silently
+        treated as pallet-rack items."""
+        return [m for m in materials if m["material_id"] not in self.kardex_materials]
+
+    @staticmethod
+    def pop_free(pool, warehouse):
+        while pool:
+            pid = pool.pop(0)
+            if warehouse.positions[pid].material_id is None:
+                return pid
+        return None
+
     @abstractmethod
     def assign(self, materials, warehouse):
         """Assign materials to warehouse positions."""
@@ -13,6 +30,7 @@ class HeuristicBaselinePolicy(SlottingPolicy):
     """
 
     def assign(self, materials, warehouse):
+        materials = self.rack_materials(materials)
         warehouse.clear_assignments()
         fm_pool = warehouse.get_fast_mover_positions()
         mid_pool = warehouse.get_mid_level_positions()
@@ -24,19 +42,24 @@ class HeuristicBaselinePolicy(SlottingPolicy):
 
             if fmr == "F" and fm_pool:
                 # Fast movers -> fast mover racks
-                warehouse.assign_material(mat["material_id"], fm_pool.pop(0))
+                target = self.pop_free(fm_pool, warehouse)
             elif fmr == "M" and mid_pool:
-                warehouse.assign_material(mat["material_id"], mid_pool.pop(0))
+                target = self.pop_free(mid_pool, warehouse)
             elif fmr in ("R", "D") and upper_pool:
-                warehouse.assign_material(mat["material_id"], upper_pool.pop(0))
+                target = self.pop_free(upper_pool, warehouse)
             elif remaining_pool:
-                warehouse.assign_material(mat["material_id"], remaining_pool.pop(0))
+                target = self.pop_free(remaining_pool, warehouse)
+            else:
+                target = None
+            if target is not None:
+                warehouse.assign_material(mat["material_id"], target)
 
 
 class UsageBasedABCPolicy(SlottingPolicy):
     """Team's reclassification: A (top 80%) -> best spots, B (80-95%) -> mid, C -> upper."""
 
     def assign(self, materials, warehouse):
+        materials = self.rack_materials(materials)
         warehouse.clear_assignments()
         fm_pool = warehouse.get_fast_mover_positions()
         mid_pool = warehouse.get_mid_level_positions()
@@ -46,18 +69,22 @@ class UsageBasedABCPolicy(SlottingPolicy):
         for mat in materials:
             abc = mat["team_abc"]
             if abc == "A" and fm_pool:
-                warehouse.assign_material(mat["material_id"], fm_pool.pop(0))
+                target = self.pop_free(fm_pool, warehouse)
             elif abc == "A" and mid_pool:
                 # Overflow A items to mid level
-                warehouse.assign_material(mat["material_id"], mid_pool.pop(0))
+                target = self.pop_free(mid_pool, warehouse)
             elif abc == "B" and mid_pool:
-                warehouse.assign_material(mat["material_id"], mid_pool.pop(0))
+                target = self.pop_free(mid_pool, warehouse)
             elif abc == "B" and upper_pool:
-                warehouse.assign_material(mat["material_id"], upper_pool.pop(0))
+                target = self.pop_free(upper_pool, warehouse)
             elif abc == "C" and upper_pool:
-                warehouse.assign_material(mat["material_id"], upper_pool.pop(0))
+                target = self.pop_free(upper_pool, warehouse)
             elif remaining_pool:
-                warehouse.assign_material(mat["material_id"], remaining_pool.pop(0))
+                target = self.pop_free(remaining_pool, warehouse)
+            else:
+                target = None
+            if target is not None:
+                warehouse.assign_material(mat["material_id"], target)
 
 
 class DoubleABCPolicy(SlottingPolicy):
@@ -68,6 +95,7 @@ class DoubleABCPolicy(SlottingPolicy):
                 "AD", "BD", "CD"]
 
     def assign(self, materials, warehouse):
+        materials = self.rack_materials(materials)
         warehouse.clear_assignments()
 
         # Build combined class for each material
@@ -91,15 +119,19 @@ class DoubleABCPolicy(SlottingPolicy):
             priority = priority_map.get(dc, 99)
 
             if priority <= 1 and fm_pool:  # AF, BF
-                warehouse.assign_material(mat["material_id"], fm_pool.pop(0))
+                target = self.pop_free(fm_pool, warehouse)
             elif priority <= 4 and mid_pool:  # AM, CF, BM
-                warehouse.assign_material(mat["material_id"], mid_pool.pop(0))
+                target = self.pop_free(mid_pool, warehouse)
             elif priority <= 4 and fm_pool:
-                warehouse.assign_material(mat["material_id"], fm_pool.pop(0))
+                target = self.pop_free(fm_pool, warehouse)
             elif upper_pool:
-                warehouse.assign_material(mat["material_id"], upper_pool.pop(0))
+                target = self.pop_free(upper_pool, warehouse)
             elif remaining_pool:
-                warehouse.assign_material(mat["material_id"], remaining_pool.pop(0))
+                target = self.pop_free(remaining_pool, warehouse)
+            else:
+                target = None
+            if target is not None:
+                warehouse.assign_material(mat["material_id"], target)
 
 
 class RealBaselinePolicy(SlottingPolicy):
@@ -121,8 +153,8 @@ class RealBaselinePolicy(SlottingPolicy):
     """
 
     def __init__(self, decoded_bins=None, kardex_materials=None):
+        super().__init__(kardex_materials=kardex_materials)
         self.decoded_bins = decoded_bins or {}
-        self.kardex_materials = kardex_materials or set()
         self.placed_from_sap = 0       # materials with >= 1 SAP slot assigned
         self.placed_kardex = 0         # kardex-routed (no rack slot needed)
         self.placed_fallback = 0       # heuristic-pool fallback
@@ -166,13 +198,13 @@ class RealBaselinePolicy(SlottingPolicy):
             fmr = mat["se_fmr"]
             target = None
             if fmr == "F" and fm_pool:
-                target = fm_pool.pop(0)
+                target = self.pop_free(fm_pool, warehouse)
             elif fmr == "M" and mid_pool:
-                target = mid_pool.pop(0)
+                target = self.pop_free(mid_pool, warehouse)
             elif fmr in ("R", "D") and upper_pool:
-                target = upper_pool.pop(0)
+                target = self.pop_free(upper_pool, warehouse)
             elif remaining_pool:
-                target = remaining_pool.pop(0)
+                target = self.pop_free(remaining_pool, warehouse)
             if target is not None:
                 warehouse.assign_material(mat["material_id"], target)
                 self.placed_fallback += 1
@@ -188,10 +220,12 @@ class TravelDistancePolicy(SlottingPolicy):
     consumption even when ZWM92 picks were available.
     """
 
-    def __init__(self, picks_by_material: dict[str, int] | None = None):
+    def __init__(self, picks_by_material: dict[str, int] | None = None, kardex_materials=None):
+        super().__init__(kardex_materials=kardex_materials)
         self.picks_by_material = picks_by_material or {}
 
     def assign(self, materials, warehouse):
+        materials = self.rack_materials(materials)
         warehouse.clear_assignments()
         freq = self.picks_by_material
 
@@ -206,7 +240,9 @@ class TravelDistancePolicy(SlottingPolicy):
         for mat in sorted_mats:
             if not all_positions:
                 break
-            warehouse.assign_material(mat["material_id"], all_positions.pop(0))
+            target = self.pop_free(all_positions, warehouse)
+            if target is not None:
+                warehouse.assign_material(mat["material_id"], target)
 
 
 ALL_POLICIES = {

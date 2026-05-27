@@ -34,6 +34,11 @@ def _resolve_data_path():
         if os.path.exists(c):
             return c
     data_dir = os.path.dirname(DATA_FILE) or "data"
+    if not os.path.isdir(data_dir):
+        raise FileNotFoundError(
+            f"Data directory not found: {data_dir}/. Expected {DATA_FILE}; "
+            "restore the SAP workbook or update DATA_FILE in src/config.py."
+        )
     xlsx_files = [f for f in os.listdir(data_dir) if f.endswith(".xlsx")]
     if not xlsx_files:
         raise FileNotFoundError(f"No .xlsx file found in {data_dir}/")

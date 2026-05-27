@@ -11,11 +11,16 @@ LAYOUT_FILE = "config/layout.json"
 # rack has a kit corridor side (3 lower levels, confirmed May 4 site visit).
 FAST_MOVER_MAX_LEVEL = 3
 
-# When a rack's kit_corridor_side / rt_aisle_side is "TBD" (not yet measured),
-# treat the rack as having kit-corridor access on at least one side. This is
-# the optimistic assumption; flip to False after May 20 if measurements show
-# some racks have no kit access at all.
-ASSUME_KIT_ACCESS_WHEN_TBD = True
+# When a rack's kit_corridor_side is "TBD" (not yet measured), do not treat it
+# as confirmed kit access. Earlier runs used an optimistic assumption here; the
+# audit keeps TBD as a conservative assumption so routing and manual-pick KPIs
+# do not quietly depend on an unverified corridor.
+ASSUME_KIT_ACCESS_WHEN_TBD = False
+
+# Conservative rectilinear routing. Rack bodies are blockers, and picks happen
+# from an aisle-side service point offset from the rack face.
+ROUTE_CLEARANCE_M = 0.60
+ROUTE_FAIL_ON_INTERSECTION = True
 
 # Resources
 NUM_REACH_TRUCKS = 7
@@ -152,6 +157,14 @@ LINE_BASED_SAMPLING = True
 # ABC thresholds
 ABC_A_THRESHOLD = 0.80
 ABC_B_THRESHOLD = 0.95
+
+# Timeline recorder (sim_v2.html playback feed) — opt-in via --record-timeline
+# CLI flag in src.main, or by toggling RECORD_TIMELINE = True here. When False
+# (default), no recorder is instantiated and the sim path has zero overhead.
+# See src/recorder.py for the AD-2 schema.
+RECORD_TIMELINE = False
+TIMELINE_OUTPUT_DIR = "output"
+TIMELINE_KPI_SNAPSHOT_INTERVAL_MIN = 10.0
 
 # Data
 DATA_FILE = "data/Malzeme Girişleri_010126-170326.xlsx"

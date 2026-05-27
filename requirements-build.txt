@@ -1,0 +1,4 @@
+# Build-time dependencies for the packaged launcher (M7).
+# Install separately from the simulation core requirements.
+pyinstaller>=6.0
+pywebview>=4.4

@@ -1,0 +1,937 @@
+{
+  "n_replications": {
+    "Baseline (Heuristic)": 1,
+    "Baseline (Actual SAP)": 1,
+    "Usage-based ABC": 1,
+    "Double ABC": 1,
+    "Travel-distance Optimized": 1
+  },
+  "metrics": {
+    "avg_prep_time": {
+      "label": "Avg prep time (min/order)",
+      "direction": "lower",
+      "winner": "Baseline (Actual SAP)",
+      "per_policy": {
+        "Baseline (Heuristic)": {
+          "n": 1,
+          "mean": 3.9481124871149507,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 3.9481124871149507,
+          "ci95_high": 3.9481124871149507,
+          "cv": 0.0,
+          "min": 3.9481124871149507,
+          "max": 3.9481124871149507
+        },
+        "Baseline (Actual SAP)": {
+          "n": 1,
+          "mean": 3.5747145931162314,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 3.5747145931162314,
+          "ci95_high": 3.5747145931162314,
+          "cv": 0.0,
+          "min": 3.5747145931162314,
+          "max": 3.5747145931162314
+        },
+        "Usage-based ABC": {
+          "n": 1,
+          "mean": 3.832558733125838,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 3.832558733125838,
+          "ci95_high": 3.832558733125838,
+          "cv": 0.0,
+          "min": 3.832558733125838,
+          "max": 3.832558733125838
+        },
+        "Double ABC": {
+          "n": 1,
+          "mean": 4.7644376923845435,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 4.7644376923845435,
+          "ci95_high": 4.7644376923845435,
+          "cv": 0.0,
+          "min": 4.7644376923845435,
+          "max": 4.7644376923845435
+        },
+        "Travel-distance Optimized": {
+          "n": 1,
+          "mean": 4.687152686962853,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 4.687152686962853,
+          "ci95_high": 4.687152686962853,
+          "cv": 0.0,
+          "min": 4.687152686962853,
+          "max": 4.687152686962853
+        }
+      },
+      "anova": null,
+      "tukey_hsd": null,
+      "welch_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        }
+      ]
+    },
+    "avg_lead_time": {
+      "label": "Avg lead time (min/order)",
+      "direction": "lower",
+      "winner": "Baseline (Actual SAP)",
+      "per_policy": {
+        "Baseline (Heuristic)": {
+          "n": 1,
+          "mean": 3.9481124871149507,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 3.9481124871149507,
+          "ci95_high": 3.9481124871149507,
+          "cv": 0.0,
+          "min": 3.9481124871149507,
+          "max": 3.9481124871149507
+        },
+        "Baseline (Actual SAP)": {
+          "n": 1,
+          "mean": 3.5747145931162314,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 3.5747145931162314,
+          "ci95_high": 3.5747145931162314,
+          "cv": 0.0,
+          "min": 3.5747145931162314,
+          "max": 3.5747145931162314
+        },
+        "Usage-based ABC": {
+          "n": 1,
+          "mean": 3.832558733125838,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 3.832558733125838,
+          "ci95_high": 3.832558733125838,
+          "cv": 0.0,
+          "min": 3.832558733125838,
+          "max": 3.832558733125838
+        },
+        "Double ABC": {
+          "n": 1,
+          "mean": 4.7644376923845435,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 4.7644376923845435,
+          "ci95_high": 4.7644376923845435,
+          "cv": 0.0,
+          "min": 4.7644376923845435,
+          "max": 4.7644376923845435
+        },
+        "Travel-distance Optimized": {
+          "n": 1,
+          "mean": 4.687152686962853,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 4.687152686962853,
+          "ci95_high": 4.687152686962853,
+          "cv": 0.0,
+          "min": 4.687152686962853,
+          "max": 4.687152686962853
+        }
+      },
+      "anova": null,
+      "tukey_hsd": null,
+      "welch_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        }
+      ]
+    },
+    "avg_op_queue_wait": {
+      "label": "Avg operator-queue wait (min)",
+      "direction": "lower",
+      "winner": "Baseline (Heuristic)",
+      "per_policy": {
+        "Baseline (Heuristic)": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "cv": NaN,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "Baseline (Actual SAP)": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "cv": NaN,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "Usage-based ABC": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "cv": NaN,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "Double ABC": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "cv": NaN,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "Travel-distance Optimized": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "cv": NaN,
+          "min": 0.0,
+          "max": 0.0
+        }
+      },
+      "anova": null,
+      "tukey_hsd": null,
+      "welch_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        }
+      ]
+    },
+    "avg_walk_distance": {
+      "label": "Avg walk distance (m/order)",
+      "direction": "lower",
+      "winner": "Travel-distance Optimized",
+      "per_policy": {
+        "Baseline (Heuristic)": {
+          "n": 1,
+          "mean": 92.0923325415677,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 92.0923325415677,
+          "ci95_high": 92.0923325415677,
+          "cv": 0.0,
+          "min": 92.0923325415677,
+          "max": 92.0923325415677
+        },
+        "Baseline (Actual SAP)": {
+          "n": 1,
+          "mean": 86.59911111111111,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 86.59911111111111,
+          "ci95_high": 86.59911111111111,
+          "cv": 0.0,
+          "min": 86.59911111111111,
+          "max": 86.59911111111111
+        },
+        "Usage-based ABC": {
+          "n": 1,
+          "mean": 90.25005673758866,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 90.25005673758866,
+          "ci95_high": 90.25005673758866,
+          "cv": 0.0,
+          "min": 90.25005673758866,
+          "max": 90.25005673758866
+        },
+        "Double ABC": {
+          "n": 1,
+          "mean": 103.92805882352941,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 103.92805882352941,
+          "ci95_high": 103.92805882352941,
+          "cv": 0.0,
+          "min": 103.92805882352941,
+          "max": 103.92805882352941
+        },
+        "Travel-distance Optimized": {
+          "n": 1,
+          "mean": 74.19069509594883,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 74.19069509594883,
+          "ci95_high": 74.19069509594883,
+          "cv": 0.0,
+          "min": 74.19069509594883,
+          "max": 74.19069509594883
+        }
+      },
+      "anova": null,
+      "tukey_hsd": null,
+      "welch_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        }
+      ]
+    },
+    "total_walk_distance": {
+      "label": "Total walk distance (m)",
+      "direction": "lower",
+      "winner": "Travel-distance Optimized",
+      "per_policy": {
+        "Baseline (Heuristic)": {
+          "n": 1,
+          "mean": 38770.872,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 38770.872,
+          "ci95_high": 38770.872,
+          "cv": 0.0,
+          "min": 38770.872,
+          "max": 38770.872
+        },
+        "Baseline (Actual SAP)": {
+          "n": 1,
+          "mean": 41307.776,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 41307.776,
+          "ci95_high": 41307.776,
+          "cv": 0.0,
+          "min": 41307.776,
+          "max": 41307.776
+        },
+        "Usage-based ABC": {
+          "n": 1,
+          "mean": 38175.774000000005,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 38175.774000000005,
+          "ci95_high": 38175.774000000005,
+          "cv": 0.0,
+          "min": 38175.774000000005,
+          "max": 38175.774000000005
+        },
+        "Double ABC": {
+          "n": 1,
+          "mean": 45936.202,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 45936.202,
+          "ci95_high": 45936.202,
+          "cv": 0.0,
+          "min": 45936.202,
+          "max": 45936.202
+        },
+        "Travel-distance Optimized": {
+          "n": 1,
+          "mean": 34795.436,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 34795.436,
+          "ci95_high": 34795.436,
+          "cv": 0.0,
+          "min": 34795.436,
+          "max": 34795.436
+        }
+      },
+      "anova": null,
+      "tukey_hsd": null,
+      "welch_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        }
+      ]
+    },
+    "reach_truck_utilization": {
+      "label": "RT utilization",
+      "direction": "higher",
+      "winner": "Travel-distance Optimized",
+      "per_policy": {
+        "Baseline (Heuristic)": {
+          "n": 1,
+          "mean": 0.037609154862038134,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 0.037609154862038134,
+          "ci95_high": 0.037609154862038134,
+          "cv": 0.0,
+          "min": 0.037609154862038134,
+          "max": 0.037609154862038134
+        },
+        "Baseline (Actual SAP)": {
+          "n": 1,
+          "mean": 0.034281988154045255,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 0.034281988154045255,
+          "ci95_high": 0.034281988154045255,
+          "cv": 0.0,
+          "min": 0.034281988154045255,
+          "max": 0.034281988154045255
+        },
+        "Usage-based ABC": {
+          "n": 1,
+          "mean": 0.03701741221393435,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 0.03701741221393435,
+          "ci95_high": 0.03701741221393435,
+          "cv": 0.0,
+          "min": 0.03701741221393435,
+          "max": 0.03701741221393435
+        },
+        "Double ABC": {
+          "n": 1,
+          "mean": 0.05614472510469265,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 0.05614472510469265,
+          "ci95_high": 0.05614472510469265,
+          "cv": 0.0,
+          "min": 0.05614472510469265,
+          "max": 0.05614472510469265
+        },
+        "Travel-distance Optimized": {
+          "n": 1,
+          "mean": 0.07541203493699984,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 0.07541203493699984,
+          "ci95_high": 0.07541203493699984,
+          "cv": 0.0,
+          "min": 0.07541203493699984,
+          "max": 0.07541203493699984
+        }
+      },
+      "anova": null,
+      "tukey_hsd": null,
+      "welch_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        }
+      ]
+    },
+    "operator_utilization": {
+      "label": "Operator utilization",
+      "direction": "higher",
+      "winner": "Travel-distance Optimized",
+      "per_policy": {
+        "Baseline (Heuristic)": {
+          "n": 1,
+          "mean": 0.0886790581618061,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 0.0886790581618061,
+          "ci95_high": 0.0886790581618061,
+          "cv": 0.0,
+          "min": 0.0886790581618061,
+          "max": 0.0886790581618061
+        },
+        "Baseline (Actual SAP)": {
+          "n": 1,
+          "mean": 0.0900669004316654,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 0.0900669004316654,
+          "ci95_high": 0.0900669004316654,
+          "cv": 0.0,
+          "min": 0.0900669004316654,
+          "max": 0.0900669004316654
+        },
+        "Usage-based ABC": {
+          "n": 1,
+          "mean": 0.08686300086124658,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 0.08686300086124658,
+          "ci95_high": 0.08686300086124658,
+          "cv": 0.0,
+          "min": 0.08686300086124658,
+          "max": 0.08686300086124658
+        },
+        "Double ABC": {
+          "n": 1,
+          "mean": 0.11137010609039417,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 0.11137010609039417,
+          "ci95_high": 0.11137010609039417,
+          "cv": 0.0,
+          "min": 0.11137010609039417,
+          "max": 0.11137010609039417
+        },
+        "Travel-distance Optimized": {
+          "n": 1,
+          "mean": 0.11693585094921984,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 0.11693585094921984,
+          "ci95_high": 0.11693585094921984,
+          "cv": 0.0,
+          "min": 0.11693585094921984,
+          "max": 0.11693585094921984
+        }
+      },
+      "anova": null,
+      "tukey_hsd": null,
+      "welch_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        }
+      ]
+    },
+    "orders_completed": {
+      "label": "Orders completed",
+      "direction": "higher",
+      "winner": "Baseline (Actual SAP)",
+      "per_policy": {
+        "Baseline (Heuristic)": {
+          "n": 1,
+          "mean": 421.0,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 421.0,
+          "ci95_high": 421.0,
+          "cv": 0.0,
+          "min": 421,
+          "max": 421
+        },
+        "Baseline (Actual SAP)": {
+          "n": 1,
+          "mean": 477.0,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 477.0,
+          "ci95_high": 477.0,
+          "cv": 0.0,
+          "min": 477,
+          "max": 477
+        },
+        "Usage-based ABC": {
+          "n": 1,
+          "mean": 423.0,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 423.0,
+          "ci95_high": 423.0,
+          "cv": 0.0,
+          "min": 423,
+          "max": 423
+        },
+        "Double ABC": {
+          "n": 1,
+          "mean": 442.0,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 442.0,
+          "ci95_high": 442.0,
+          "cv": 0.0,
+          "min": 442,
+          "max": 442
+        },
+        "Travel-distance Optimized": {
+          "n": 1,
+          "mean": 469.0,
+          "stdev": 0.0,
+          "ci95_half_width": NaN,
+          "ci95_low": 469.0,
+          "ci95_high": 469.0,
+          "cv": 0.0,
+          "min": 469,
+          "max": 469
+        }
+      },
+      "anova": null,
+      "tukey_hsd": null,
+      "welch_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "t": NaN,
+          "p_value": NaN,
+          "cohens_d": NaN,
+          "significant_at_0.05": false
+        }
+      ]
+    }
+  },
+  "paired_by_order": {
+    "Baseline (Actual SAP)": {
+      "walk_distance": {
+        "label": "walk distance (m)",
+        "direction": "lower",
+        "n_paired": 434,
+        "mean_diff": -6.851082949308756,
+        "median_diff": 0.0,
+        "wilcoxon_W": 37832.5,
+        "p_raw": 0.10305181135449738,
+        "p_holm": 0.8244144908359791,
+        "significant_at_0.05": false
+      },
+      "prep_time": {
+        "label": "prep time (min)",
+        "direction": "lower",
+        "n_paired": 434,
+        "mean_diff": -0.4206221198156682,
+        "median_diff": 0.004999999999999893,
+        "wilcoxon_W": 44117.0,
+        "p_raw": 0.34746462314924154,
+        "p_holm": 1.0,
+        "significant_at_0.05": false
+      },
+      "lead_time": {
+        "label": "lead time (min)",
+        "direction": "lower",
+        "n_paired": 434,
+        "mean_diff": -0.4206221198156682,
+        "median_diff": 0.004999999999999893,
+        "wilcoxon_W": 44117.0,
+        "p_raw": 0.34746462314924154,
+        "p_holm": 1.0,
+        "significant_at_0.05": false
+      }
+    },
+    "Usage-based ABC": {
+      "walk_distance": {
+        "label": "walk distance (m)",
+        "direction": "lower",
+        "n_paired": 434,
+        "mean_diff": -1.859723502304148,
+        "median_diff": 0.0,
+        "wilcoxon_W": 39865.0,
+        "p_raw": 0.784814958765871,
+        "p_holm": 1.0,
+        "significant_at_0.05": false
+      },
+      "prep_time": {
+        "label": "prep time (min)",
+        "direction": "lower",
+        "n_paired": 434,
+        "mean_diff": -0.08311059907834105,
+        "median_diff": -0.020000000000000018,
+        "wilcoxon_W": 46928.0,
+        "p_raw": 0.983924013940372,
+        "p_holm": 1.0,
+        "significant_at_0.05": false
+      },
+      "lead_time": {
+        "label": "lead time (min)",
+        "direction": "lower",
+        "n_paired": 434,
+        "mean_diff": -0.08311059907834105,
+        "median_diff": -0.020000000000000018,
+        "wilcoxon_W": 46928.0,
+        "p_raw": 0.983924013940372,
+        "p_holm": 1.0,
+        "significant_at_0.05": false
+      }
+    },
+    "Double ABC": {
+      "walk_distance": {
+        "label": "walk distance (m)",
+        "direction": "lower",
+        "n_paired": 434,
+        "mean_diff": 12.132350230414746,
+        "median_diff": 7.770000000000003,
+        "wilcoxon_W": 33962.5,
+        "p_raw": 0.0011380506178302518,
+        "p_holm": 0.010925141814154283,
+        "significant_at_0.05": true
+      },
+      "prep_time": {
+        "label": "prep time (min)",
+        "direction": "lower",
+        "n_paired": 434,
+        "mean_diff": 0.8804377880184331,
+        "median_diff": 0.44500000000000006,
+        "wilcoxon_W": 38402.0,
+        "p_raw": 0.000993194710377662,
+        "p_holm": 0.010925141814154283,
+        "significant_at_0.05": true
+      },
+      "lead_time": {
+        "label": "lead time (min)",
+        "direction": "lower",
+        "n_paired": 434,
+        "mean_diff": 0.8804377880184331,
+        "median_diff": 0.44500000000000006,
+        "wilcoxon_W": 38402.0,
+        "p_raw": 0.000993194710377662,
+        "p_holm": 0.010925141814154283,
+        "significant_at_0.05": true
+      }
+    },
+    "Travel-distance Optimized": {
+      "walk_distance": {
+        "label": "walk distance (m)",
+        "direction": "lower",
+        "n_paired": 434,
+        "mean_diff": -17.214631336405528,
+        "median_diff": -11.849999999999998,
+        "wilcoxon_W": 31061.0,
+        "p_raw": 1.053489982571659e-06,
+        "p_holm": 1.2641879790859908e-05,
+        "significant_at_0.05": true
+      },
+      "prep_time": {
+        "label": "prep time (min)",
+        "direction": "lower",
+        "n_paired": 434,
+        "mean_diff": 0.8778341013824885,
+        "median_diff": 0.020000000000000018,
+        "wilcoxon_W": 42873.5,
+        "p_raw": 0.13403866445514764,
+        "p_holm": 0.9382706511860335,
+        "significant_at_0.05": false
+      },
+      "lead_time": {
+        "label": "lead time (min)",
+        "direction": "lower",
+        "n_paired": 434,
+        "mean_diff": 0.8778341013824885,
+        "median_diff": 0.020000000000000018,
+        "wilcoxon_W": 42873.5,
+        "p_raw": 0.13403866445514764,
+        "p_holm": 0.9382706511860335,
+        "significant_at_0.05": false
+      }
+    }
+  }
+}

@@ -1,0 +1,1800 @@
+{
+  "status": "WARN",
+  "issues": [],
+  "warnings": [
+    "J segment 0: storage segment excluded from route blockers due unresolved CAD/layout overlap",
+    "J segment 0: kit_corridor_side is TBD; direct kit access disabled",
+    "J segment 0: rt_aisle_side is TBD; routing uses nearest valid face",
+    "J segment 1: kit_corridor_side is TBD; direct kit access disabled",
+    "J segment 1: rt_aisle_side is TBD; routing uses nearest valid face",
+    "J segment 2: storage segment excluded from route blockers due unresolved CAD/layout overlap",
+    "J segment 2: kit_corridor_side is TBD; direct kit access disabled",
+    "J segment 2: rt_aisle_side is TBD; routing uses nearest valid face",
+    "H segment 0: kit_corridor_side is TBD; direct kit access disabled",
+    "H segment 0: rt_aisle_side is TBD; routing uses nearest valid face",
+    "I segment 0: rt_aisle_side is TBD; routing uses nearest valid face",
+    "A segment 0: rt_aisle_side is TBD; routing uses nearest valid face",
+    "U segment 0: storage segment excluded from route blockers due unresolved CAD/layout overlap",
+    "U segment 0: kit_corridor_side is TBD; direct kit access disabled",
+    "U segment 0: rt_aisle_side is TBD; routing uses nearest valid face",
+    "overlapping rack geometry remains unresolved (10 overlap(s)); geometry was not changed to make validation pass"
+  ],
+  "rack_obstacles": [
+    {
+      "id": "rack:J:1",
+      "kind": "rack",
+      "x0": 9.35,
+      "y0": 10.0,
+      "x1": 10.65,
+      "y1": 37.0
+    },
+    {
+      "id": "rack:H:0",
+      "kind": "rack",
+      "x0": 13.129,
+      "y0": 7.763,
+      "x1": 14.429,
+      "y1": 38.156
+    },
+    {
+      "id": "rack:I:0",
+      "kind": "rack",
+      "x0": 16.483,
+      "y0": 5.0,
+      "x1": 17.782999999999998,
+      "y1": 38.154
+    },
+    {
+      "id": "rack:G:0",
+      "kind": "rack",
+      "x0": 20.937,
+      "y0": 7.763,
+      "x1": 22.237,
+      "y1": 38.156
+    },
+    {
+      "id": "rack:F:0",
+      "kind": "rack",
+      "x0": 24.292,
+      "y0": 4.97,
+      "x1": 25.592,
+      "y1": 38.127
+    },
+    {
+      "id": "rack:E:0",
+      "kind": "rack",
+      "x0": 28.965,
+      "y0": 5.02,
+      "x1": 30.264999999999997,
+      "y1": 38.818
+    },
+    {
+      "id": "rack:D:0",
+      "kind": "rack",
+      "x0": 32.32,
+      "y0": 5.0,
+      "x1": 33.62,
+      "y1": 38.154
+    },
+    {
+      "id": "rack:C:0",
+      "kind": "rack",
+      "x0": 36.774,
+      "y0": 5.0,
+      "x1": 38.074,
+      "y1": 35.391
+    },
+    {
+      "id": "rack:B:0",
+      "kind": "rack",
+      "x0": 38.149,
+      "y0": 5.0,
+      "x1": 39.449,
+      "y1": 35.391
+    },
+    {
+      "id": "rack:A:0",
+      "kind": "rack",
+      "x0": 42.603,
+      "y0": 5.0,
+      "x1": 43.903,
+      "y1": 34.7
+    }
+  ],
+  "non_blocking_storage": [
+    {
+      "id": "rack:J:0",
+      "kind": "rack",
+      "x0": 10.0,
+      "y0": 9.35,
+      "x1": 20.8,
+      "y1": 10.65
+    },
+    {
+      "id": "rack:J:2",
+      "kind": "rack",
+      "x0": 10.0,
+      "y0": 36.35,
+      "x1": 20.8,
+      "y1": 37.65
+    },
+    {
+      "id": "rack:U:0",
+      "kind": "rack",
+      "x0": 20.8,
+      "y0": 36.35,
+      "x1": 45.0,
+      "y1": 37.65
+    }
+  ],
+  "blocked_zones": [],
+  "visual_only_zones": [
+    {
+      "id": "visual:gam_west",
+      "kind": "visual_only",
+      "x0": 1.0,
+      "y0": 19.0,
+      "x1": 3.0,
+      "y1": 47.0
+    },
+    {
+      "id": "visual:east_zone_1",
+      "kind": "visual_only",
+      "x0": 55.0,
+      "y0": 4.0,
+      "x1": 58.0,
+      "y1": 46.0
+    },
+    {
+      "id": "visual:east_zone_2",
+      "kind": "visual_only",
+      "x0": 61.0,
+      "y0": 4.0,
+      "x1": 64.0,
+      "y1": 46.0
+    },
+    {
+      "id": "visual:east_zone_3",
+      "kind": "visual_only",
+      "x0": 67.0,
+      "y0": 8.0,
+      "x1": 70.0,
+      "y1": 42.0
+    },
+    {
+      "id": "visual:sw_blocks",
+      "kind": "visual_only",
+      "x0": 1.0,
+      "y0": 0.5,
+      "x1": 7.0,
+      "y1": 3.5
+    },
+    {
+      "id": "visual:se_blocks",
+      "kind": "visual_only",
+      "x0": 53.0,
+      "y0": 0.5,
+      "x1": 75.0,
+      "y1": 3.5
+    }
+  ],
+  "corridor_lines": {
+    "x": [
+      0.6,
+      5.0,
+      8.75,
+      11.25,
+      12.529,
+      14.0,
+      15.029,
+      15.883,
+      18.383,
+      20.337,
+      22.837,
+      23.692,
+      26.192,
+      28.365,
+      30.865,
+      31.72,
+      34.22,
+      36.174,
+      37.549,
+      38.674,
+      40.049,
+      42.003,
+      44.503,
+      79.4
+    ],
+    "y": [
+      0.6,
+      2.0,
+      4.37,
+      4.4,
+      4.42,
+      7.163,
+      9.4,
+      35.0,
+      35.3,
+      35.991,
+      37.6,
+      38.727,
+      38.754,
+      38.756,
+      39.418,
+      49.4
+    ]
+  },
+  "validation_scope": "sample",
+  "validated_positions": 39,
+  "validated_routes": 78,
+  "overlapping_rack_geometry": [
+    {
+      "a": "rack:J:1",
+      "b": "rack:J:0",
+      "overlap_area_m2": 0.423,
+      "rect": {
+        "x0": 10.0,
+        "y0": 10.0,
+        "x1": 10.65,
+        "y1": 10.65
+      }
+    },
+    {
+      "a": "rack:J:1",
+      "b": "rack:J:2",
+      "overlap_area_m2": 0.422,
+      "rect": {
+        "x0": 10.0,
+        "y0": 36.35,
+        "x1": 10.65,
+        "y1": 37.0
+      }
+    },
+    {
+      "a": "rack:H:0",
+      "b": "rack:J:0",
+      "overlap_area_m2": 1.69,
+      "rect": {
+        "x0": 13.129,
+        "y0": 9.35,
+        "x1": 14.429,
+        "y1": 10.65
+      }
+    },
+    {
+      "a": "rack:H:0",
+      "b": "rack:J:2",
+      "overlap_area_m2": 1.69,
+      "rect": {
+        "x0": 13.129,
+        "y0": 36.35,
+        "x1": 14.429,
+        "y1": 37.65
+      }
+    },
+    {
+      "a": "rack:I:0",
+      "b": "rack:J:0",
+      "overlap_area_m2": 1.69,
+      "rect": {
+        "x0": 16.483,
+        "y0": 9.35,
+        "x1": 17.783,
+        "y1": 10.65
+      }
+    },
+    {
+      "a": "rack:I:0",
+      "b": "rack:J:2",
+      "overlap_area_m2": 1.69,
+      "rect": {
+        "x0": 16.483,
+        "y0": 36.35,
+        "x1": 17.783,
+        "y1": 37.65
+      }
+    },
+    {
+      "a": "rack:G:0",
+      "b": "rack:U:0",
+      "overlap_area_m2": 1.69,
+      "rect": {
+        "x0": 20.937,
+        "y0": 36.35,
+        "x1": 22.237,
+        "y1": 37.65
+      }
+    },
+    {
+      "a": "rack:F:0",
+      "b": "rack:U:0",
+      "overlap_area_m2": 1.69,
+      "rect": {
+        "x0": 24.292,
+        "y0": 36.35,
+        "x1": 25.592,
+        "y1": 37.65
+      }
+    },
+    {
+      "a": "rack:E:0",
+      "b": "rack:U:0",
+      "overlap_area_m2": 1.69,
+      "rect": {
+        "x0": 28.965,
+        "y0": 36.35,
+        "x1": 30.265,
+        "y1": 37.65
+      }
+    },
+    {
+      "a": "rack:D:0",
+      "b": "rack:U:0",
+      "overlap_area_m2": 1.69,
+      "rect": {
+        "x0": 32.32,
+        "y0": 36.35,
+        "x1": 33.62,
+        "y1": 37.65
+      }
+    }
+  ],
+  "sample_paths": [
+    {
+      "mode": "operator",
+      "position_id": "A-02-01-L0",
+      "rack": "A",
+      "distance_m": 32.353,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          14.0,
+          4.4
+        ],
+        [
+          42.003,
+          4.4
+        ],
+        [
+          42.003,
+          6.35
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "A-02-01-L0",
+      "rack": "A",
+      "distance_m": 69.513,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          4.42
+        ],
+        [
+          42.003,
+          4.42
+        ],
+        [
+          42.003,
+          6.35
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "A-07-01-L0",
+      "rack": "A",
+      "distance_m": 45.853,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          40.049,
+          2.0
+        ],
+        [
+          40.049,
+          7.163
+        ],
+        [
+          42.003,
+          7.163
+        ],
+        [
+          42.003,
+          19.85
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "A-07-01-L0",
+      "rack": "A",
+      "distance_m": 60.989,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          39.418
+        ],
+        [
+          42.003,
+          39.418
+        ],
+        [
+          42.003,
+          19.85
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "A-12-01-L0",
+      "rack": "A",
+      "distance_m": 59.353,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          28.365,
+          2.0
+        ],
+        [
+          28.365,
+          4.42
+        ],
+        [
+          42.003,
+          4.42
+        ],
+        [
+          42.003,
+          33.35
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "A-12-01-L0",
+      "rack": "A",
+      "distance_m": 47.489,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          39.418
+        ],
+        [
+          42.003,
+          39.418
+        ],
+        [
+          42.003,
+          33.35
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "B-01-01-L0",
+      "rack": "B",
+      "distance_m": 25.949,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          37.549,
+          2.0
+        ],
+        [
+          37.549,
+          4.4
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "B-01-01-L0",
+      "rack": "B",
+      "distance_m": 40.394,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          39.418
+        ],
+        [
+          37.549,
+          39.418
+        ],
+        [
+          37.549,
+          35.991
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "C-01-01-L0",
+      "rack": "C",
+      "distance_m": 26.44,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          36.174,
+          2.0
+        ],
+        [
+          36.174,
+          6.266
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "C-01-01-L0",
+      "rack": "C",
+      "distance_m": 41.519,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          39.418
+        ],
+        [
+          38.674,
+          39.418
+        ],
+        [
+          38.674,
+          35.991
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "C-07-01-L0",
+      "rack": "C",
+      "distance_m": 27.074,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          38.674,
+          2.0
+        ],
+        [
+          38.674,
+          4.4
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "C-12-01-L0",
+      "rack": "C",
+      "distance_m": 40.885,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          39.418
+        ],
+        [
+          36.174,
+          39.418
+        ],
+        [
+          36.174,
+          34.125
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "D-01-01-L0",
+      "rack": "D",
+      "distance_m": 22.101,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          14.0,
+          4.42
+        ],
+        [
+          30.865,
+          4.42
+        ],
+        [
+          30.865,
+          6.381
+        ],
+        [
+          31.72,
+          6.381
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "D-01-01-L0",
+      "rack": "D",
+      "distance_m": 59.261,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          4.42
+        ],
+        [
+          31.72,
+          4.42
+        ],
+        [
+          31.72,
+          6.381
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "D-07-01-L0",
+      "rack": "D",
+      "distance_m": 38.678,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          31.72,
+          2.0
+        ],
+        [
+          31.72,
+          22.958
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "D-07-01-L0",
+      "rack": "D",
+      "distance_m": 47.598,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          39.418
+        ],
+        [
+          31.72,
+          39.418
+        ],
+        [
+          31.72,
+          22.958
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "D-12-01-L0",
+      "rack": "D",
+      "distance_m": 52.493,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          30.865,
+          2.0
+        ],
+        [
+          30.865,
+          4.42
+        ],
+        [
+          31.72,
+          4.42
+        ],
+        [
+          31.72,
+          36.773
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "D-12-01-L0",
+      "rack": "D",
+      "distance_m": 33.783,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          39.418
+        ],
+        [
+          31.72,
+          39.418
+        ],
+        [
+          31.72,
+          36.773
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "E-01-01-L0",
+      "rack": "E",
+      "distance_m": 18.793,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          14.0,
+          4.42
+        ],
+        [
+          28.365,
+          4.42
+        ],
+        [
+          28.365,
+          6.428
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "E-01-01-L0",
+      "rack": "E",
+      "distance_m": 55.953,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          4.42
+        ],
+        [
+          28.365,
+          4.42
+        ],
+        [
+          28.365,
+          6.428
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "E-07-01-L0",
+      "rack": "E",
+      "distance_m": 35.692,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          14.0,
+          4.4
+        ],
+        [
+          26.192,
+          4.4
+        ],
+        [
+          26.192,
+          23.327
+        ],
+        [
+          28.365,
+          23.327
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "E-07-01-L0",
+      "rack": "E",
+      "distance_m": 42.492,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          38.727
+        ],
+        [
+          28.365,
+          38.727
+        ],
+        [
+          28.365,
+          23.327
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "E-12-01-L0",
+      "rack": "E",
+      "distance_m": 49.775,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          28.365,
+          2.0
+        ],
+        [
+          28.365,
+          37.41
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "E-12-01-L0",
+      "rack": "E",
+      "distance_m": 28.409,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          38.727
+        ],
+        [
+          28.365,
+          38.727
+        ],
+        [
+          28.365,
+          37.41
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "F-01-01-L0",
+      "rack": "F",
+      "distance_m": 14.044,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          23.692,
+          2.0
+        ],
+        [
+          23.692,
+          6.352
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "F-01-01-L0",
+      "rack": "F",
+      "distance_m": 51.204,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          4.42
+        ],
+        [
+          18.383,
+          4.42
+        ],
+        [
+          18.383,
+          6.352
+        ],
+        [
+          23.692,
+          6.352
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "F-07-01-L0",
+      "rack": "F",
+      "distance_m": 30.622,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          14.0,
+          4.42
+        ],
+        [
+          22.837,
+          4.42
+        ],
+        [
+          22.837,
+          22.93
+        ],
+        [
+          23.692,
+          22.93
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "F-07-01-L0",
+      "rack": "F",
+      "distance_m": 38.216,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          38.727
+        ],
+        [
+          23.692,
+          38.727
+        ],
+        [
+          23.692,
+          22.93
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "F-12-01-L0",
+      "rack": "F",
+      "distance_m": 44.437,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          23.692,
+          2.0
+        ],
+        [
+          23.692,
+          36.745
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "F-12-01-L0",
+      "rack": "F",
+      "distance_m": 24.401,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          38.727
+        ],
+        [
+          23.692,
+          38.727
+        ],
+        [
+          23.692,
+          36.745
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "G-01-01-L0",
+      "rack": "G",
+      "distance_m": 13.366,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          20.337,
+          2.0
+        ],
+        [
+          20.337,
+          9.029
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "G-01-01-L0",
+      "rack": "G",
+      "distance_m": 48.762,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          38.727
+        ],
+        [
+          20.337,
+          38.727
+        ],
+        [
+          20.337,
+          9.029
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "G-07-01-L0",
+      "rack": "G",
+      "distance_m": 28.563,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          14.0,
+          4.42
+        ],
+        [
+          20.337,
+          4.42
+        ],
+        [
+          20.337,
+          24.226
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "G-07-01-L0",
+      "rack": "G",
+      "distance_m": 33.565,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          38.727
+        ],
+        [
+          20.337,
+          38.727
+        ],
+        [
+          20.337,
+          24.226
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "G-12-01-L0",
+      "rack": "G",
+      "distance_m": 41.227,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          14.0,
+          4.42
+        ],
+        [
+          20.337,
+          4.42
+        ],
+        [
+          20.337,
+          36.89
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "G-12-01-L0",
+      "rack": "G",
+      "distance_m": 20.901,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          38.727
+        ],
+        [
+          20.337,
+          38.727
+        ],
+        [
+          20.337,
+          36.89
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "H-01-01-L0",
+      "rack": "H",
+      "distance_m": 8.174,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          15.029,
+          2.0
+        ],
+        [
+          15.029,
+          9.145
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "H-01-01-L0",
+      "rack": "H",
+      "distance_m": 33.384,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          9.145
+        ],
+        [
+          12.529,
+          9.145
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "H-06-01-L0",
+      "rack": "H",
+      "distance_m": 21.988,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          15.029,
+          2.0
+        ],
+        [
+          15.029,
+          22.959
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "H-06-01-L0",
+      "rack": "H",
+      "distance_m": 24.77,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          37.6
+        ],
+        [
+          12.529,
+          37.6
+        ],
+        [
+          12.529,
+          22.959
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "H-11-01-L0",
+      "rack": "H",
+      "distance_m": 35.804,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          14.0,
+          4.42
+        ],
+        [
+          15.029,
+          4.42
+        ],
+        [
+          15.029,
+          36.775
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "H-11-01-L0",
+      "rack": "H",
+      "distance_m": 10.954,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          37.6
+        ],
+        [
+          12.529,
+          37.6
+        ],
+        [
+          12.529,
+          36.775
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "I-01-01-L0",
+      "rack": "I",
+      "distance_m": 6.39,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          15.883,
+          2.0
+        ],
+        [
+          15.883,
+          6.507
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "I-01-01-L0",
+      "rack": "I",
+      "distance_m": 39.376,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          7.163
+        ],
+        [
+          15.883,
+          7.163
+        ],
+        [
+          15.883,
+          6.507
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "I-06-01-L0",
+      "rack": "I",
+      "distance_m": 21.46,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          15.883,
+          2.0
+        ],
+        [
+          15.883,
+          21.577
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "I-06-01-L0",
+      "rack": "I",
+      "distance_m": 31.76,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          38.727
+        ],
+        [
+          15.883,
+          38.727
+        ],
+        [
+          15.883,
+          21.577
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "I-11-01-L0",
+      "rack": "I",
+      "distance_m": 36.53,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          14.0,
+          4.42
+        ],
+        [
+          15.883,
+          4.42
+        ],
+        [
+          15.883,
+          36.647
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "I-11-01-L0",
+      "rack": "I",
+      "distance_m": 16.69,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          38.727
+        ],
+        [
+          15.883,
+          38.727
+        ],
+        [
+          15.883,
+          36.647
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "J-01-01-L0",
+      "rack": "J",
+      "distance_m": 9.4,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          11.35,
+          2.0
+        ],
+        [
+          11.35,
+          8.75
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "J-01-01-L0",
+      "rack": "J",
+      "distance_m": 32.6,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          8.75
+        ],
+        [
+          11.35,
+          8.75
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "J-03-01-L0",
+      "rack": "J",
+      "distance_m": 8.633,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          15.883,
+          2.0
+        ],
+        [
+          15.883,
+          8.75
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "J-03-01-L0",
+      "rack": "J",
+      "distance_m": 40.307,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          7.163
+        ],
+        [
+          15.883,
+          7.163
+        ],
+        [
+          15.883,
+          8.75
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "J-04-01-L0",
+      "rack": "J",
+      "distance_m": 12.2,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          19.45,
+          2.0
+        ],
+        [
+          19.45,
+          8.75
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "J-04-01-L0",
+      "rack": "J",
+      "distance_m": 45.654,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          5.0,
+          38.727
+        ],
+        [
+          18.383,
+          38.727
+        ],
+        [
+          18.383,
+          11.25
+        ],
+        [
+          19.45,
+          11.25
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "J-05-01-L0",
+      "rack": "J",
+      "distance_m": 12.1,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          11.25,
+          2.0
+        ],
+        [
+          11.25,
+          11.35
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "J-05-01-L0",
+      "rack": "J",
+      "distance_m": 27.4,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          8.75,
+          35.0
+        ],
+        [
+          8.75,
+          11.35
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "J-09-01-L0",
+      "rack": "J",
+      "distance_m": 22.9,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          14.0,
+          4.42
+        ],
+        [
+          12.529,
+          4.42
+        ],
+        [
+          12.529,
+          22.15
+        ],
+        [
+          11.25,
+          22.15
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "J-09-01-L0",
+      "rack": "J",
+      "distance_m": 16.6,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          8.75,
+          35.0
+        ],
+        [
+          8.75,
+          22.15
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "operator",
+      "position_id": "J-14-01-L0",
+      "rack": "J",
+      "distance_m": 36.4,
+      "path": [
+        [
+          14.0,
+          2.0
+        ],
+        [
+          12.529,
+          2.0
+        ],
+        [
+          12.529,
+          35.65
+        ],
+        [
+          11.25,
+          35.65
+        ]
+      ],
+      "visual_only_intersections": []
+    },
+    {
+      "mode": "reach_truck",
+      "position_id": "J-14-01-L0",
+      "rack": "J",
+      "distance_m": 4.4,
+      "path": [
+        [
+          5.0,
+          35.0
+        ],
+        [
+          8.75,
+          35.0
+        ],
+        [
+          8.75,
+          35.65
+        ]
+      ],
+      "visual_only_intersections": []
+    }
+  ],
+  "notes": [
+    "Simulation routes use rack bodies + explicit blocked_zones as blockers.",
+    "decorations are exported as visual_only_zones and do not affect KPIs unless promoted to blocked_zones in layout.json."
+  ]
+}

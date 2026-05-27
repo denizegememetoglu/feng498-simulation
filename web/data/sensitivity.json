@@ -1,0 +1,352 @@
+{
+  "baseline": {
+    "avg_lead_time": 4.803712894858345,
+    "avg_walk_distance": 79.4836704494882,
+    "orders_completed": 428,
+    "reach_truck_utilization": 0.06876406950958802
+  },
+  "perturbations": {
+    "OPERATOR_WALK_SPEED_M_PER_MIN": {
+      "label": "Operator walk speed",
+      "baseline_value": 50.0,
+      "low_value": 40.0,
+      "high_value": 60.0,
+      "runs": {
+        "low": {
+          "value": 40.0,
+          "kpis": {
+            "avg_lead_time": 5.18100555112427,
+            "avg_walk_distance": 80.75971367663344,
+            "orders_completed": 430,
+            "reach_truck_utilization": 0.06914490431901824
+          },
+          "delta_pct": {
+            "avg_lead_time": 7.854188302339222,
+            "avg_walk_distance": 1.6054155777269516,
+            "orders_completed": 0.4672897196261682,
+            "reach_truck_utilization": 0.5538282014811713
+          }
+        },
+        "high": {
+          "value": 60.0,
+          "kpis": {
+            "avg_lead_time": 4.487463725679669,
+            "avg_walk_distance": 77.21962485691391,
+            "orders_completed": 416,
+            "reach_truck_utilization": 0.06813919061550303
+          },
+          "delta_pct": {
+            "avg_lead_time": -6.583431943178222,
+            "avg_walk_distance": -2.848441170080451,
+            "orders_completed": -2.803738317757009,
+            "reach_truck_utilization": -0.9087287860382764
+          }
+        }
+      }
+    },
+    "REACH_TRUCK_SPEED_M_PER_MIN": {
+      "label": "Reach-truck speed",
+      "baseline_value": 100.0,
+      "low_value": 80.0,
+      "high_value": 120.0,
+      "runs": {
+        "low": {
+          "value": 80.0,
+          "kpis": {
+            "avg_lead_time": 5.121330113607818,
+            "avg_walk_distance": 81.54546272076905,
+            "orders_completed": 426,
+            "reach_truck_utilization": 0.0775089310083184
+          },
+          "delta_pct": {
+            "avg_lead_time": 6.6119109468310375,
+            "avg_walk_distance": 2.5939822099573493,
+            "orders_completed": -0.4672897196261682,
+            "reach_truck_utilization": 12.717196002355642
+          }
+        },
+        "high": {
+          "value": 120.0,
+          "kpis": {
+            "avg_lead_time": 4.1992849469006215,
+            "avg_walk_distance": 73.42340312957334,
+            "orders_completed": 423,
+            "reach_truck_utilization": 0.05715596644939548
+          },
+          "delta_pct": {
+            "avg_lead_time": -12.58251609093193,
+            "avg_walk_distance": -7.624543866234953,
+            "orders_completed": -1.1682242990654206,
+            "reach_truck_utilization": -16.88105887708403
+          }
+        }
+      }
+    },
+    "REACH_TRUCK_LIFT_TIME_PER_LEVEL": {
+      "label": "RT lift time / level",
+      "baseline_value": 0.25,
+      "low_value": 0.2,
+      "high_value": 0.3,
+      "runs": {
+        "low": {
+          "value": 0.2,
+          "kpis": {
+            "avg_lead_time": 4.277527306517078,
+            "avg_walk_distance": 77.79362716931216,
+            "orders_completed": 450,
+            "reach_truck_utilization": 0.05988058746764397
+          },
+          "delta_pct": {
+            "avg_lead_time": -10.953726832935208,
+            "avg_walk_distance": -2.126277348062408,
+            "orders_completed": 5.140186915887851,
+            "reach_truck_utilization": -12.918784628802975
+          }
+        },
+        "high": {
+          "value": 0.3,
+          "kpis": {
+            "avg_lead_time": 4.974417065185762,
+            "avg_walk_distance": 80.09655747484179,
+            "orders_completed": 459,
+            "reach_truck_utilization": 0.08123143936709959
+          },
+          "delta_pct": {
+            "avg_lead_time": 3.5535881111906362,
+            "avg_walk_distance": 0.7710854592995623,
+            "orders_completed": 7.242990654205608,
+            "reach_truck_utilization": 18.130645766642996
+          }
+        }
+      }
+    },
+    "REACH_TRUCK_PICK_PLACE_TIME": {
+      "label": "RT pick+place time",
+      "baseline_value": 0.11,
+      "low_value": 0.08800000000000001,
+      "high_value": 0.132,
+      "runs": {
+        "low": {
+          "value": 0.08800000000000001,
+          "kpis": {
+            "avg_lead_time": 4.5327904561148635,
+            "avg_walk_distance": 79.08572458471761,
+            "orders_completed": 430,
+            "reach_truck_utilization": 0.0636088679664657
+          },
+          "delta_pct": {
+            "avg_lead_time": -5.639854934574943,
+            "avg_walk_distance": -0.5006636740857172,
+            "orders_completed": 0.4672897196261682,
+            "reach_truck_utilization": -7.496940742292041
+          }
+        },
+        "high": {
+          "value": 0.132,
+          "kpis": {
+            "avg_lead_time": 4.729836485052085,
+            "avg_walk_distance": 79.78999373570389,
+            "orders_completed": 458,
+            "reach_truck_utilization": 0.07255689981947427
+          },
+          "delta_pct": {
+            "avg_lead_time": -1.5379022731631828,
+            "avg_walk_distance": 0.3853914703276754,
+            "orders_completed": 7.009345794392523,
+            "reach_truck_utilization": 5.515715310242662
+          }
+        }
+      }
+    },
+    "OPERATOR_PICK_TIME": {
+      "label": "Operator pick time",
+      "baseline_value": 0.113,
+      "low_value": 0.09040000000000001,
+      "high_value": 0.1356,
+      "runs": {
+        "low": {
+          "value": 0.09040000000000001,
+          "kpis": {
+            "avg_lead_time": 4.226585185016409,
+            "avg_walk_distance": 76.33593099836501,
+            "orders_completed": 466,
+            "reach_truck_utilization": 0.06283403770971932
+          },
+          "delta_pct": {
+            "avg_lead_time": -12.014200733346579,
+            "avg_walk_distance": -3.9602341378076797,
+            "orders_completed": 8.878504672897197,
+            "reach_truck_utilization": -8.623735974558421
+          }
+        },
+        "high": {
+          "value": 0.1356,
+          "kpis": {
+            "avg_lead_time": 4.807636702036467,
+            "avg_walk_distance": 78.73172964337252,
+            "orders_completed": 462,
+            "reach_truck_utilization": 0.07612111864587788
+          },
+          "delta_pct": {
+            "avg_lead_time": 0.08168279961780951,
+            "avg_walk_distance": -0.9460318098841969,
+            "orders_completed": 7.94392523364486,
+            "reach_truck_utilization": 10.69897286294849
+          }
+        }
+      }
+    },
+    "MANUAL_PICK_TIME_PENALTY": {
+      "label": "Manual pick penalty",
+      "baseline_value": 0.102,
+      "low_value": 0.0816,
+      "high_value": 0.12239999999999998,
+      "runs": {
+        "low": {
+          "value": 0.0816,
+          "kpis": {
+            "avg_lead_time": 4.803712894858345,
+            "avg_walk_distance": 79.4836704494882,
+            "orders_completed": 428,
+            "reach_truck_utilization": 0.06876406950958802
+          },
+          "delta_pct": {
+            "avg_lead_time": 0.0,
+            "avg_walk_distance": 0.0,
+            "orders_completed": 0.0,
+            "reach_truck_utilization": 0.0
+          }
+        },
+        "high": {
+          "value": 0.12239999999999998,
+          "kpis": {
+            "avg_lead_time": 4.803712894858345,
+            "avg_walk_distance": 79.4836704494882,
+            "orders_completed": 428,
+            "reach_truck_utilization": 0.06876406950958802
+          },
+          "delta_pct": {
+            "avg_lead_time": 0.0,
+            "avg_walk_distance": 0.0,
+            "orders_completed": 0.0,
+            "reach_truck_utilization": 0.0
+          }
+        }
+      }
+    },
+    "KARDEX_PICK_TIME": {
+      "label": "Kardex pick time",
+      "baseline_value": 0.113,
+      "low_value": 0.09040000000000001,
+      "high_value": 0.1356,
+      "runs": {
+        "low": {
+          "value": 0.09040000000000001,
+          "kpis": {
+            "avg_lead_time": 4.592479911010218,
+            "avg_walk_distance": 77.9880372738615,
+            "orders_completed": 458,
+            "reach_truck_utilization": 0.07076759402652065
+          },
+          "delta_pct": {
+            "avg_lead_time": -4.397285776055011,
+            "avg_walk_distance": -1.8816860962368127,
+            "orders_completed": 7.009345794392523,
+            "reach_truck_utilization": 2.9136212141331597
+          }
+        },
+        "high": {
+          "value": 0.1356,
+          "kpis": {
+            "avg_lead_time": 4.680973306462101,
+            "avg_walk_distance": 78.34020648259303,
+            "orders_completed": 476,
+            "reach_truck_utilization": 0.07310498964781555
+          },
+          "delta_pct": {
+            "avg_lead_time": -2.5550983391954634,
+            "avg_walk_distance": -1.4386149512582451,
+            "orders_completed": 11.214953271028037,
+            "reach_truck_utilization": 6.31277376278938
+          }
+        }
+      }
+    },
+    "KARDEX_CAROUSEL_TIME": {
+      "label": "Kardex carousel time",
+      "baseline_value": 0.4,
+      "low_value": 0.32000000000000006,
+      "high_value": 0.48,
+      "runs": {
+        "low": {
+          "value": 0.32000000000000006,
+          "kpis": {
+            "avg_lead_time": 4.9682245151493785,
+            "avg_walk_distance": 83.26969184362935,
+            "orders_completed": 444,
+            "reach_truck_utilization": 0.07525120655870454
+          },
+          "delta_pct": {
+            "avg_lead_time": 3.4246763678803283,
+            "avg_walk_distance": 4.763269452367776,
+            "orders_completed": 3.7383177570093458,
+            "reach_truck_utilization": 9.43390508354366
+          }
+        },
+        "high": {
+          "value": 0.48,
+          "kpis": {
+            "avg_lead_time": 4.793998958363881,
+            "avg_walk_distance": 80.44789892078326,
+            "orders_completed": 428,
+            "reach_truck_utilization": 0.06921885721084135
+          },
+          "delta_pct": {
+            "avg_lead_time": -0.20221725792274453,
+            "avg_walk_distance": 1.2131151793094717,
+            "orders_completed": 0.0,
+            "reach_truck_utilization": 0.6613740351564252
+          }
+        }
+      }
+    },
+    "IAT_MEAN_MIN_OVERRIDE": {
+      "label": "IAT mean (min)",
+      "baseline_value": 5.360964668886423,
+      "low_value": 4.288771735109139,
+      "high_value": 6.433157602663707,
+      "runs": {
+        "low": {
+          "value": 4.288771735109139,
+          "kpis": {
+            "avg_lead_time": 4.682130314789142,
+            "avg_walk_distance": 79.02487863814528,
+            "orders_completed": 571,
+            "reach_truck_utilization": 0.08771650200036481
+          },
+          "delta_pct": {
+            "avg_lead_time": -2.5310126298209554,
+            "avg_walk_distance": -0.5772151798582094,
+            "orders_completed": 33.41121495327103,
+            "reach_truck_utilization": 27.56153413540218
+          }
+        },
+        "high": {
+          "value": 6.433157602663707,
+          "kpis": {
+            "avg_lead_time": 4.466797961776557,
+            "avg_walk_distance": 76.87414352783367,
+            "orders_completed": 355,
+            "reach_truck_utilization": 0.0529439829407232
+          },
+          "delta_pct": {
+            "avg_lead_time": -7.0136359198819935,
+            "avg_walk_distance": -3.2830981595306254,
+            "orders_completed": -17.05607476635514,
+            "reach_truck_utilization": -23.006326824009403
+          }
+        }
+      }
+    }
+  }
+}
