@@ -17,6 +17,10 @@ MEETING_NOTES_*.md
 
 # Session / agent notes — local only
 HANDOFF.md
+AGENTS.md
+CLAUDE.md
+IMPROVEMENT_BACKLOG.md
+NEXT_SESSION_PROMPT.md
 .claude/
 .agents/
 .codex/
