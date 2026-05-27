@@ -35,18 +35,58 @@ from src.slotting import HeuristicBaselinePolicy
 
 
 # --- What to vary ------------------------------------------------------------
-# Each entry: (attr_name, baseline, low, high, human_label).
-# ±20% by default; manual override where ±20% is uninformative.
-INPUTS = [
-    ("OPERATOR_WALK_SPEED_M_PER_MIN",   50.0,  40.0, 60.0, "Operator walk speed"),
-    ("REACH_TRUCK_SPEED_M_PER_MIN",     100.0, 80.0, 120.0, "Reach-truck speed"),
-    ("REACH_TRUCK_LIFT_TIME_PER_LEVEL", 0.25,  0.20, 0.30, "RT lift time / level"),
-    ("REACH_TRUCK_PICK_PLACE_TIME",     0.5,   0.4,  0.6,  "RT pick+place time"),
-    ("OPERATOR_PICK_TIME",              0.3,   0.24, 0.36, "Operator pick time"),
-    ("KARDEX_PICK_TIME",                0.5,   0.4,  0.6,  "Kardex pick time"),
-    ("KARDEX_CAROUSEL_TIME",            0.4,   0.32, 0.48, "Kardex carousel time"),
-    ("ORDERS_PER_DAY",                  300,   240,  360,  "Orders / day"),
+# C1 fix: baselines are derived from the live config at import time, not
+# hardcoded. The previous static table was stale (RT_pick=0.5, OperatorPick=0.3,
+# Kardex=0.5) so tornados anchored to fake baselines after the F400 timing
+# study landed. Also drops ORDERS_PER_DAY (silently unused under TRACE_DRIVEN)
+# and adds IAT_MEAN_MIN_OVERRIDE so the arrival rate is now a real sweep knob.
+SENS_INPUT_SPECS = [
+    ("OPERATOR_WALK_SPEED_M_PER_MIN", "Operator walk speed"),
+    ("REACH_TRUCK_SPEED_M_PER_MIN", "Reach-truck speed"),
+    ("REACH_TRUCK_LIFT_TIME_PER_LEVEL", "RT lift time / level"),
+    ("REACH_TRUCK_PICK_PLACE_TIME", "RT pick+place time"),
+    ("OPERATOR_PICK_TIME", "Operator pick time"),
+    ("MANUAL_PICK_TIME_PENALTY", "Manual pick penalty"),
+    ("KARDEX_PICK_TIME", "Kardex pick time"),
+    ("KARDEX_CAROUSEL_TIME", "Kardex carousel time"),
+    ("IAT_MEAN_MIN_OVERRIDE", "IAT mean (min)"),
 ]
+
+
+def _iat_baseline_min() -> float | None:
+    """ZWM92 within-shift IAT mean from the summary cache — the baseline
+    for IAT_MEAN_MIN_OVERRIDE sweeps. None when cache is missing (entry
+    will be skipped)."""
+    path = "output/zwm92_summary.json"
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path) as f:
+            d = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return None
+    val = d.get("iat_within_shift_mean")
+    return float(val) if val else None
+
+
+def _build_inputs():
+    """Dynamic INPUTS: baseline = current config attr, ±20% bounds."""
+    inputs = []
+    iat_baseline = _iat_baseline_min()
+    for attr, label in SENS_INPUT_SPECS:
+        if attr == "IAT_MEAN_MIN_OVERRIDE":
+            baseline = iat_baseline
+        else:
+            baseline = getattr(config, attr, None)
+        if baseline is None or baseline <= 0:
+            continue
+        lo = baseline * 0.8
+        hi = baseline * 1.2
+        inputs.append((attr, baseline, lo, hi, label))
+    return inputs
+
+
+INPUTS = _build_inputs()
 
 # Which KPIs to track in the tornado. Reading from main._aggregate_summaries
 # output names.

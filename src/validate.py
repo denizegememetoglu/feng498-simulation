@@ -36,15 +36,31 @@ from src.simulation import WarehouseSimulation
 from src.slotting import RealBaselinePolicy
 
 
-def _expected_picks_by_rack(data) -> dict[str, float]:
-    """Project SAP storage bins onto rack ids and weight by consumption.
+ZWM92_SUMMARY_PATH = "output/zwm92_summary.json"
 
-    For each material with a decoded SAP bin, the rack on that bin is its
-    'home rack'. We weight by zppq11 consumption (units/76d) — if a
-    material is consumed 1000 units in 76 days and lives in rack J, then
-    rack J gets 1000 units of expected demand. Materials without a decoded
-    bin contribute nothing to the expected distribution (we know their
-    pick volume but not the rack)."""
+
+def _zwm92_actuals() -> dict | None:
+    """Load cached ZWM92 derived views if present. None means run zwm92."""
+    if not os.path.exists(ZWM92_SUMMARY_PATH):
+        return None
+    with open(ZWM92_SUMMARY_PATH) as f:
+        return json.load(f)
+
+
+def _expected_picks_by_rack(data) -> dict[str, float]:
+    """Per-rack expected picks.
+
+    Priority 1: real ZWM92 dispatch counts (`picks_per_rack_actual`). This
+    is the ground truth — every value is a real goods-issue from a real bin.
+    Priority 2: fallback to the consumption proxy (SAP bins × zppq11
+    consumption) when ZWM92 cache is unavailable. The proxy was the old
+    headline expected vector; it overcounts low-velocity racks because it
+    has no per-bin pick history.
+    """
+    z = _zwm92_actuals()
+    if z and z.get("picks_per_rack_actual"):
+        return {r: float(c) for r, c in z["picks_per_rack_actual"].items()}
+
     weights = Counter()
     consumption = data["consumption"]
     decoded = data["decoded_bins"]
@@ -52,8 +68,6 @@ def _expected_picks_by_rack(data) -> dict[str, float]:
         c = consumption.get(mid, 0.0)
         if c <= 0 or not bin_list:
             continue
-        # Split consumption uniformly across the material's bins. This is
-        # the most-defensible assumption without per-bin pick history.
         per_bin = c / len(bin_list)
         for (rack, _bay, _pos) in bin_list:
             weights[rack] += per_bin
@@ -83,7 +97,25 @@ def _sim_picks_by_rack_restricted(kpi, decoded_bins, warehouse) -> dict[str, flo
 
 
 def _expected_picks_per_material(data) -> dict[str, float]:
-    """Daily picks per material from zppq11 consumption / DATA_DAYS."""
+    """Daily picks per material — ZWM92 actuals when cached, else consumption proxy."""
+    z_orders_path = "output/zwm92_orders.json"
+    if os.path.exists(z_orders_path):
+        from src.zwm92 import load_orders_cached
+        orders = load_orders_cached(z_orders_path)
+        if orders:
+            counts: Counter = Counter()
+            days = set()
+            for o in orders:
+                dt = o.get("arrival_dt")
+                if dt is not None and not getattr(dt, "is_nat", False):
+                    try:
+                        days.add(dt.strftime("%Y-%m-%d"))
+                    except Exception:
+                        pass
+                for mid in o["items"]:
+                    counts[mid] += 1
+            n_days = len(days) or config.DATA_DAYS
+            return {mid: c / n_days for mid, c in counts.items()}
     cons = data["consumption"]
     return {mid: c / config.DATA_DAYS for mid, c in cons.items() if c > 0}
 
@@ -94,7 +126,13 @@ def _sim_picks_per_day(kpi, sim_days):
 
 def _chi_square_per_rack(sim_counts: dict, expected_weights: dict):
     """Chi-square goodness of fit. Aligns observed and expected on the
-    intersection of racks. Returns (statistic, p, dof, observed, expected)."""
+    intersection of racks. Returns (statistic, p, dof, observed, expected).
+
+    M3 fix: Cochran's rule (expected cell count >= 5) is checked and any
+    low-expected cells are reported as a `cochran_warning` field. When the
+    rule is violated the p-value is approximate — the chi-square asymptotic
+    distribution starts to drift for sparse cells.
+    """
     racks = sorted(set(sim_counts) & set(expected_weights))
     if len(racks) < 2:
         return None
@@ -108,6 +146,14 @@ def _chi_square_per_rack(sim_counts: dict, expected_weights: dict):
         return None
     exp = [e * obs_total / exp_total for e in exp_raw]
     stat, p = stats.chisquare(obs, exp)
+    low_cells = [(r, round(e, 2)) for r, e in zip(racks, exp) if e < 5]
+    cochran_warning = None
+    if low_cells:
+        cochran_warning = (
+            f"Cochran's rule violated: {len(low_cells)} of {len(racks)} cells "
+            f"have expected count < 5 — {low_cells}. Chi-square p-value is "
+            f"approximate; consider Fisher's exact or pooling low cells."
+        )
     return {
         "racks": racks,
         "observed": obs,
@@ -115,6 +161,8 @@ def _chi_square_per_rack(sim_counts: dict, expected_weights: dict):
         "chi_square": float(stat),
         "p_value": float(p),
         "dof": len(racks) - 1,
+        "cochran_low_cells": [r for r, _ in low_cells],
+        "cochran_warning": cochran_warning,
     }
 
 
@@ -185,25 +233,28 @@ def run_validation():
     chi = chi_restricted
     ttest = _t_test_per_material(sim_rates, expected_per_mat)
 
+    expected_source = ("ZWM92 actuals (real per-bin dispatch counts)"
+                       if _zwm92_actuals() and _zwm92_actuals().get("picks_per_rack_actual")
+                       else "consumption proxy (özet bins × zppq11)")
     report = {
+        "expected_source": expected_source,
         "chi_square_per_rack_restricted": chi_restricted,
         "chi_square_per_rack_all_sim_picks": chi_all,
         "t_test_per_material": ttest,
         "notes": [
+            f"Expected rack distribution source: {expected_source}.",
             "Chi-square (restricted): simulation pick distribution is "
             "restricted to materials that have a decoded SAP bin "
-            "(apples-to-apples vs. SAP-expected). H0 = same shape.",
+            "(apples-to-apples vs. expected). H0 = same shape.",
             "Chi-square (all sim picks): biased because the simulation "
             "places ~5600 materials without a SAP bin via fallback, "
             "shifting the rack distribution away from SAP — kept for "
             "completeness but the restricted test is the headline number.",
             "T-test runs on log(daily picks + 1e-3) over materials common "
-            "to both sim and SAP-consumption (zppq11); H0 = same mean.",
-            "Order-level SAP timestamps unavailable — lead-time validation "
-            "is not possible; only aggregate validation here.",
-            "BOM data still pending (May 2026) — when available, expected "
-            "rack distribution can be refined to weight by bill-of-materials "
-            "co-pick frequency rather than raw consumption.",
+            "to both sim and expected; H0 = same mean.",
+            "ZWM92 (167,784 rows, 2026-01-02 to 2026-05-18, 9 product "
+            "families) closes the prior validation gap — we now compare "
+            "against real per-rack dispatch counts, not a consumption proxy.",
         ],
     }
 
@@ -221,7 +272,10 @@ def run_validation():
             f.write(f"  dof          = {c['dof']}\n")
             f.write(f"  p-value      = {c['p_value']:.4f}\n")
             verdict = "REJECT H0 (distributions differ)" if c["p_value"] < 0.05 else "fail to reject H0"
-            f.write(f"  verdict      = {verdict}\n\n")
+            f.write(f"  verdict      = {verdict}\n")
+            if c.get("cochran_warning"):
+                f.write(f"  WARNING      = {c['cochran_warning']}\n")
+            f.write("\n")
         else:
             f.write("  not computable (need >= 2 racks)\n\n")
 

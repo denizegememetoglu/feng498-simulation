@@ -22,6 +22,7 @@ Output:
     output/policy_stats.txt
 """
 
+import csv
 import json
 import math
 import os
@@ -236,22 +237,172 @@ def write_text_report(report: dict, path: str) -> None:
                     f"p={_fmt(w['p_value'], '.4f')}  d={_fmt(w['cohens_d'])}"
                 )
         lines.append("")
+    if "paired_by_order" in report:
+        lines.append("--- Paired-by-order Wilcoxon tests vs Baseline (Heuristic)")
+        lines.append("    (N_REPLICATIONS=1 → comparison is per-order, not per-rep)")
+        lines.append("    p_raw = uncorrected; p_holm = Holm-Bonferroni family-wise; * uses p_holm.")
+        lines.append("")
+        for pol, metrics in report["paired_by_order"].items():
+            lines.append(f"  {pol}")
+            for key, st in metrics.items():
+                marker = "*" if st["significant_at_0.05"] else " "
+                p_raw = st.get("p_raw", st.get("p_value"))
+                p_holm = st.get("p_holm", st.get("p_value"))
+                lines.append(
+                    f"   {marker} {st['label']:20s}  "
+                    f"mean_diff={_fmt(st['mean_diff']):>10s}  "
+                    f"median_diff={_fmt(st['median_diff']):>10s}  "
+                    f"W={_fmt(st['wilcoxon_W'], '.1f'):>10s}  "
+                    f"p_raw={_fmt(p_raw, '.4f')}  "
+                    f"p_holm={_fmt(p_holm, '.4f')}  "
+                    f"(n={st['n_paired']})"
+                )
+            lines.append("")
     lines.append("Notes:")
+    lines.append("  - ANOVA / Tukey / Welch require N_REPLICATIONS >= 2; with same-seed")
+    lines.append("    single-trajectory runs (advisor's setup) they are not applicable —")
+    lines.append("    use the paired-by-order Wilcoxon block above instead.")
     lines.append("  - ANOVA tests whether at least one policy mean differs from the rest.")
     lines.append("  - Tukey HSD controls family-wise error across all policy pairs.")
     lines.append("  - Welch t-test does not assume equal variances; pairs each non-")
     lines.append("    baseline policy against the Heuristic to give a per-policy verdict.")
     lines.append("  - Cohen's d magnitude (rule of thumb): 0.2 small, 0.5 medium, 0.8 large.")
-    lines.append("  - CV per policy < ~0.10 suggests N_REPLICATIONS is adequate for that KPI.")
+    lines.append("  - Wilcoxon signed-rank is the non-parametric paired test on per-order")
+    lines.append("    KPI differences (policy minus Heuristic on the same order).")
+    lines.append("  - Holm-Bonferroni correction is applied across the Wilcoxon family")
+    lines.append("    (3 metrics × (n_policies - 1) tests). p_raw shows uncorrected;")
+    lines.append("    p_holm shows family-wise corrected. * uses p_holm < 0.05.")
 
     with open(path, "w") as f:
         f.write("\n".join(lines) + "\n")
+
+
+def paired_by_order(per_policy_csv: dict[str, str]) -> dict:
+    """Paired-by-order comparison when N_REPLICATIONS == 1.
+
+    With a single trajectory per policy (advisor-mandated same-seed run),
+    each order has one realisation per policy. We pair on `order_id` and
+    run Wilcoxon signed-rank tests on per-order walk distance, prep time,
+    and lead time relative to the Heuristic baseline.
+
+    H3 fix: Holm-Bonferroni correction is applied across the family of
+    Wilcoxon tests (3 metrics × (n_policies-1)). Each entry carries both
+    `p_raw` (uncorrected) and `p_holm` (family-wise corrected); the
+    `significant_at_0.05` flag uses `p_holm` to avoid false positives
+    from running many tests.
+
+    M7 fix: skipped policies (n_paired < 30) are logged to stdout instead
+    of being silently dropped.
+
+    Args:
+        per_policy_csv: {policy_name: csv_path_with_per_order_rows}
+    """
+    base_name = BASELINE_POLICY
+    if base_name not in per_policy_csv:
+        return {}
+    base_rows = _read_order_csv(per_policy_csv[base_name])
+    if not base_rows:
+        return {}
+
+    out: dict[str, dict] = {}
+    metric_keys = [
+        ("walk_distance", "walk distance (m)", "lower"),
+        ("prep_time", "prep time (min)", "lower"),
+        ("lead_time", "lead time (min)", "lower"),
+    ]
+
+    # Pass 1: compute Wilcoxon stats; collect raw p-values for Holm pass.
+    pvals_for_holm: list[float] = []
+    holm_index: list[tuple[str, str]] = []
+    for pol, csv_path in per_policy_csv.items():
+        if pol == base_name:
+            continue
+        pol_rows = _read_order_csv(csv_path)
+        common = sorted(set(base_rows) & set(pol_rows))
+        if len(common) < 30:
+            print(f"  [SKIP paired_by_order] {pol} vs {base_name}: "
+                  f"n_common={len(common)} < 30 — insufficient paired "
+                  f"observations.")
+            continue
+        per_metric = {}
+        for key, label, direction in metric_keys:
+            base_vals = [base_rows[i].get(key, 0.0) for i in common]
+            pol_vals = [pol_rows[i].get(key, 0.0) for i in common]
+            diff = [p - b for p, b in zip(pol_vals, base_vals)]
+            try:
+                w, p = stats.wilcoxon(diff, zero_method="wilcox", alternative="two-sided")
+                w_stat, p_val = float(w), float(p)
+            except (ValueError, ZeroDivisionError):
+                w_stat, p_val = float("nan"), float("nan")
+            per_metric[key] = {
+                "label": label,
+                "direction": direction,
+                "n_paired": len(common),
+                "mean_diff": statistics.fmean(diff),
+                "median_diff": statistics.median(diff),
+                "wilcoxon_W": w_stat,
+                "p_raw": p_val,
+                "p_holm": p_val,  # filled in pass 2
+                "significant_at_0.05": False,
+            }
+            if not math.isnan(p_val):
+                pvals_for_holm.append(p_val)
+                holm_index.append((pol, key))
+        out[pol] = per_metric
+
+    # Pass 2: Holm-Bonferroni correction across the family of tests.
+    if pvals_for_holm:
+        try:
+            from statsmodels.stats.multitest import multipletests
+            _, p_holm_arr, _, _ = multipletests(
+                pvals_for_holm, alpha=0.05, method="holm"
+            )
+            for (pol, key), p_holm in zip(holm_index, p_holm_arr):
+                entry = out[pol][key]
+                entry["p_holm"] = float(p_holm)
+                entry["significant_at_0.05"] = bool(p_holm < 0.05)
+        except ImportError:
+            print("  [WARN paired_by_order] statsmodels missing — "
+                  "Holm correction skipped; using raw p-values.")
+            for (pol, key) in holm_index:
+                entry = out[pol][key]
+                entry["holm_correction_skipped"] = True
+                entry["significant_at_0.05"] = bool(entry["p_raw"] < 0.05)
+    return out
+
+
+def _read_order_csv(path: str) -> dict[int, dict]:
+    if not os.path.exists(path):
+        return {}
+    rows: dict[int, dict] = {}
+    with open(path) as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                oid = int(row["order_id"])
+            except (ValueError, KeyError):
+                continue
+            rows[oid] = {k: (float(v) if v not in (None, "") else 0.0)
+                         for k, v in row.items() if k not in ("order_id", "line")}
+    return rows
 
 
 def run_analysis(reps_path: str = "output/replications.json") -> dict:
     with open(reps_path) as f:
         reps = json.load(f)
     report = analyze(reps)
+
+    # If N=1, also do paired-by-order Wilcoxon tests on the per-order CSVs.
+    n_reps = max(len(rs) for rs in reps.values()) if reps else 0
+    if n_reps == 1:
+        per_policy_csv = {
+            pol: f"output/{pol.lower().replace(' ', '_').replace('(', '').replace(')', '')}.csv"
+            for pol in reps.keys()
+        }
+        paired = paired_by_order(per_policy_csv)
+        if paired:
+            report["paired_by_order"] = paired
+
     os.makedirs("output", exist_ok=True)
     with open("output/policy_stats.json", "w") as f:
         json.dump(report, f, indent=2)
@@ -263,6 +414,9 @@ def run_analysis(reps_path: str = "output/replications.json") -> dict:
         if a:
             print(f"  {block['label']:34s}  winner={block['winner']:25s}  "
                   f"ANOVA p={a['p_value']:.4f}")
+        else:
+            print(f"  {block['label']:34s}  winner={block['winner']:25s}  "
+                  f"(N=1, ANOVA n/a)")
     return report
 
 

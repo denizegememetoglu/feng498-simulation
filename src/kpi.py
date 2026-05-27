@@ -4,6 +4,8 @@ import statistics
 
 import numpy as np
 
+from src import config
+
 
 @dataclass
 class OrderRecord:
@@ -35,6 +37,10 @@ class KPICollector:
         self.picks_by_material: Counter = Counter()
         # Surface util overflow rather than silently capping it.
         self.util_overflow: list[tuple[str, float]] = []
+        # Orders whose entire item list resolved to neither rack nor Kardex
+        # picks (no decoded SAP slot and no Kardex membership). Recorded as
+        # orders to keep totals comparable, but flagged separately.
+        self.orders_with_no_locations = 0
 
     def record_order(self, *, order_id, arrival_time, op_queue_wait,
                      rt_queue_wait, prep_time, lead_time, walk_distance,
@@ -76,7 +82,12 @@ class KPICollector:
         hi = self._sim_duration - self._cooldown
         return [o for o in self.orders if lo <= o.arrival_time < hi]
 
-    def summary(self, num_reach_trucks=7, num_operators=4):
+    def summary(self, num_reach_trucks: int | None = None,
+                num_operators: int | None = None):
+        if num_reach_trucks is None:
+            num_reach_trucks = config.NUM_REACH_TRUCKS
+        if num_operators is None:
+            num_operators = config.NUM_OPERATORS
         active = self._active_orders()
         if not active:
             return {"orders_completed": 0}
@@ -103,6 +114,7 @@ class KPICollector:
         return {
             "orders_completed": len(active),
             "orders_total": len(self.orders),
+            "orders_with_no_locations": int(self.orders_with_no_locations),
             "avg_prep_time": float(prep_times.mean()),
             "median_prep_time": float(np.median(prep_times)),
             "p95_prep_time": float(np.percentile(prep_times, 95)),

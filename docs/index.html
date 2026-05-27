@@ -3,110 +3,84 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>Warehouse Simulation 3D — FENG 498</title>
+<title>SE Manisa Ambar — CAD-fidelity 3D (FENG 498)</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { overflow: hidden; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; touch-action: none; }
+html, body { overflow: hidden; background: #eef2f6; font-family: 'Segoe UI', sans-serif; touch-action: none; }
 canvas { display: block; }
 #hud {
-  position: absolute; top: 10px; left: 10px;
-  background: rgba(0,0,0,0.82); color: #fff; padding: 12px 14px;
-  border-radius: 10px; font-size: 12px; line-height: 1.6;
-  backdrop-filter: blur(10px); min-width: 200px; z-index: 10;
+  position: absolute; top: 12px; left: 12px;
+  background: rgba(15,23,42,0.86); color: #f8fafc; padding: 12px 16px;
+  border-radius: 12px; font-size: 12px; line-height: 1.55;
+  backdrop-filter: blur(10px); z-index: 10; min-width: 220px;
   border: 1px solid rgba(255,255,255,0.08);
 }
-#hud h2 { font-size: 14px; margin-bottom: 6px; color: #4fc3f7; letter-spacing: 0.5px; }
-#hud .label { color: #999; }
-#hud .val { color: #eee; font-weight: 600; }
+#hud h2 { font-size: 13px; margin-bottom: 6px; color: #38bdf8; letter-spacing: 0.4px; }
+#hud .lbl { color: #94a3b8; }
+#hud .val { color: #f1f5f9; font-weight: 600; }
+#hud .src { font-size: 10px; color: #64748b; margin-top: 6px; }
+#hud a { color: #38bdf8; text-decoration: none; }
+#hud a:hover { text-decoration: underline; }
 #controls {
-  position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
-  background: rgba(0,0,0,0.82); color: #fff; padding: 8px 14px;
-  border-radius: 10px; font-size: 11px; display: flex; gap: 10px; align-items: center;
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  background: rgba(15,23,42,0.86); color: #f8fafc; padding: 8px 14px;
+  border-radius: 12px; font-size: 11px; display: flex; gap: 10px; align-items: center;
   backdrop-filter: blur(10px); z-index: 10; flex-wrap: wrap; justify-content: center;
-  max-width: 95vw; border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.08);
 }
 #controls button {
-  background: #4fc3f7; color: #000; border: none; padding: 6px 12px;
-  border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 11px;
+  background: #38bdf8; color: #0f172a; border: none; padding: 6px 12px;
+  border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 11px;
 }
-#controls button:hover { background: #81d4fa; }
-#controls button.active { background: #ff9800; }
-#controls input[type=range] { width: 80px; accent-color: #4fc3f7; }
-#policy-select {
-  position: absolute; top: 10px; right: 10px;
-  background: rgba(0,0,0,0.82); color: #fff; padding: 8px 12px;
-  border-radius: 10px; backdrop-filter: blur(10px); z-index: 10;
-  border: 1px solid rgba(255,255,255,0.08);
-}
-#policy-select select {
-  background: #222; color: #fff; border: 1px solid #444;
-  padding: 5px 8px; border-radius: 4px; font-size: 12px;
-}
+#controls button:hover { background: #7dd3fc; }
+#controls button.off { background: #475569; color: #cbd5e1; }
 #legend {
-  position: absolute; bottom: 60px; right: 10px;
-  background: rgba(0,0,0,0.82); color: #fff; padding: 10px 12px;
-  border-radius: 10px; font-size: 10px; line-height: 1.8;
+  position: absolute; bottom: 60px; right: 12px;
+  background: rgba(15,23,42,0.86); color: #f8fafc; padding: 10px 14px;
+  border-radius: 12px; font-size: 11px; line-height: 1.7;
   backdrop-filter: blur(10px); z-index: 10;
   border: 1px solid rgba(255,255,255,0.08);
 }
+#legend .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 7px; vertical-align: middle; }
 @media (max-width: 768px) {
-  #hud { font-size: 10px; padding: 8px 10px; min-width: 130px; }
+  #hud { font-size: 10px; padding: 8px 12px; min-width: 160px; }
   #hud h2 { font-size: 11px; }
-  #controls { font-size: 10px; padding: 6px 8px; gap: 4px; bottom: 6px; max-width: 98vw; }
-  #controls button { padding: 5px 8px; font-size: 10px; }
-  #controls input[type=range] { width: 45px; }
-  #controls .desktop-only { display: none; }
   #legend { display: none; }
-  #policy-select { top: auto; bottom: 52px; right: 10px; left: 10px; text-align: center; }
+  #controls { font-size: 10px; padding: 6px 10px; gap: 6px; bottom: 8px; }
+  #controls button { padding: 5px 8px; font-size: 10px; }
 }
-.ld { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
 </style>
 </head>
 <body>
 
 <div id="hud">
-  <h2>WAREHOUSE SIMULATION</h2>
-  <div><span class="label">Time: </span><span class="val" id="hud-time">00:00</span></div>
-  <div><span class="label">Orders: </span><span class="val" id="hud-orders">0</span></div>
-  <div><span class="label">RT Busy: </span><span class="val" id="hud-rt">0 / 7</span></div>
-  <div><span class="label">Picks: </span><span class="val" id="hud-picks">0</span></div>
-  <div><span class="label">Avg Prep: </span><span class="val" id="hud-prep">-</span></div>
-  <div><span class="label">Milkrun: </span><span class="val" id="hud-milkrun">-</span></div>
-</div>
-
-<div id="policy-select">
-  <label>Policy: </label>
-  <select id="policy">
-    <option value="usage" selected>Usage-based ABC</option>
-    <option value="baseline">Baseline (Heuristic)</option>
-    <option value="double">Double ABC</option>
-    <option value="travel">Travel-distance Optimized</option>
-  </select>
-</div>
-
-<div id="legend">
-  <div><span class="ld" style="background:#4fc3f7"></span>Operator</div>
-  <div><span class="ld" style="background:#f57f17"></span>Reach Truck</div>
-  <div><span class="ld" style="background:#4caf50"></span>Kitting Area</div>
-  <div><span class="ld" style="background:#f9a825"></span>Kit-corridor Rack</div>
-  <div><span class="ld" style="background:#607d8b"></span>RT-only Rack</div>
-  <div><span class="ld" style="background:#1565c0"></span>Kardex</div>
-  <div><span class="ld" style="background:#00bfa5"></span>Milkrun</div>
-  <div style="margin-top:4px;border-top:1px solid #444;padding-top:4px">
-    <div><span class="ld" style="background:#bcaaa4"></span>3-pallet bay</div>
-    <div><span class="ld" style="background:#fb8c00"></span>2-pallet feeder</div>
-    <div><span class="ld" style="background:#e53935"></span>1-pallet feeder</div>
+  <h2>SE MANISA AMBAR — CAD 3D</h2>
+  <div><span class="lbl">Rack rows: </span><span class="val" id="hud-rows">—</span></div>
+  <div><span class="lbl">Bay segments: </span><span class="val" id="hud-bays">—</span></div>
+  <div><span class="lbl">Labels: </span><span class="val" id="hud-labels">—</span></div>
+  <div><span class="lbl">Source: </span><span class="val">SE Manisa Ambar Rafları.dwg</span></div>
+  <div class="src">Geometry: Codex preview (DWG + 11 rack PDFs)<br/>
+    Sim viewer: <a href="./sim.html">sim.html</a> (KPI / operators)
   </div>
 </div>
 
+<div id="legend">
+  <div><span class="sw" style="background:#1a4ea0"></span>Upright (post)</div>
+  <div><span class="sw" style="background:#f08a1c"></span>Beam (level)</div>
+  <div><span class="sw" style="background:#b98a4a"></span>Pallet</div>
+  <div><span class="sw" style="background:#c8a070"></span>Carton</div>
+  <div><span class="sw" style="background:#fbbf24"></span>KITTING zone</div>
+  <div><span class="sw" style="background:#fde68a"></span>PUTAWAY zone</div>
+  <div><span class="sw" style="background:#dc2626"></span>ÇÖP KOVASI</div>
+  <div><span class="sw" style="background:#22c55e"></span>Flow arrows</div>
+</div>
+
 <div id="controls">
-  <button id="btn-play">Pause</button>
-  <span>Speed:</span>
-  <input type="range" id="speed" min="1" max="200" value="30">
-  <span id="speed-label">30x</span>
-  <button id="btn-cam">Camera: Free</button>
-  <span class="desktop-only" style="color:#666">| Scroll: zoom · Drag: rotate</span>
+  <button id="btn-iso">Isometric</button>
+  <button id="btn-top">Top-down</button>
+  <button id="btn-plan">Floor plan</button>
+  <button id="btn-labels">Labels</button>
+  <span style="color:#94a3b8">| Scroll: zoom · Drag: orbit</span>
 </div>
 
 <script type="importmap">
@@ -122,671 +96,663 @@ canvas { display: block; }
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-let CSS2DRenderer, CSS2DObject;
-let useLabels = false;
-try {
-  ({ CSS2DRenderer, CSS2DObject } = await import('three/addons/renderers/CSS2DRenderer.js'));
-  useLabels = true;
-} catch(e) { console.warn('CSS2D labels not available:', e); }
-
-// ── Mobile detection ────────────────────────────────────────────────────────
-const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || innerWidth < 900;
-
-// ── Load layout from config/layout.json ─────────────────────────────────────
-// GitHub Pages serves docs/ as the site root, so ../config/ is unreachable.
-// Try a sibling layout.json first (docs/layout.json is committed alongside this
-// file and synced from config/layout.json); fall back to ../config/layout.json
-// for local dev when serving the repo root over http.server.
-async function loadLayout() {
-  for (const url of ['./layout.json', '../config/layout.json']) {
+// ── Codex-extracted CAD geometry (16 rack rows + 19 labels + specials) ───────
+// Source-of-truth file: ../output/dwg_codex_geometry.json. Inlined here so the
+// viewer is self-contained for GitHub Pages and local file:// access.
+async function loadGeometry() {
+  const urls = ['./dwg_codex_geometry.json', '../output/dwg_codex_geometry.json'];
+  for (const url of urls) {
     try {
       const r = await fetch(url);
-      if (r.ok) return await r.json();
-    } catch (_) { /* keep trying */ }
+      if (r.ok) { console.log('Loaded Codex geometry from', url); return await r.json(); }
+    } catch (_) {}
   }
-  throw new Error('Could not load layout.json from ./layout.json or ../config/layout.json');
+  console.warn('Falling back to inlined geometry');
+  return INLINE_GEOMETRY;
 }
-const LAYOUT = await loadLayout();
 
-const C = {
-  FM_MAX_LV: LAYOUT.fast_mover_max_level,
-  RACK_DEPTH: LAYOUT.rack_depth_m,
-  RACK_H: LAYOUT.rack_height_m,
-  NUM_RT: 7, NUM_OPS: 8,
-  WALK_SPD: 50/60, RT_SPD: 100/60, RT_LIFT: 15, RT_PICK: 30, OP_PICK: 18,
-  SHIFT: 28800, ORDERS: 300, ITEMS_MIN: 5, ITEMS_MAX: 15,
+const INLINE_GEOMETRY = {
+  _rack_levels_m: [0.61, 1.36, 2.06, 2.91, 3.76, 4.61, 5.46, 6.31, 7.0],
+  _bounds: {min_x: 1736.13, max_x: 5734.85, min_y: 390.21, max_y: 4066.65},
+  rack_rows: [
+    {codex_idx:0,  dir:'x', x0:1847.13, x1:2057.13, y0:390.21,  y1:485.21,  bays:1,  posts:[1847.13,2057.13], sap_letter:null},
+    {codex_idx:1,  dir:'x', x0:5354.85, x1:5634.85, y0:586.65,  y1:681.65,  bays:1,  posts:[5354.85,5634.85], sap_letter:null},
+    {codex_idx:2,  dir:'x', x0:2270.13, x1:5279.85, y0:886.65,  y1:981.65,  bays:11, posts:[2270.13,2550.52,2829.85,3109.85,3389.85,3669.85,3949.85,4159.85,4439.85,4719.85,4999.85,5279.85], sap_letter:'A'},
+    {codex_idx:3,  dir:'x', x0:2270.13, x1:5349.85, y0:1291.65, y1:1386.65, bays:11, posts:[2270.13,2549.85,2829.85,3109.85,3389.85,3669.85,3949.85,4229.85,4509.85,4789.85,5069.85,5349.85], sap_letter:'B'},
+    {codex_idx:4,  dir:'x', x0:2270.13, x1:5349.85, y0:1416.65, y1:1511.65, bays:11, posts:[2270.13,2550.52,2829.85,3109.85,3389.85,3669.85,3949.85,4229.85,4509.85,4789.85,5069.85,5349.85], sap_letter:'C'},
+    {codex_idx:5,  dir:'x', x0:2270.13, x1:5629.85, y0:1821.65, y1:1916.65, bays:12, posts:[2270.13,2549.85,2829.85,3109.85,3389.85,3669.85,3949.85,4229.85,4509.85,4789.85,5069.85,5349.85,5629.85], sap_letter:'D'},
+    {codex_idx:6,  dir:'x', x0:2272.13, x1:5697.13, y0:2126.7,  y1:2221.7,  bays:14, posts:[2272.13,2550.13,2830.13,3110.13,3390.13,3670.13,3880.13,4160.13,4440.13,4720.13,5000.13,5280.13,5417.13,5560.13,5697.13], sap_letter:'E'},
+    {codex_idx:7,  dir:'x', x0:2267.13, x1:5627.13, y0:2551.65, y1:2646.65, bays:12, posts:[2267.13,2547.13,2827.13,3107.13,3387.13,3667.13,3947.13,4227.13,4507.13,4787.13,5067.13,5347.13,5627.13], sap_letter:'F'},
+    {codex_idx:8,  dir:'x', x0:2550.13, x1:5630.13, y0:2856.65, y1:2951.65, bays:11, posts:[2550.13,2830.13,3110.13,3390.13,3670.13,3950.13,4230.13,4510.13,4790.13,5070.13,5350.13,5630.13], sap_letter:'G'},
+    {codex_idx:9,  dir:'x', x0:2270.13, x1:5629.85, y0:3261.63, y1:3356.63, bays:12, posts:[2270.13,2550.52,2829.85,3109.85,3389.85,3669.85,3949.85,4229.85,4509.85,4789.85,5069.85,5349.85,5629.85], sap_letter:'I'},
+    {codex_idx:10, dir:'x', x0:2550.13, x1:5630.13, y0:3566.65, y1:3661.65, bays:11, posts:[2550.13,2830.13,3110.13,3390.13,3670.13,3950.13,4230.13,4510.13,4790.13,5070.13,5350.13,5630.13], sap_letter:'H'},
+    {codex_idx:11, dir:'x', x0:2261.44, x1:5619.44, y0:3971.65, y1:4066.65, bays:12, posts:[2261.44,2539.44,2819.44,3099.44,3379.44,3659.44,3939.44,4219.44,4499.44,4779.44,5059.44,5339.44,5619.44], sap_letter:'J'},
+    {codex_idx:12, dir:'y', x0:1736.13, x1:1831.13, y0:508.51,  y1:3866.51, bays:12, posts:[508.51,788.51,1068.51,1348.51,1628.51,1908.51,2188.51,2468.51,2748.51,3028.51,3308.51,3588.51,3866.51], sap_letter:'J'},
+    {codex_idx:13, dir:'y', x0:2175.13, x1:2270.13, y0:573.24,  y1:853.24,  bays:1,  posts:[573.24,853.24], sap_letter:'J'},
+    {codex_idx:14, dir:'y', x0:5185.14, x1:5280.14, y0:682.71,  y1:876.72,  bays:1,  posts:[682.71,876.72], sap_letter:null},
+    {codex_idx:15, dir:'y', x0:5639.85, x1:5734.85, y0:691.65,  y1:1811.65, bays:4,  posts:[691.65,971.65,1251.65,1531.65,1811.65], sap_letter:'U'}
+  ],
+  labels: [
+    {text:'PUTAWAY',          x:3807.35, y:1192.91, axis_x:1, axis_y:0},
+    {text:'KITTING',          x:1695.86, y:2372.3,  axis_x:0, axis_y:-1},
+    {text:'KITTING',          x:3622.32, y:813.47,  axis_x:1, axis_y:0},
+    {text:'(GMH)',            x:1690.42, y:1814.3,  axis_x:0, axis_y:-1},
+    {text:'(RI-P7 SD-POLE)',  x:3910.71, y:824.98,  axis_x:1, axis_y:0},
+    {text:'ÇÖP KOVASI',       x:5682.55, y:654.6,   axis_x:0, axis_y:-1},
+    {text:'KITTING',          x:3592.11, y:4187.04, axis_x:1, axis_y:0},
+    {text:'PUTAWAY',          x:4128.29, y:3168.09, axis_x:1, axis_y:0},
+    {text:'KITTING',          x:3916.22, y:3541.83, axis_x:1, axis_y:0},
+    {text:'PUTAWAY',          x:4080.71, y:2484.01, axis_x:1, axis_y:0},
+    {text:'PUTAWAY',          x:3973.24, y:1743.52, axis_x:1, axis_y:0},
+    {text:'(MCset-Aksesuar)', x:4022.5,  y:4185.9,  axis_x:1, axis_y:0},
+    {text:'(Blokset-Fason)',  x:4176.29, y:3549.25, axis_x:1, axis_y:0},
+    {text:'(SM6-Premset)',    x:4302.47, y:2811.11, axis_x:1, axis_y:0},
+    {text:'(F400)',           x:4178.19, y:2058.14, axis_x:1, axis_y:0},
+    {text:'PUTAWAY',          x:3585.04, y:3884.47, axis_x:1, axis_y:0},
+    {text:'KITTING',          x:4001.99, y:2809.2,  axis_x:1, axis_y:0},
+    {text:'KITTING',          x:3885.52, y:2048.88, axis_x:1, axis_y:0},
+    {text:'PUTAWAY',          x:1867.59, y:2061.37, axis_x:0, axis_y:1}
+  ],
+  special_objects: [
+    {kind:'trash_bin', x:5682.55, y:654.6, size_cm:[50,50,95]},
+    {kind:'column',    x:2125.72, y:2061.74, diameter_cm:48, height_cm:480},
+    {kind:'flow_arrows', x_start:3900, y:650, x_step:-280, count:7}
+  ]
 };
 
-const BUILD = LAYOUT.building;
-const KIT = LAYOUT.kitting;
+const GEOM = await loadGeometry();
+// Viewer-only semantics from the hand sketch + rack PDFs.
+// Do not trust layout.json or stale sap_letter fields from external geometry.
+const VIEWER_RACK_MODEL = new Map([
+  [0,  {letter: 'J', label: false, role: 'j-fragment'}],
+  [1,  {letter: null, label: false, role: 'unmapped-trash-side-stub'}],
+  [2,  {letter: 'J', label: false, role: 'j-south-arm'}],
+  [3,  {letter: 'I', label: true,  role: 'small'}],
+  [4,  {letter: 'H', label: true,  role: 'small'}],
+  [5,  {letter: 'G', label: true,  role: 'normal'}],
+  [6,  {letter: 'F', label: true,  role: 'normal'}],
+  [7,  {letter: 'E', label: true,  role: 'normal'}],
+  [8,  {letter: 'D', label: true,  role: 'normal'}],
+  [9,  {letter: 'C', label: true,  role: 'normal'}],
+  [10, {letter: 'B', label: true,  role: 'normal'}],
+  [11, {letter: 'A', label: true,  role: 'normal'}],
+  [12, {letter: 'U', label: true,  role: 'perpendicular'}],
+  [13, {letter: 'J', label: false, role: 'j-fragment'}],
+  [14, {letter: null, label: false, role: 'unmapped-post'}],
+  [15, {letter: 'J', label: false, role: 'j-east-vertical'}]
+]);
+const RACK_LABEL_OFFSETS_BY_CODEX = new Map([
+  [3, {x: 0, z: -0.40}],
+  [4, {x: 0, z: 0.40}],
+  [12, {x: -1.15, z: 0.0}]
+]);
 
-// Coordinate convention: layout x → three.js x; layout y → three.js -z.
-// Building floor is the x-z plane, height is +y.
-function layoutToWorld(x, y) {
-  return new THREE.Vector3(x, 0, -y);
+function applyPdfSmallRackFootprint(row) {
+  if (row.dir !== 'x') return;
+  const pdfBays = 11;
+  const pdfSpanCm = 3080; // 11 bays at the 280 cm rack pitch in H/I PDFs.
+  const xEnd = Math.max(row.x0, row.x1);
+  const xStart = xEnd - pdfSpanCm;
+  row.x0 = xStart;
+  row.x1 = xEnd;
+  row.bays = pdfBays;
+  row.posts = Array.from({length: pdfBays + 1}, (_, i) =>
+    Number((xStart + (pdfSpanCm / pdfBays) * i).toFixed(2))
+  );
 }
 
-// ── Scene ───────────────────────────────────────────────────────────────────
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x87CEEB);
+// PDF-authoritative bay counts (uniform subdivision of the CAD anchor span).
+// Codex CAD has occasional miscounts (E has 2 extra structural stubs, C/G lose 1).
+// U vertical leg (idx 12) is also expanded to PDF's 14 bays.
+const PDF_BAY_OVERRIDES = new Map([
+  [5,  {bays: 12, anchor: 'east'}],   // G.pdf  (CAD 11)
+  [6,  {bays: 12, anchor: 'east'}],   // F.pdf  (CAD 12 ✓)
+  [7,  {bays: 12, anchor: 'east'}],   // E.pdf  (CAD 14 — drop 2 stubs)
+  [8,  {bays: 12, anchor: 'east'}],   // D.pdf  (CAD 12 ✓)
+  [9,  {bays: 12, anchor: 'east'}],   // C.pdf  (CAD 11)
+  [10, {bays: 11, anchor: 'east'}],   // B.pdf  (CAD 11 ✓)
+  [11, {bays: 11, anchor: 'east'}],   // A.pdf  (CAD 12 — A.pdf only has A2..A12)
+  [12, {bays: 14, anchor: 'y'}]       // U.pdf  vertical (CAD 12)
+]);
 
-const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.1, 500);
-camera.position.set(BUILD.width_m * 0.6, 35, 20);
+function applyPdfBayOverride(row, spec) {
+  if (spec.anchor === 'y') {
+    // Vertical rack: subdivide y axis.
+    const yStart = Math.min(row.y0, row.y1);
+    const yEnd   = Math.max(row.y0, row.y1);
+    const span   = yEnd - yStart;
+    row.bays  = spec.bays;
+    row.posts = Array.from({length: spec.bays + 1}, (_, i) =>
+      Number((yStart + (span / spec.bays) * i).toFixed(2))
+    );
+  } else {
+    // Horizontal rack: keep east anchor, expand/contract west to PDF span.
+    // E.pdf bay pitch ≈ 280cm (CAD pitch for B-row). Use consistent 280cm pitch.
+    const BAY_PITCH = 280;
+    const xEnd   = Math.max(row.x0, row.x1);
+    const xStart = xEnd - spec.bays * BAY_PITCH;
+    row.x0 = xStart;
+    row.x1 = xEnd;
+    row.bays = spec.bays;
+    row.posts = Array.from({length: spec.bays + 1}, (_, i) =>
+      Number((xStart + BAY_PITCH * i).toFixed(2))
+    );
+  }
+}
 
-const renderer = new THREE.WebGLRenderer({ antialias: !isMobile, powerPreference: 'high-performance' });
-renderer.setSize(innerWidth, innerHeight);
-renderer.setPixelRatio(Math.min(devicePixelRatio, isMobile ? 1.5 : 2));
-renderer.shadowMap.enabled = !isMobile;
-if (!isMobile) renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+for (const row of GEOM.rack_rows) {
+  const semantic = VIEWER_RACK_MODEL.get(row.codex_idx);
+  if (semantic) {
+    row.sap_letter = semantic.letter;
+    row.viewer_role = semantic.role;
+    row.show_rack_label = semantic.label;
+    if (semantic.role === 'small') applyPdfSmallRackFootprint(row);
+  }
+  const bayOverride = PDF_BAY_OVERRIDES.get(row.codex_idx);
+  if (bayOverride) applyPdfBayOverride(row, bayOverride);
+}
+
+document.getElementById('hud-rows').textContent = GEOM.rack_rows.length;
+document.getElementById('hud-bays').textContent = GEOM.rack_rows.reduce((s,r) => s + r.bays, 0);
+document.getElementById('hud-labels').textContent = GEOM.labels.length;
+
+const UNIT = 0.01;
+const RACK_HEIGHT = 7.0;
+const RACK_LEVELS = GEOM._rack_levels_m || [0.61, 1.36, 2.06, 2.91, 3.76, 4.61, 5.46, 6.31, 7.0];
+const rawBounds = GEOM._bounds || GEOM.rack_rows.reduce(
+  (acc, r) => ({min_x: Math.min(acc.min_x, r.x0), max_x: Math.max(acc.max_x, r.x1),
+                min_y: Math.min(acc.min_y, r.y0), max_y: Math.max(acc.max_y, r.y1)}),
+  {min_x:Infinity, max_x:-Infinity, min_y:Infinity, max_y:-Infinity}
+);
+const bounds = {
+  minX: rawBounds.minX ?? rawBounds.min_x,
+  maxX: rawBounds.maxX ?? rawBounds.max_x,
+  minY: rawBounds.minY ?? rawBounds.min_y,
+  maxY: rawBounds.maxY ?? rawBounds.max_y
+};
+const center = {x: (bounds.minX + bounds.maxX) / 2, y: (bounds.minY + bounds.maxY) / 2};
+console.log('Codex bounds:', bounds, 'center:', center);
+
+const renderer = new THREE.WebGLRenderer({antialias: true});
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
-let labelRenderer = null;
-if (useLabels) {
-  labelRenderer = new CSS2DRenderer();
-  labelRenderer.setSize(innerWidth, innerHeight);
-  labelRenderer.domElement.style.position = 'absolute';
-  labelRenderer.domElement.style.top = '0';
-  labelRenderer.domElement.style.pointerEvents = 'none';
-  document.body.appendChild(labelRenderer.domElement);
-}
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xeef2f6);
+scene.fog = new THREE.Fog(0xeef2f6, 65, 160);
 
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 400);
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(BUILD.width_m / 2, 2, -BUILD.depth_m / 2);
 controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.maxPolarAngle = Math.PI * 0.48;
-controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
+controls.dampingFactor = 0.08;
+controls.maxPolarAngle = Math.PI * 0.495;
 
-// Lights
-scene.add(new THREE.AmbientLight(0xffffff, 1.6));
-const sun = new THREE.DirectionalLight(0xffffff, 1.5);
-sun.position.set(BUILD.width_m * 0.5, 50, BUILD.depth_m * -0.2);
-sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
-sun.shadow.camera.left = -BUILD.width_m; sun.shadow.camera.right = BUILD.width_m;
-sun.shadow.camera.top = BUILD.depth_m; sun.shadow.camera.bottom = -BUILD.depth_m;
-scene.add(sun);
-scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 0.6));
+const world = new THREE.Group();
+const rackGroup = new THREE.Group();
+const labelGroup = new THREE.Group();
+const planGroup = new THREE.Group();
+const helperGroup = new THREE.Group();
+world.add(rackGroup, labelGroup, planGroup, helperGroup);
+scene.add(world);
 
-// Camera-parented fill light — guarantees even illumination from any
-// orbit angle (sun is fixed in world space and underlit some viewpoints).
-const fillLight = new THREE.PointLight(0xffffff, 0.45, 0, 2);
-camera.add(fillLight);
-scene.add(camera);
+// v2 palette: blue uprights, orange beams, warm wood pallets
+const mats = {
+  concrete:      new THREE.MeshStandardMaterial({color: 0x9a9a9a, roughness: 0.95}),
+  upright:       new THREE.MeshStandardMaterial({color: 0x1a4ea0, roughness: 0.45, metalness: 0.35}),
+  uprightLite:   new THREE.MeshStandardMaterial({color: 0x2a5eb0, roughness: 0.50, metalness: 0.30}),
+  beam:          new THREE.MeshStandardMaterial({color: 0xf08a1c, roughness: 0.45, metalness: 0.30}),
+  beamBack:      new THREE.MeshStandardMaterial({color: 0xd8780f, roughness: 0.55, metalness: 0.25}),
+  cross:         new THREE.MeshStandardMaterial({color: 0xd8780f, roughness: 0.55, metalness: 0.30}),
+  pallet:        new THREE.MeshStandardMaterial({color: 0xb98a4a, roughness: 0.90}),
+  carton:        new THREE.MeshStandardMaterial({color: 0xc8a070, roughness: 0.85}),
+  cartonAlt:     new THREE.MeshStandardMaterial({color: 0x8c8c92, roughness: 0.85}),
+  cartonAlt2:    new THREE.MeshStandardMaterial({color: 0x6a5a4a, roughness: 0.85}),
+  rackFootprint: new THREE.MeshStandardMaterial({color: 0xe2e8f0, roughness: 0.95, transparent: true, opacity: 0.7}),
+  kitting:       new THREE.MeshStandardMaterial({color: 0xfde047, roughness: 0.92, transparent: true, opacity: 0.55}),
+  putaway:       new THREE.MeshStandardMaterial({color: 0xfde68a, roughness: 0.92, transparent: true, opacity: 0.42}),
+  trash:         new THREE.MeshStandardMaterial({color: 0xdc2626, roughness: 0.8}),
+  column:        new THREE.MeshStandardMaterial({color: 0xddd6c8, roughness: 0.85}),
+  smallRack:     new THREE.MeshStandardMaterial({color: 0x1a4ea0, roughness: 0.50, metalness: 0.35})
+};
 
-// Floor
-const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(BUILD.width_m, BUILD.depth_m),
-  new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.9 })
-);
-floor.rotation.x = -Math.PI/2;
-floor.position.set(BUILD.width_m / 2, 0, -BUILD.depth_m / 2);
-floor.receiveShadow = true;
-scene.add(floor);
-
-// 1-metre grid overlay for spatial reference (aisle-width guides).
-const grid = new THREE.GridHelper(
-  Math.max(BUILD.width_m, BUILD.depth_m),
-  Math.round(Math.max(BUILD.width_m, BUILD.depth_m)),
-  0x334455, 0x2a3344
-);
-grid.position.set(BUILD.width_m / 2, 0.015, -BUILD.depth_m / 2);
-grid.material.transparent = true;
-grid.material.opacity = 0.35;
-scene.add(grid);
-
-// ── Helpers ────────────────────────────────────────────────────────────────
-function mkMesh(geo, mat, x, y, z, rx, ry, rz) {
-  const m = new THREE.Mesh(geo, mat);
-  m.position.set(x||0, y||0, z||0);
-  if (rx||ry||rz) m.rotation.set(rx||0, ry||0, rz||0);
-  return m;
-}
-function makeLabel(text, pos, color = '#fff', fontSize = '11px') {
-  if (!useLabels) return null;
-  const div = document.createElement('div');
-  div.textContent = text;
-  div.style.cssText = `color:${color};font-size:${fontSize};font-family:'Segoe UI',sans-serif;font-weight:600;text-shadow:0 0 6px rgba(0,0,0,0.8);pointer-events:none;`;
-  const lbl = new CSS2DObject(div);
-  lbl.position.copy(pos);
-  scene.add(lbl);
-  return lbl;
-}
-
-// ── Render racks from layout.json ──────────────────────────────────────────
-const segmentInfo = []; // {rack_id, segment_index, start, end, length, dir, perp, bays, levels, hasKit, pallets_per_bay, bay_code_start}
-const positions = []; // flat list of {rack_id, segment_index, bay_index, level, x, y, hasKit, freq}
-
-// Expand `bay_overrides` (matches src/warehouse.py _expand_bay_overrides).
-function expandBayOverrides(seg) {
-  const out = {};
-  for (const ovr of seg.bay_overrides || []) {
-    const rec = { ...ovr };
-    delete rec.bays;
-    for (const bayCode of ovr.bays || []) out[bayCode] = rec;
+// Procedural CanvasTextures: mesh-deck (shelf grid) + safety-net + yellow letter
+function makeMeshTexture(){
+  const c = document.createElement('canvas'); c.width = 128; c.height = 128;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = 'rgba(220,220,220,0.6)'; ctx.fillRect(0, 0, 128, 128);
+  ctx.strokeStyle = 'rgba(140,140,140,0.95)'; ctx.lineWidth = 2;
+  for (let i = 0; i <= 128; i += 16) {
+    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 128); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(128, i); ctx.stroke();
   }
-  return out;
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
+const matMeshDeck = new THREE.MeshStandardMaterial({
+  map: makeMeshTexture(), transparent: true, opacity: 0.85,
+  roughness: 0.6, metalness: 0.55, side: THREE.DoubleSide
+});
+
+function makeNetTexture(){
+  const c = document.createElement('canvas'); c.width = 128; c.height = 128;
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, 128, 128);
+  ctx.strokeStyle = 'rgba(245,245,245,0.85)'; ctx.lineWidth = 1.5;
+  for (let i = 0; i <= 128; i += 10) {
+    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 128); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(128, i); ctx.stroke();
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
+const matNet = new THREE.MeshStandardMaterial({
+  map: makeNetTexture(), transparent: true, opacity: 0.45,
+  roughness: 0.8, side: THREE.DoubleSide, alphaTest: 0.05
+});
+
+function makeLetterTexture(letter, bg = '#ffcc00', fg = '#000'){
+  const c = document.createElement('canvas'); c.width = 256; c.height = 256;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, 256, 256);
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 6; ctx.strokeRect(3, 3, 250, 250);
+  ctx.fillStyle = fg; ctx.font = 'bold 200px sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(letter, 128, 140);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
 }
 
-// Pallet colour by width — visually distinguishes feeder bays.
-const palletColorByWidth = { 1: 0xe53935, 2: 0xfb8c00, 3: 0xbcaaa4 };
+// Per-letter level heights from rack PDFs (A-F = 9 levels, G = 7 heights / 8 levels,
+// H = 7 heights / 8 levels, I = 8 heights / 9 levels, J = 8 heights / 9 levels,
+// U = 7 heights / 8 levels). L1=61, L2=136 per PDF (viewer had 41/138 — wrong).
+const LEVEL_HEIGHTS_CM = {
+  A:[61,136,206,291,376,461,546,631,700], B:[61,136,206,291,376,461,546,631,700],
+  C:[61,136,206,291,376,461,546,631,700], D:[61,136,204,291,376,461,546,631,700],
+  E:[61,136,206,291,376,461,546,631,700], F:[61,136,206,291,376,461,546,631,700],
+  G:[61,136,206,291,376,461,546],
+  H:[61,136,206,322,438,554,700],         I:[61,136,206,322,438,554,670,700],
+  J:[61,136,206,322,438,554,670,700],
+  U:[118,222,346,455,564,676,700]
+};
+function levelYsM(letter){
+  const cm = LEVEL_HEIGHTS_CM[letter];
+  if (cm) return cm.map(c => c / 100);
+  return [0.61, 1.36, 2.06, 2.91, 3.76, 4.61, 5.46, 6.31, 7.0];
+}
 
-for (const rack of LAYOUT.racks) {
-  for (let si = 0; si < rack.segments.length; si++) {
-    const seg = rack.segments[si];
-    const sx = seg.start[0], sy = seg.start[1];
-    const ex = seg.end[0], ey = seg.end[1];
-    const dx = ex - sx, dy = ey - sy;
-    const length = Math.sqrt(dx*dx + dy*dy);
-    const dirX = dx / length, dirY = dy / length;
-    const perpX = -dirY, perpY = dirX;
-    const hasKit = seg.kit_corridor_side && seg.kit_corridor_side !== 'TBD'
-      || (seg.kit_corridor_side === 'TBD'); // optimistic per ASSUMPTIONS §11
+const geos = {
+  post:   new THREE.BoxGeometry(0.08, RACK_HEIGHT, 0.08),
+  beamX:  new THREE.BoxGeometry(1, 0.07, 0.05),
+  beamZ:  new THREE.BoxGeometry(0.05, 0.07, 1),
+  pallet: new THREE.BoxGeometry(1, 1, 1)
+};
 
-    const segData = {
-      rack_id: rack.id, segment_index: si,
-      sx, sy, ex, ey, dirX, dirY, perpX, perpY, length,
-      bays: seg.bays, levels: seg.levels, hasKit,
-      pallets_per_bay: seg.pallets_per_bay, bay_code_start: seg.bay_code_start,
-    };
-    segmentInfo.push(segData);
+function cadToWorld(x, y) {
+  return new THREE.Vector3((x - center.x) * UNIT, 0, (y - center.y) * UNIT);
+}
 
-    // Render the rack segment as a single box per level for performance
-    const rackColor = hasKit ? 0xf9a825 : 0x90a4ae;
-    const rackMat = new THREE.MeshStandardMaterial({
-      color: rackColor, roughness: 0.5, metalness: 0.2,
-      emissive: rackColor, emissiveIntensity: 0.04
-    });
-    const metalMat = new THREE.MeshStandardMaterial({ color: 0x78909c, metalness: 0.6, roughness: 0.3 });
+function addBox(parent, geom, mat, pos, scale, name, castShadow = true) {
+  const mesh = new THREE.Mesh(geom, mat);
+  mesh.position.copy(pos);
+  if (scale) mesh.scale.copy(scale);
+  mesh.castShadow = castShadow;
+  mesh.receiveShadow = true;
+  if (name) mesh.name = name;
+  parent.add(mesh);
+  return mesh;
+}
 
-    const cx = (sx + ex) / 2;
-    const cy = (sy + ey) / 2;
-    const angle = Math.atan2(dy, dx); // angle in layout x-y plane
-    const lvH = C.RACK_H / seg.levels;
-    const bayWidthM = length / seg.bays;
-    const slotsInBay = 3; // physical pallet slot grid per bay (max width)
+function addRectPlane(parent, x0, y0, x1, y1, mat, yOffset) {
+  const a = cadToWorld(Math.min(x0, x1), Math.min(y0, y1));
+  const b = cadToWorld(Math.max(x0, x1), Math.max(y0, y1));
+  const w = Math.abs(b.x - a.x), d = Math.abs(b.z - a.z);
+  const geom = new THREE.PlaneGeometry(Math.max(w, 0.05), Math.max(d, 0.05));
+  const mesh = new THREE.Mesh(geom, mat);
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.position.set((a.x + b.x) / 2, yOffset || 0.02, (a.z + b.z) / 2);
+  mesh.receiveShadow = true;
+  parent.add(mesh);
+}
 
-    const overrides = expandBayOverrides(seg);
-    const defaultWidth = seg.pallets_per_bay;
-    const defaultOffset = seg.position_offset || 0;
+function uniqueSorted(values) {
+  return [...new Set(values)].sort((a, b) => a - b);
+}
 
-    // Shelves: one box per level
-    for (let lv = 0; lv < seg.levels; lv++) {
-      const shelf = new THREE.Mesh(
-        new THREE.BoxGeometry(length, 0.08, C.RACK_DEPTH),
-        rackMat
-      );
-      shelf.position.set(cx, lv * lvH + 0.05, -cy);
-      shelf.rotation.y = -angle; // flip sign because layout y → -z
-      shelf.receiveShadow = true;
-      scene.add(shelf);
+function createRack(row, index) {
+  const x0 = Math.min(row.x0, row.x1), x1 = Math.max(row.x0, row.x1);
+  const y0 = Math.min(row.y0, row.y1), y1 = Math.max(row.y0, row.y1);
+  addRectPlane(planGroup, x0, y0, x1, y1, mats.rackFootprint, 0.018);
 
-      // Render actual pallet positions: width per bay from bay_overrides,
-      // skip width-0 bays (J12 cart slot), colour by width.
-      // On mobile, only render lower 3 levels for performance.
-      if (isMobile && lv >= 3) continue;
-      for (let b = 0; b < seg.bays; b++) {
-        const bayCode = seg.bay_code_start + b;
-        const ovr = overrides[bayCode] || {};
-        const width = ovr.pallets_per_bay !== undefined ? ovr.pallets_per_bay : defaultWidth;
-        const offset = ovr.position_offset !== undefined ? ovr.position_offset : defaultOffset;
-        if (width <= 0) continue; // reserved bay (cart slot)
+  const p0 = cadToWorld(x0, y0), p1 = cadToWorld(x1, y1);
+  const lengthX = Math.abs(p1.x - p0.x), lengthZ = Math.abs(p1.z - p0.z);
+  const centerX = (p0.x + p1.x) / 2, centerZ = (p0.z + p1.z) / 2;
+  const depth = row.dir === 'x' ? Math.max(lengthZ, 0.78) : Math.max(lengthX, 0.78);
+  const sideOffset = depth / 2;
 
-        const palletMat = new THREE.MeshStandardMaterial({
-          color: palletColorByWidth[width] || 0xbcaaa4, roughness: 0.85
-        });
-        const palletW = bayWidthM / slotsInBay * 0.88;
-        const palletH = 0.18;
-        const palletGeo = new THREE.BoxGeometry(palletW, palletH, C.RACK_DEPTH * 0.7);
-        for (let p = 1 + offset; p < 1 + offset + width; p++) {
-          // Slot p (1..3) centre at fraction (p - 0.5) / slotsInBay across the bay.
-          const segT = (b + (p - 0.5) / slotsInBay) / seg.bays;
-          const px = sx + dx * segT;
-          const py = sy + dy * segT;
-          const pallet = new THREE.Mesh(palletGeo, palletMat);
-          pallet.position.set(px, lv * lvH + 0.05 + palletH/2 + 0.02, -py);
-          pallet.rotation.y = -angle;
-          scene.add(pallet);
-        }
+  const levels = levelYsM(row.sap_letter);
+  const totalH = levels[levels.length - 1] + 0.3;
+  const postScaleY = totalH / RACK_HEIGHT;
+
+  const postValues = uniqueSorted(row.posts);
+  const transformedPosts = postValues.map(v => row.dir === 'x'
+    ? cadToWorld(v, y0).x
+    : cadToWorld(x0, v).z);
+
+  if (row.dir === 'x') {
+    // Front uprights (mats.upright), back uprights (mats.uprightLite for depth cue)
+    for (const x of transformedPosts) {
+      addBox(rackGroup, geos.post, mats.upright,     new THREE.Vector3(x, totalH / 2, centerZ - sideOffset), new THREE.Vector3(1, postScaleY, 1), 'upright');
+      addBox(rackGroup, geos.post, mats.uprightLite, new THREE.Vector3(x, totalH / 2, centerZ + sideOffset), new THREE.Vector3(1, postScaleY, 1), 'upright-back');
+    }
+    // Beams per per-letter level (front bright, back muted)
+    for (const h of levels) {
+      addBox(rackGroup, geos.beamX, mats.beam,     new THREE.Vector3(centerX, h, centerZ - sideOffset), new THREE.Vector3(lengthX, 1, 1), 'front-beam');
+      addBox(rackGroup, geos.beamX, mats.beamBack, new THREE.Vector3(centerX, h, centerZ + sideOffset), new THREE.Vector3(lengthX, 1, 1), 'back-beam');
+    }
+    // Mesh-deck plane on each level (shelf surface)
+    const deckGeom = new THREE.PlaneGeometry(Math.max(lengthX - 0.05, 0.1), Math.max(depth - 0.05, 0.1));
+    for (const h of levels) {
+      const deck = new THREE.Mesh(deckGeom, matMeshDeck);
+      deck.rotation.x = -Math.PI / 2;
+      deck.position.set(centerX, h + 0.04, centerZ);
+      deck.receiveShadow = true;
+      rackGroup.add(deck);
+    }
+    // Safety net at rack ends
+    const netGeom = new THREE.PlaneGeometry(depth, totalH);
+    for (const xEnd of [transformedPosts[0], transformedPosts[transformedPosts.length - 1]]) {
+      const net = new THREE.Mesh(netGeom, matNet);
+      net.rotation.y = Math.PI / 2;
+      net.position.set(xEnd, totalH / 2, centerZ);
+      rackGroup.add(net);
+    }
+    // Cross-bracing tied to actual top beam, not magic 7.0
+    const braceHeights = levels.filter((_, i) => i % 2 === 0).concat([totalH - 0.02]);
+    for (const x of transformedPosts) {
+      for (const h of braceHeights) {
+        addBox(rackGroup, geos.beamZ, mats.cross, new THREE.Vector3(x, h, centerZ), new THREE.Vector3(1, 1, depth), 'cross', false);
       }
     }
-
-    // Uprights
-    for (let b = 0; b <= seg.bays; b++) {
-      const t = b / seg.bays;
-      const ux = sx + dx * t;
-      const uy = sy + dy * t;
-      const u = new THREE.Mesh(new THREE.BoxGeometry(0.12, C.RACK_H, C.RACK_DEPTH), metalMat);
-      u.position.set(ux, C.RACK_H/2, -uy);
-      u.rotation.y = -angle;
-      u.castShadow = true;
-      scene.add(u);
+    addPallets(row, index, transformedPosts, centerZ, depth, 'x', levels);
+  } else {
+    for (const z of transformedPosts) {
+      addBox(rackGroup, geos.post, mats.upright,     new THREE.Vector3(centerX - sideOffset, totalH / 2, z), new THREE.Vector3(1, postScaleY, 1), 'upright');
+      addBox(rackGroup, geos.post, mats.uprightLite, new THREE.Vector3(centerX + sideOffset, totalH / 2, z), new THREE.Vector3(1, postScaleY, 1), 'upright-back');
     }
-
-    // Build position records for the simulation (one entry per actual pallet
-    // position, not per bay — matches src/warehouse.py).
-    for (let b = 0; b < seg.bays; b++) {
-      const bayCode = seg.bay_code_start + b;
-      const ovr = overrides[bayCode] || {};
-      const width = ovr.pallets_per_bay !== undefined ? ovr.pallets_per_bay : defaultWidth;
-      if (width <= 0) continue;
-      const t = (b + 0.5) / seg.bays;
-      const bx = sx + dx * t;
-      const by = sy + dy * t;
-      for (let lv = 0; lv < seg.levels; lv++) {
-        positions.push({
-          rack_id: rack.id, segment_index: si, bay_index: b, level: lv,
-          x: bx, y: by, hasKit, lvH,
-        });
+    for (const h of levels) {
+      addBox(rackGroup, geos.beamZ, mats.beam,     new THREE.Vector3(centerX - sideOffset, h, centerZ), new THREE.Vector3(1, 1, lengthZ), 'side-beam');
+      addBox(rackGroup, geos.beamZ, mats.beamBack, new THREE.Vector3(centerX + sideOffset, h, centerZ), new THREE.Vector3(1, 1, lengthZ), 'side-beam-back');
+    }
+    const deckGeom = new THREE.PlaneGeometry(Math.max(depth - 0.05, 0.1), Math.max(lengthZ - 0.05, 0.1));
+    for (const h of levels) {
+      const deck = new THREE.Mesh(deckGeom, matMeshDeck);
+      deck.rotation.x = -Math.PI / 2;
+      deck.position.set(centerX, h + 0.04, centerZ);
+      deck.receiveShadow = true;
+      rackGroup.add(deck);
+    }
+    const netGeom = new THREE.PlaneGeometry(depth, totalH);
+    for (const zEnd of [transformedPosts[0], transformedPosts[transformedPosts.length - 1]]) {
+      const net = new THREE.Mesh(netGeom, matNet);
+      net.position.set(centerX, totalH / 2, zEnd);
+      rackGroup.add(net);
+    }
+    const braceHeights = levels.filter((_, i) => i % 2 === 0).concat([totalH - 0.02]);
+    for (const z of transformedPosts) {
+      for (const h of braceHeights) {
+        addBox(rackGroup, geos.beamX, mats.cross, new THREE.Vector3(centerX, h, z), new THREE.Vector3(depth, 1, 1), 'cross', false);
       }
     }
+    addPallets(row, index, transformedPosts, centerX, depth, 'z', levels);
+  }
 
-    // Rack label at the start
-    makeLabel(rack.id,
-      new THREE.Vector3(sx - 1, C.RACK_H + 0.5, -sy),
-      hasKit ? '#f9a825' : '#90a4ae', '14px');
+  if (row.sap_letter && row.show_rack_label) {
+    const offset = RACK_LABEL_OFFSETS_BY_CODEX.get(row.codex_idx) || {x: 0, z: 0};
+    addRackLetter(row, centerX + offset.x, centerZ + offset.z, totalH);
   }
 }
 
-// ── Building walls ──────────────────────────────────────────────────────────
-const wallMat = new THREE.MeshStandardMaterial({ color: 0x78909c, roughness: 0.7 });
-const wallH = 9;
-// North wall (y = depth)
-scene.add(mkMesh(new THREE.BoxGeometry(BUILD.width_m, wallH, 0.3), wallMat,
-  BUILD.width_m / 2, wallH / 2, -BUILD.depth_m));
-// East wall (x = width)
-scene.add(mkMesh(new THREE.BoxGeometry(0.3, wallH, BUILD.depth_m), wallMat,
-  BUILD.width_m, wallH / 2, -BUILD.depth_m / 2));
-// West wall (x = 0)
-scene.add(mkMesh(new THREE.BoxGeometry(0.3, wallH, BUILD.depth_m), wallMat,
-  0, wallH / 2, -BUILD.depth_m / 2));
-
-// ── Kitting area ───────────────────────────────────────────────────────────
-const kitFloor = new THREE.Mesh(
-  new THREE.BoxGeometry(KIT.width_m, 0.08, KIT.depth_m),
-  new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.6 })
-);
-kitFloor.position.set(KIT.x + KIT.width_m / 2, 0.04, -(KIT.y + KIT.depth_m / 2));
-scene.add(kitFloor);
-for (let i = 0; i < 3; i++) {
-  const table = new THREE.Mesh(new THREE.BoxGeometry(2, 0.8, 1),
-    new THREE.MeshStandardMaterial({ color: 0x795548, roughness: 0.8 }));
-  table.position.set(KIT.x + 2 + i * 3, 0.4, -(KIT.y + KIT.depth_m / 2));
-  table.castShadow = true;
-  scene.add(table);
-}
-const KITTING = new THREE.Vector3(KIT.x + KIT.width_m / 2, 0, -(KIT.y + KIT.depth_m / 2));
-makeLabel('KIT HAZIRLAMA', new THREE.Vector3(KITTING.x, 2.5, KITTING.z), '#4caf50', '13px');
-
-// ── Kardex ──────────────────────────────────────────────────────────────────
-const KDX = LAYOUT.kardex;
-const kdxFloor = new THREE.Mesh(
-  new THREE.BoxGeometry(KDX.width_m, 0.08, KDX.depth_m),
-  new THREE.MeshStandardMaterial({ color: 0x0d2654, roughness: 0.6 })
-);
-kdxFloor.position.set(KDX.x + KDX.width_m / 2, 0.04, -(KDX.y + KDX.depth_m / 2));
-scene.add(kdxFloor);
-for (let i = 0; i < 4; i++) {
-  const k = new THREE.Mesh(new THREE.BoxGeometry(2.5, 4.5, 2),
-    new THREE.MeshStandardMaterial({ color: 0x1565c0, roughness: 0.4, metalness: 0.3 }));
-  k.position.set(KDX.x + KDX.width_m / 2, 2.25, -(KDX.y + 2 + i * 3));
-  k.castShadow = true;
-  scene.add(k);
-}
-makeLabel('KARDEX',
-  new THREE.Vector3(KDX.x + KDX.width_m / 2, 5.5, -(KDX.y + KDX.depth_m / 2)),
-  '#42a5f5', '12px');
-
-// ── Trolley staging ─────────────────────────────────────────────────────────
-const TRO = LAYOUT.trolley_staging;
-const trolleyFloor = new THREE.Mesh(
-  new THREE.BoxGeometry(TRO.width_m, 0.04, TRO.depth_m),
-  new THREE.MeshStandardMaterial({ color: 0x4a3520, roughness: 0.7 })
-);
-trolleyFloor.position.set(TRO.x + TRO.width_m / 2, 0.02, -(TRO.y + TRO.depth_m / 2));
-scene.add(trolleyFloor);
-for (let i = 0; i < 8; i++) {
-  const tg = new THREE.Group();
-  const trolleyBase = mkMesh(new THREE.BoxGeometry(0.7, 0.08, 1.0),
-    new THREE.MeshStandardMaterial({ color: 0x5d4037, roughness: 0.7 }), 0, 0.25, 0);
-  tg.add(trolleyBase);
-  tg.position.set(TRO.x + 1 + (i % 4) * 3, 0, -(TRO.y + 1 + Math.floor(i / 4) * 1.5));
-  scene.add(tg);
+function addPallets(row, rowIndex, positions, fixed, depth, axis, levels) {
+  if (positions.length < 2) return;
+  const palletHeight = 0.28, cartonHeight = 0.62;
+  const cartonMats = [mats.carton, mats.cartonAlt, mats.cartonAlt2];
+  for (let bay = 0; bay < positions.length - 1; bay++) {
+    const bayStart = positions[bay], bayEnd = positions[bay + 1];
+    const bayLength = Math.abs(bayEnd - bayStart);
+    const bayCenter = (bayStart + bayEnd) / 2;
+    if (bayLength < 0.65) continue;
+    for (let li = 0; li < levels.length - 1; li += 2) {
+      if ((bay + li + rowIndex) % 4 !== 0) continue;
+      const h = levels[li] + 0.18;
+      const palletScale = axis === 'x'
+        ? new THREE.Vector3(Math.min(bayLength * 0.34, 0.82), palletHeight, Math.max(depth * 0.34, 0.34))
+        : new THREE.Vector3(Math.max(depth * 0.34, 0.34), palletHeight, Math.min(bayLength * 0.34, 0.82));
+      const cartonScale = axis === 'x'
+        ? new THREE.Vector3(Math.min(bayLength * 0.3, 0.76), cartonHeight, Math.max(depth * 0.3, 0.3))
+        : new THREE.Vector3(Math.max(depth * 0.3, 0.3), cartonHeight, Math.min(bayLength * 0.3, 0.76));
+      const basePos = axis === 'x'
+        ? new THREE.Vector3(bayCenter, h, fixed)
+        : new THREE.Vector3(fixed, h, bayCenter);
+      const cartonMat = cartonMats[(bay + li + rowIndex) % cartonMats.length];
+      addBox(rackGroup, geos.pallet, mats.pallet, basePos, palletScale, 'pallet', false);
+      addBox(rackGroup, geos.pallet, cartonMat,
+        new THREE.Vector3(basePos.x, h + 0.46, basePos.z), cartonScale, 'carton', false);
+    }
+  }
 }
 
-// ── CAD decorations (visual only — not in simulation) ─────────────────────
-for (const dec of (LAYOUT.decorations || [])) {
-  const h = dec.height_m || 3.5;
-  const col = new THREE.Color(dec.color || '#8b3a3a');
-  const mat = new THREE.MeshStandardMaterial({
-    color: col, roughness: 0.85, metalness: 0.0,
-    transparent: true, opacity: 0.55,
-  });
-  const mesh = new THREE.Mesh(
-    new THREE.BoxGeometry(dec.width_m, h, dec.depth_m), mat
+function labelTexture(text, color, fontSize, bg) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.font = `800 ${fontSize}px Arial, sans-serif`;
+  const metrics = ctx.measureText(text);
+  canvas.width = Math.ceil(metrics.width + fontSize);
+  canvas.height = Math.ceil(fontSize * 1.7);
+  ctx.font = `800 ${fontSize}px Arial, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  if (bg) { ctx.fillStyle = bg; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+  ctx.strokeStyle = 'rgba(255,255,255,0.78)';
+  ctx.lineWidth = fontSize * 0.1;
+  ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
+  ctx.fillStyle = color;
+  ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return {texture: tex, w: canvas.width, h: canvas.height};
+}
+
+function addFloorLabel(label) {
+  const isKitting = label.text.includes('KITTING') || label.text.startsWith('(');
+  const isTrash = label.text.includes('ÇÖP');
+  const color = isTrash ? '#dc2626' : isKitting ? '#b45309' : '#0369a1';
+  const {texture, w, h} = labelTexture(label.text, color, 96);
+  const aspect = w / h;
+  const width = Math.min(Math.max(label.text.length * 0.18, 1.1), 4.8);
+  const height = Math.max(width / aspect, 0.34);
+  const mat = new THREE.MeshBasicMaterial({map: texture, transparent: true, depthWrite: false});
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), mat);
+  const p = cadToWorld(label.x, label.y);
+  mesh.position.set(p.x, 0.045, p.z);
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.rotation.z = -Math.atan2(label.axis_y, label.axis_x || 0.0001);
+  mesh.renderOrder = 3;
+  labelGroup.add(mesh);
+
+  if (label.text.includes('KITTING')) {
+    addRectPlane(planGroup, label.x - 185, label.y - 58, label.x + 185, label.y + 58, mats.kitting, 0.022);
+  } else if (label.text.includes('PUTAWAY')) {
+    addRectPlane(planGroup, label.x - 170, label.y - 52, label.x + 170, label.y + 52, mats.putaway, 0.022);
+  }
+
+  // Floating sprite for readability from any angle
+  const sf = labelTexture(label.text, color, 72, 'rgba(255,255,255,0.84)');
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({map: sf.texture, transparent: true, depthTest: false}));
+  const sw = Math.min(Math.max(label.text.length * 0.22, 1.25), 5.6);
+  sprite.position.set(p.x, RACK_HEIGHT + 0.62, p.z);
+  sprite.scale.set(sw, Math.max(sw * (sf.h / sf.w), 0.44), 1);
+  sprite.renderOrder = 4;
+  labelGroup.add(sprite);
+}
+
+function addRackLetter(row, cx, cz, totalH = RACK_HEIGHT) {
+  const tex = makeLetterTexture(row.sap_letter);
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({map: tex, transparent: true, depthTest: false}));
+  sprite.position.set(cx, totalH + 1.4, cz);
+  sprite.scale.set(2.0, 2.0, 1);
+  sprite.renderOrder = 5;
+  labelGroup.add(sprite);
+}
+
+function addCompoundRackLabels() {
+  const jRows = GEOM.rack_rows.filter(row => row.sap_letter === 'J');
+  if (!jRows.length) return;
+  // J = south horizontal arm (j-south-arm) + east vertical (j-east-vertical) + fragments.
+  // Anchor the label at the south-east corner where the two main arms meet.
+  const southArm = jRows.find(row => row.viewer_role === 'j-south-arm');
+  const eastVert = jRows.find(row => row.viewer_role === 'j-east-vertical');
+  let cadX, cadY;
+  if (southArm && eastVert) {
+    cadX = (Math.max(southArm.x0, southArm.x1) + Math.min(eastVert.x0, eastVert.x1)) / 2;
+    cadY = (Math.min(southArm.y0, southArm.y1) + Math.min(eastVert.y0, eastVert.y1)) / 2;
+  } else {
+    const anchor = jRows[0];
+    cadX = (anchor.x0 + anchor.x1) / 2;
+    cadY = (anchor.y0 + anchor.y1) / 2;
+  }
+  const p = cadToWorld(cadX, cadY);
+  const levels = levelYsM('J');
+  addRackLetter({sap_letter: 'J'}, p.x, p.z, levels[levels.length - 1] + 0.3);
+}
+
+function createFloor() {
+  const a = cadToWorld(bounds.minX, bounds.minY);
+  const b = cadToWorld(bounds.maxX, bounds.maxY);
+  const w = Math.abs(b.x - a.x), d = Math.abs(b.z - a.z);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(w + 4, d + 4), mats.concrete);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.set((a.x + b.x) / 2, 0, (a.z + b.z) / 2);
+  floor.receiveShadow = true;
+  world.add(floor);
+
+  const grid = new THREE.GridHelper(Math.max(w, d) + 4, 32, 0x94a3b8, 0xcbd5e1);
+  grid.position.y = 0.025;
+  grid.material.transparent = true;
+  grid.material.opacity = 0.32;
+  world.add(grid);
+
+  const border = new THREE.LineSegments(
+    new THREE.EdgesGeometry(new THREE.BoxGeometry(w, 0.02, d)),
+    new THREE.LineBasicMaterial({color: 0x334155, transparent: true, opacity: 0.45})
   );
-  mesh.position.set(
-    dec.x + dec.width_m / 2, h / 2, -(dec.y + dec.depth_m / 2)
-  );
-  scene.add(mesh);
-  if (dec.label) {
-    makeLabel(dec.label,
-      new THREE.Vector3(dec.x + dec.width_m / 2, h + 0.6,
-                        -(dec.y + dec.depth_m / 2)),
-      '#ff9999', '10px');
-  }
+  border.position.set((a.x + b.x) / 2, 0.02, (a.z + b.z) / 2);
+  world.add(border);
 }
 
-// ── Operator / RT models (unchanged from previous) ─────────────────────────
-const opColors = [0x4fc3f7, 0x81c784, 0xffb74d, 0xf06292, 0xba68c8, 0x4dd0e1, 0xaed581, 0xff8a65];
-function createOp(color) {
-  const g = new THREE.Group();
-  const skin = new THREE.MeshStandardMaterial({ color: 0xffccbc, roughness: 0.7 });
-  const vest = new THREE.MeshStandardMaterial({ color, roughness: 0.5 });
-  const pants = new THREE.MeshStandardMaterial({ color: 0x37474f });
-  const shoes = new THREE.MeshStandardMaterial({ color: 0x212121 });
-  for (let s of [-0.1, 0.1]) {
-    g.add(mkMesh(new THREE.BoxGeometry(0.12, 0.1, 0.2), shoes, s, 0.05, 0.02));
-    g.add(mkMesh(new THREE.CylinderGeometry(0.055, 0.065, 0.55, 6), pants, s, 0.38, 0));
-  }
-  g.add(mkMesh(new THREE.BoxGeometry(0.32, 0.45, 0.18), vest, 0, 0.9, 0));
-  for (let s of [-0.2, 0.2]) {
-    g.add(mkMesh(new THREE.CylinderGeometry(0.035, 0.04, 0.4, 6), skin, s, 0.85, 0));
-  }
-  g.add(mkMesh(new THREE.CylinderGeometry(0.045, 0.05, 0.08, 6), skin, 0, 1.2, 0));
-  g.add(mkMesh(new THREE.SphereGeometry(0.12, 10, 10), skin, 0, 1.35, 0));
-  const hatMat = new THREE.MeshStandardMaterial({ color: 0xfdd835, roughness: 0.4 });
-  g.add(mkMesh(new THREE.SphereGeometry(0.13, 10, 6, 0, Math.PI*2, 0, Math.PI/2), hatMat, 0, 1.45, 0));
-  return g;
-}
-function createRT() {
-  const g = new THREE.Group();
-  const body = new THREE.MeshStandardMaterial({ color: 0xf57f17, metalness: 0.25, roughness: 0.4 });
-  const metal = new THREE.MeshStandardMaterial({ color: 0x424242, metalness: 0.8, roughness: 0.2 });
-  const dark = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 });
-  g.add(mkMesh(new THREE.BoxGeometry(1, 0.14, 1.8), dark, 0, 0.14, 0));
-  g.add(mkMesh(new THREE.BoxGeometry(0.9, 0.55, 1.2), body, 0, 0.5, 0.2));
-  g.add(mkMesh(new THREE.BoxGeometry(0.95, 0.45, 0.4),
-    new THREE.MeshStandardMaterial({ color: 0xe65100 }), 0, 0.45, 0.75));
-  for (let dx of [-0.14, 0.14]) {
-    g.add(mkMesh(new THREE.BoxGeometry(0.05, 3.2, 0.05), metal, dx, 1.82, -0.65));
-  }
-  for (let s of [-0.11, 0.11]) {
-    g.add(mkMesh(new THREE.BoxGeometry(0.05, 0.035, 1), metal, s, 0.2, -1.15));
-  }
-  for (let dx of [-0.45, 0.45]) {
-    g.add(mkMesh(new THREE.CylinderGeometry(0.17, 0.17, 0.09, 10), dark, dx, 0.11, -0.4, 0, 0, Math.PI/2));
-  }
-  return g;
-}
-
-// ── Pick navigation: walk to a point next to the bay, offset along perpendicular ──
-function getPickAislePos(pos) {
-  // pos: {x, y, segment_index} → world point next to the rack on its kit-corridor side
-  const seg = segmentInfo.find(s => s.rack_id === pos.rack_id && s.segment_index === pos.segment_index);
-  if (!seg) return KITTING.clone();
-  const offset = 1.5; // 1.5 m from rack face
-  const px = pos.x + seg.perpX * offset;
-  const py = pos.y + seg.perpY * offset;
-  return new THREE.Vector3(px, 0, -py);
-}
-
-// ── Spawn entities ──────────────────────────────────────────────────────────
-const operators = [];
-for (let i = 0; i < C.NUM_OPS; i++) {
-  const m = createOp(opColors[i % opColors.length]);
-  m.position.copy(KITTING);
-  m.position.x += i * 0.7;
-  scene.add(m);
-  operators.push({ mesh: m, state: 'idle', target: null, from: null, progress: 0,
-    pickList: [], pickIdx: 0, orderStart: 0, _rtIdx: -1 });
-}
-const reachTrucks = [];
-for (let i = 0; i < C.NUM_RT; i++) {
-  const m = createRT();
-  m.position.set(2 + i * 1.8, 0, -3);
-  scene.add(m);
-  reachTrucks.push({ mesh: m, busy: false, timer: 0 });
-}
-
-// ── Simulation state ────────────────────────────────────────────────────────
-let simTime = 0, totalPicks = 0, totalOrders = 0, totalPrepTime = 0;
-let orderQueue = [], paused = false, speedMult = 30;
-let pickFlashes = [];
-
-function genFreqs(policy) {
-  // Compute "demand frequency" for each position based on policy
-  const rng = mulberry32(42);
-  const maxLevel = Math.max(...positions.map(p => p.level));
-  positions.forEach(p => {
-    let f;
-    if (policy === 'usage') {
-      f = (1 - p.level / maxLevel) * (p.hasKit ? 1.0 : 0.6) * (1 + rng() * 0.3);
-    } else if (policy === 'baseline') {
-      const fm = p.hasKit && p.level < C.FM_MAX_LV;
-      f = fm ? (0.5 + rng() * 0.5) : rng() * 0.3;
-    } else if (policy === 'double') {
-      f = (p.hasKit && p.level < 3) ? 0.7 : (p.level < 5 ? 0.3 : 0.1);
-      f += rng() * 0.2;
-    } else {
-      // travel: closer to kitting = higher demand
-      const wp = layoutToWorld(p.x, p.y);
-      const d = wp.distanceTo(KITTING);
-      f = Math.max(0, 1 - d / 70);
-    }
-    p.freq = f;
-  });
-  const mx = positions.reduce((m, p) => Math.max(m, p.freq), 1e-9);
-  positions.forEach(p => p.freq /= mx);
-}
-function mulberry32(a) { return function() { a|=0; a=a+0x6D2B79F5|0; var t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return((t^t>>>14)>>>0)/4294967296; } }
-
-function pickMats(n) {
-  const total = positions.reduce((s, p) => s + p.freq, 0);
-  const out = [];
-  for (let i = 0; i < n; i++) {
-    let r = Math.random() * total;
-    for (const p of positions) { r -= p.freq; if (r <= 0) { out.push(p); break; } }
-  }
-  return out;
-}
-function genOrder() {
-  const n = C.ITEMS_MIN + Math.floor(Math.random() * (C.ITEMS_MAX - C.ITEMS_MIN + 1));
-  const items = pickMats(n);
-  const sorted = []; let cur = KITTING.clone(); const rem = [...items];
-  while (rem.length) {
-    let bi = 0, bd = Infinity;
-    for (let i = 0; i < rem.length; i++) {
-      const d = cur.distanceTo(getPickAislePos(rem[i]));
-      if (d < bd) { bd = d; bi = i; }
-    }
-    sorted.push(rem.splice(bi, 1)[0]);
-    cur = getPickAislePos(sorted[sorted.length - 1]);
-  }
-  return sorted;
-}
-function needsRT(p) { return !(p.hasKit && p.level < C.FM_MAX_LV); }
-function getAvailRT() { return reachTrucks.findIndex(r => !r.busy); }
-
-const flashGeo = new THREE.SphereGeometry(0.25, 8, 8);
-function addFlash(p) {
-  const m = new THREE.Mesh(flashGeo,
-    new THREE.MeshStandardMaterial({ color: 0xff5252, emissive: 0xff5252, emissiveIntensity: 0.8, transparent: true }));
-  m.position.set(p.x, p.level * p.lvH + 0.3, -p.y);
-  scene.add(m);
-  pickFlashes.push({ mesh: m, timer: 0.4 });
-}
-
-// ── Camera modes ────────────────────────────────────────────────────────────
-let camMode = 'free';
-let followOpIdx = 0;
-let cinematicAngle = 0;
-
-// ── Main loop ───────────────────────────────────────────────────────────────
-const clock = new THREE.Clock();
-let orderTimer = 0;
-genFreqs('usage');
-
-function update() {
-  const rawDt = clock.getDelta();
-  if (paused) return;
-  const dt = rawDt * speedMult;
-  simTime += dt;
-
-  if (simTime > C.SHIFT) { simTime = 0; totalPicks = 0; totalOrders = 0; totalPrepTime = 0; }
-
-  orderTimer += dt;
-  const oi = C.SHIFT / C.ORDERS;
-  while (orderTimer >= oi) { orderTimer -= oi; orderQueue.push(genOrder()); }
-
-  for (const op of operators) {
-    if (op.state === 'idle' && orderQueue.length) {
-      op.pickList = orderQueue.shift();
-      op.pickIdx = 0;
-      op.state = 'walking';
-      op.from = op.mesh.position.clone();
-      op.target = getPickAislePos(op.pickList[0]);
-      op.progress = 0;
-      op.orderStart = simTime;
-    }
-    if (op.state === 'walking') {
-      const dist = op.from.distanceTo(op.target);
-      op.progress += dt / Math.max(dist / C.WALK_SPD, 0.1);
-      if (op.progress >= 1) {
-        op.mesh.position.copy(op.target);
-        const pick = op.pickList[op.pickIdx];
-        op.state = needsRT(pick) ? 'waiting_rt' : 'picking';
-        op.progress = 0;
-      } else {
-        op.mesh.position.lerpVectors(op.from, op.target, Math.min(op.progress, 1));
-      }
-    }
-    if (op.state === 'waiting_rt') {
-      const ri = getAvailRT();
-      if (ri >= 0) {
-        const rt = reachTrucks[ri];
-        const pick = op.pickList[op.pickIdx];
-        rt.busy = true;
-        rt.timer = pick.level * C.RT_LIFT + C.RT_PICK;
-        const ap = getPickAislePos(pick);
-        rt.mesh.position.set(ap.x, 0, ap.z);
-        op.state = 'rt_working';
-        op._rtIdx = ri;
-      }
-    }
-    if (op.state === 'rt_working') {
-      const rt = reachTrucks[op._rtIdx];
-      rt.timer -= dt;
-      if (rt.timer <= 0) { rt.busy = false; op.state = 'picking'; op.progress = 0; }
-    }
-    if (op.state === 'picking') {
-      op.progress += dt / C.OP_PICK;
-      if (op.progress >= 1) {
-        const pick = op.pickList[op.pickIdx];
-        addFlash(pick);
-        totalPicks++;
-        op.pickIdx++;
-        if (op.pickIdx >= op.pickList.length) {
-          op.state = 'returning';
-          op.from = op.mesh.position.clone();
-          op.target = KITTING.clone();
-          op.progress = 0;
-        } else {
-          op.state = 'walking';
-          op.from = op.mesh.position.clone();
-          op.target = getPickAislePos(op.pickList[op.pickIdx]);
-          op.progress = 0;
-        }
-      }
-    }
-    if (op.state === 'returning') {
-      const dist = op.from.distanceTo(op.target);
-      op.progress += dt / Math.max(dist / C.WALK_SPD, 0.1);
-      if (op.progress >= 1) {
-        op.mesh.position.copy(KITTING);
-        op.state = 'idle';
-        totalOrders++;
-        totalPrepTime += (simTime - op.orderStart);
-      } else {
-        op.mesh.position.lerpVectors(op.from, op.target, Math.min(op.progress, 1));
+function addSpecialObjects() {
+  for (const s of GEOM.special_objects || []) {
+    if (s.kind === 'trash_bin') {
+      const p = cadToWorld(s.x, s.y);
+      const [sx, sy, sz] = s.size_cm.map(v => v * UNIT);
+      addBox(helperGroup, new THREE.BoxGeometry(sx, sz, sy), mats.trash,
+        new THREE.Vector3(p.x, sz / 2, p.z), new THREE.Vector3(1, 1, 1), 'trash');
+    } else if (s.kind === 'column') {
+      const p = cadToWorld(s.x, s.y);
+      const r = (s.diameter_cm * UNIT) / 2, h = s.height_cm * UNIT;
+      const cyl = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 24), mats.column);
+      cyl.position.set(p.x, h / 2, p.z);
+      cyl.castShadow = true;
+      helperGroup.add(cyl);
+    } else if (s.kind === 'flow_arrows') {
+      for (let i = 0; i < s.count; i++) {
+        const x = s.x_start + i * s.x_step;
+        const p = cadToWorld(x, s.y);
+        const arrow = new THREE.ArrowHelper(
+          new THREE.Vector3(-1, 0, 0), new THREE.Vector3(p.x, 0.3, p.z),
+          1.0, 0x22c55e, 0.36, 0.22);
+        helperGroup.add(arrow);
       }
     }
   }
-
-  for (let i = pickFlashes.length - 1; i >= 0; i--) {
-    pickFlashes[i].timer -= rawDt;
-    pickFlashes[i].mesh.material.opacity = Math.max(0, pickFlashes[i].timer / 0.4);
-    pickFlashes[i].mesh.scale.setScalar(1 + (0.4 - pickFlashes[i].timer) * 3);
-    if (pickFlashes[i].timer <= 0) { scene.remove(pickFlashes[i].mesh); pickFlashes.splice(i, 1); }
-  }
-
-  if (camMode === 'follow') {
-    const op = operators[followOpIdx % operators.length];
-    const tp = op.mesh.position;
-    camera.position.lerp(new THREE.Vector3(tp.x + 5, 8, tp.z + 8), 0.03);
-    controls.target.lerp(tp, 0.05);
-  } else if (camMode === 'topdown') {
-    camera.position.lerp(new THREE.Vector3(BUILD.width_m / 2, 70, -BUILD.depth_m / 2), 0.02);
-    controls.target.lerp(new THREE.Vector3(BUILD.width_m / 2, 0, -BUILD.depth_m / 2), 0.02);
-  } else if (camMode === 'cinematic') {
-    cinematicAngle += rawDt * 0.15;
-    const r = 50;
-    camera.position.set(
-      BUILD.width_m / 2 + Math.cos(cinematicAngle) * r,
-      25 + Math.sin(cinematicAngle * 0.3) * 8,
-      -BUILD.depth_m / 2 + Math.sin(cinematicAngle) * r
-    );
-    controls.target.lerp(new THREE.Vector3(BUILD.width_m / 2, 3, -BUILD.depth_m / 2), 0.02);
-  }
-
-  const h = Math.floor(simTime / 3600), mn = Math.floor((simTime % 3600) / 60);
-  document.getElementById('hud-time').textContent = `${String(h).padStart(2,'0')}:${String(mn).padStart(2,'0')}`;
-  document.getElementById('hud-orders').textContent = totalOrders;
-  document.getElementById('hud-rt').textContent = `${reachTrucks.filter(r=>r.busy).length} / ${C.NUM_RT}`;
-  document.getElementById('hud-picks').textContent = totalPicks;
-  document.getElementById('hud-prep').textContent = totalOrders > 0 ? `${(totalPrepTime/totalOrders/60).toFixed(1)} min` : '-';
-  document.getElementById('hud-milkrun').textContent = `—`;
 }
+
+function setupLighting() {
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+  const sun = new THREE.DirectionalLight(0xfff2d8, 0.85);
+  sun.position.set(50, 80, 30);
+  sun.castShadow = true;
+  sun.shadow.camera.left = -45; sun.shadow.camera.right = 45;
+  sun.shadow.camera.top = 45;   sun.shadow.camera.bottom = -45;
+  sun.shadow.camera.near = 0.5; sun.shadow.camera.far = 200;
+  sun.shadow.mapSize.set(1024, 1024);
+  scene.add(sun);
+  const fill = new THREE.DirectionalLight(0xbfd4ff, 0.28);
+  fill.position.set(-40, 50, -20);
+  scene.add(fill);
+}
+
+function setIsoView() {
+  camera.up.set(0, 1, 0);
+  controls.minPolarAngle = 0;
+  controls.maxPolarAngle = Math.PI * 0.495;
+  camera.position.set(24, 24, 36);
+  camera.near = 0.1; camera.far = 400;
+  camera.updateProjectionMatrix();
+  controls.target.set(0, 2.25, 0);
+  controls.update();
+}
+function setTopView() {
+  camera.up.set(0, 0, 1);
+  controls.minPolarAngle = Math.PI;
+  controls.maxPolarAngle = Math.PI;
+  camera.position.set(0, -60, 0);
+  controls.target.set(0, 0, 0);
+  controls.update();
+}
+
+createFloor();
+setupLighting();
+GEOM.rack_rows.forEach(createRack);
+addCompoundRackLabels();
+GEOM.labels.forEach(addFloorLabel);
+addSpecialObjects();
+if (new URLSearchParams(window.location.search).get('view') === 'top') {
+  setTopView();
+} else {
+  setIsoView();
+}
+
+document.getElementById('btn-iso').addEventListener('click', setIsoView);
+document.getElementById('btn-top').addEventListener('click', setTopView);
+document.getElementById('btn-plan').addEventListener('click', (e) => {
+  planGroup.visible = !planGroup.visible;
+  e.target.classList.toggle('off', !planGroup.visible);
+});
+document.getElementById('btn-labels').addEventListener('click', (e) => {
+  labelGroup.visible = !labelGroup.visible;
+  e.target.classList.toggle('off', !labelGroup.visible);
+});
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
 
 function animate() {
-  requestAnimationFrame(animate);
-  update();
   controls.update();
   renderer.render(scene, camera);
-  if (labelRenderer) labelRenderer.render(scene, camera);
+  requestAnimationFrame(animate);
 }
 animate();
-
-// ── UI handlers ─────────────────────────────────────────────────────────────
-document.getElementById('btn-play').onclick = () => {
-  paused = !paused;
-  document.getElementById('btn-play').textContent = paused ? 'Play' : 'Pause';
-};
-document.getElementById('speed').oninput = e => {
-  speedMult = parseInt(e.target.value);
-  document.getElementById('speed-label').textContent = speedMult + 'x';
-};
-document.getElementById('policy').onchange = e => {
-  genFreqs(e.target.value);
-  simTime = 0; totalPicks = 0; totalOrders = 0; totalPrepTime = 0;
-  orderQueue = [];
-  operators.forEach(op => { op.state = 'idle'; op.mesh.position.copy(KITTING); });
-};
-const camModes = ['free', 'follow', 'topdown', 'cinematic'];
-const camLabels = ['Free', 'Follow Op', 'Top Down', 'Cinematic'];
-let camIdx = 0;
-document.getElementById('btn-cam').onclick = () => {
-  camIdx = (camIdx + 1) % camModes.length;
-  camMode = camModes[camIdx];
-  document.getElementById('btn-cam').textContent = 'Camera: ' + camLabels[camIdx];
-  if (camMode === 'follow') followOpIdx = (followOpIdx + 1) % operators.length;
-};
-window.addEventListener('resize', () => {
-  camera.aspect = innerWidth/innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-  if (labelRenderer) labelRenderer.setSize(innerWidth, innerHeight);
-});
 </script>
 </body>
 </html>

@@ -28,6 +28,7 @@ May 11 update:
   * Shift breaks supported when `SHIFT_MODE == "daily"`.
 """
 
+import os
 from collections import defaultdict
 
 import numpy as np
@@ -38,6 +39,12 @@ from src.kpi import KPICollector
 
 
 class OrderGenerator:
+    """Synthetic Poisson order source. Used ONLY when the ZWM92 driver cache
+    (output/zwm92_orders.json) is missing — production runs use
+    ZWM92DistributionDriver. Kept as a silent fallback so dev/CI environments
+    without SAP exports still run end-to-end. See ASSUMPTIONS §21 for the
+    fitted-distribution driver narrative."""
+
     def __init__(self, materials, material_to_line, rng):
         self.rng = rng
         self.materials = materials
@@ -109,6 +116,125 @@ class OrderGenerator:
         }
 
 
+class ZWM92DistributionDriver:
+    """Arena-style order source: samples from distributions fitted to ZWM92.
+
+    The May 26 review (advisor decision) was to retire the raw-trace replay
+    in favour of fitted distributions so each replication is a statistically
+    independent realisation of the same arrival process. The fit happens
+    once at construction time (`src.zwm92.fit_distributions`) and writes
+    the parameters to output/zwm92_fit.json for documentation.
+
+    Sampling per order:
+      - line       ~ Categorical(line_weights)
+      - n_items    ~ Empirical(n_items_per_order)
+      - items      ~ Categorical(per_line_material_weights[line])
+      - inter_arr  ~ Exponential(iat_mean_min)
+
+    Materials not in the active master are filtered after sampling.
+
+    Falls back to the synthetic OrderGenerator silently if the ZWM92 fit
+    cache is missing — keeps CI/dev runs working without SAP exports.
+    """
+
+    def __init__(self, materials, material_to_line, rng,
+                 orders_cache: str = "output/zwm92_orders.json"):
+        self._rng = rng
+        self._order_counter = 0
+        self._fallback: OrderGenerator | None = None
+        self.fit_summary: dict | None = None
+
+        if not os.path.exists(orders_cache):
+            self._fallback = OrderGenerator(materials, material_to_line, rng)
+            return
+
+        from src.zwm92 import fit_distributions
+        fit = fit_distributions(orders_path=orders_cache)
+        self.fit_summary = fit["summary"]
+
+        material_ids = {m["material_id"] for m in materials}
+        # Pre-filter the per-line material pools to the active master.
+        self._lines: list[str] = []
+        self._line_p: list[float] = []
+        self._line_mids: dict[str, np.ndarray] = {}
+        self._line_w: dict[str, np.ndarray] = {}
+        for line, p in zip(fit["line_names"], fit["line_weights"]):
+            ids = fit["per_line_material_ids"].get(line, [])
+            ws = fit["per_line_material_weights"].get(line, [])
+            filtered = [(m, w) for m, w in zip(ids, ws) if m in material_ids]
+            if not filtered:
+                continue
+            mids = np.array([m for m, _ in filtered])
+            wsa = np.array([w for _, w in filtered], dtype=float)
+            wsa /= wsa.sum()
+            self._lines.append(line)
+            self._line_p.append(p)
+            self._line_mids[line] = mids
+            self._line_w[line] = wsa
+        if not self._lines:
+            self._fallback = OrderGenerator(materials, material_to_line, rng)
+            return
+
+        line_p = np.array(self._line_p, dtype=float)
+        line_p /= line_p.sum()
+        self._line_p_norm = line_p
+        override = getattr(config, "IAT_MEAN_MIN_OVERRIDE", None)
+        if override is not None and override > 0:
+            # Sensitivity sweep handle — override the cached fit so the
+            # arrival rate can be perturbed without regenerating ZWM92.
+            self._iat_mean = float(override)
+        else:
+            self._iat_mean = float(fit["iat_mean_min"]) or 1.0
+        self._n_items_pool = np.array(fit["n_items_empirical"], dtype=int)
+
+    @property
+    def is_distribution_driven(self) -> bool:
+        return self._fallback is None
+
+    def next_order(self):
+        if self._fallback is not None:
+            return self._fallback.next_order()
+        self._order_counter += 1
+        # Sample line, then item count, then items conditional on line.
+        line_idx = self._rng.choice(len(self._lines), p=self._line_p_norm)
+        line = self._lines[line_idx]
+        n_items = int(self._rng.choice(self._n_items_pool))
+        n_items = max(1, min(n_items, len(self._line_mids[line])))
+        idx = self._rng.choice(len(self._line_mids[line]),
+                               size=n_items,
+                               replace=False,
+                               p=self._line_w[line])
+        items = self._line_mids[line][idx].tolist()
+        iat = float(self._rng.exponential(self._iat_mean))
+        return {
+            "id": self._order_counter,
+            "items": items,
+            "line": line,
+            "inter_arrival_time": iat,
+        }
+
+
+# Back-compat alias — older imports still find the class even though
+# behaviour switched to Arena-style sampling.
+ZWM92TraceDriver = ZWM92DistributionDriver
+
+
+def _sample_pick_time(rng, mean: float, sigma: float) -> float:
+    """Lognormal sample with mean ≈ `mean` (matches the deterministic
+    constant in expectation). `sigma` is the underlying normal's std on the
+    log scale; small sigma → tightly clustered around mean, large sigma →
+    heavy right tail. Returns a positive duration in minutes.
+    """
+    if mean <= 0:
+        return 0.0
+    if not getattr(config, "STOCHASTIC_PICK_TIMES", False) or sigma <= 0:
+        return mean
+    import math
+    # Reparameterise so that E[X] == mean given sigma.
+    mu = math.log(mean) - 0.5 * sigma * sigma
+    return float(rng.lognormal(mu, sigma))
+
+
 def _shift_is_active(t: float) -> bool:
     """`daily` mode gates orders to the shift window of each 24h day AND
     respects BREAK_SCHEDULE within that window. Continuous mode is always
@@ -149,7 +275,14 @@ class WarehouseSimulation:
         seed = seed if seed is not None else config.RANDOM_SEED
         self.rng = np.random.default_rng(seed)
         self.kpi = KPICollector()
-        self.order_gen = OrderGenerator(materials, self.material_to_line, self.rng)
+        if getattr(config, "TRACE_DRIVEN", True):
+            self.order_gen = ZWM92DistributionDriver(
+                materials, self.material_to_line, self.rng,
+                orders_cache=getattr(config, "ZWM92_ORDERS_CACHE",
+                                     "output/zwm92_orders.json"),
+            )
+        else:
+            self.order_gen = OrderGenerator(materials, self.material_to_line, self.rng)
         self.env = simpy.Environment()
         self.reach_trucks = simpy.Resource(self.env, capacity=config.NUM_REACH_TRUCKS)
         self.operators = simpy.Resource(self.env, capacity=config.NUM_OPERATORS)
@@ -171,6 +304,11 @@ class WarehouseSimulation:
             for s in warehouse.layout.get("kardex_stations", [])
         ]
         if not self._kardex_stations:
+            # WARNING: layout.json lacks `kardex_stations: [{x,y}, ...]` — all
+            # 4 Kardex units collapse to a single center point. Per-station
+            # queueing dynamics are underestimated (one shared FIFO instead of
+            # 4 parallel queues). Layout-geometry rebuild deferred — see
+            # ASSUMPTIONS §23.
             kx = warehouse.layout["kardex"]["x"]
             ky = warehouse.layout["kardex"]["y"]
             self._kardex_stations = [(kx, ky)]
@@ -217,6 +355,9 @@ class WarehouseSimulation:
                 yield self.env.timeout(wait)
                 continue
             order = self.order_gen.next_order()
+            if order is None:
+                # Trace exhausted — stop generating but let in-flight orders finish.
+                break
             order["arrival_time"] = self.env.now
             self.env.process(self._process_order(order))
             yield self.env.timeout(order["inter_arrival_time"])
@@ -230,6 +371,9 @@ class WarehouseSimulation:
 
             rack_picks, kardex_picks = self._resolve_picks(order["items"])
             if not rack_picks and not kardex_picks:
+                # No decoded SAP slot and not Kardex-routed — flag separately
+                # so it doesn't silently inflate orders_completed in policy KPIs.
+                self.kpi.orders_with_no_locations += 1
                 self.kpi.record_order(
                     order_id=order["id"],
                     arrival_time=arrival,
@@ -271,14 +415,32 @@ class WarehouseSimulation:
                             rt_wait = self.env.now - wait_start
                             total_rt_wait += rt_wait
                             travel = self.warehouse.reach_truck_travel_time(pos_id)
-                            lift = self.warehouse.reach_truck_time(pos_id)
+                            # Lift time is a level-dependent constant; only
+                            # the pick/place portion is stochastic.
+                            base_pp = config.REACH_TRUCK_PICK_PLACE_TIME
+                            pp = _sample_pick_time(
+                                self.rng, base_pp,
+                                getattr(config, "REACH_TRUCK_PICK_TIME_SIGMA", 0.0))
+                            lift = self.warehouse.reach_truck_time(pos_id) \
+                                   - base_pp + pp
                             rt_busy = travel + lift
                             yield self.env.timeout(rt_busy)
                             self.kpi.add_rt_busy(rt_busy)
                     elif self.warehouse.can_pick_directly(pos_id):
-                        yield self.env.timeout(config.OPERATOR_PICK_TIME)
+                        yield self.env.timeout(_sample_pick_time(
+                            self.rng, config.OPERATOR_PICK_TIME,
+                            getattr(config, "OPERATOR_PICK_TIME_SIGMA", 0.0)))
                     else:
-                        yield self.env.timeout(self.warehouse.manual_pick_time(pos_id))
+                        base = self.warehouse.manual_pick_time(pos_id)
+                        op = config.OPERATOR_PICK_TIME
+                        penalty = base - op  # the configured penalty share
+                        op_s = _sample_pick_time(
+                            self.rng, op,
+                            getattr(config, "OPERATOR_PICK_TIME_SIGMA", 0.0))
+                        pen_s = _sample_pick_time(
+                            self.rng, penalty,
+                            getattr(config, "MANUAL_PICK_PENALTY_SIGMA", 0.0))
+                        yield self.env.timeout(op_s + pen_s)
                 finally:
                     if pos_lock_ctx is not None:
                         self._position_locks[pos_id].release(pos_lock_ctx)
@@ -286,18 +448,28 @@ class WarehouseSimulation:
                 self.kpi.record_pick(rack_id=pos.rack_id, material_id=mat_id)
                 current_xy = (pos.x, pos.y)
 
-            # Kardex picks (single trip to nearest carousel, queue per pick).
+            # Kardex picks: single trip to nearest carousel, ONE carousel
+            # rotation amortized across all picks at that station (H1 fix —
+            # previously per-item carousel+pick over-inflated Kardex time
+            # by ~Nx). Operator holds the Kardex unit for the entire batch
+            # instead of re-queueing per item.
             if kardex_picks:
                 kx, ky = self._closest_kardex(current_xy)
                 dist = self._distance(current_xy[0], current_xy[1], kx, ky)
                 yield self.env.timeout(dist / config.OPERATOR_WALK_SPEED_M_PER_MIN)
                 total_walk += dist
-                for mat_id in kardex_picks:
-                    with self.kardex.request() as kdx_req:
-                        yield kdx_req
-                        yield self.env.timeout(config.KARDEX_CAROUSEL_TIME)
-                        yield self.env.timeout(config.KARDEX_PICK_TIME)
-                    self.kpi.record_pick(rack_id="KDX", material_id=mat_id)
+                with self.kardex.request() as kdx_req:
+                    yield kdx_req
+                    # Single carousel rotation to surface the requested tray;
+                    # picks then happen back-to-back at the same station.
+                    yield self.env.timeout(_sample_pick_time(
+                        self.rng, config.KARDEX_CAROUSEL_TIME,
+                        getattr(config, "KARDEX_CAROUSEL_SIGMA", 0.0)))
+                    for mat_id in kardex_picks:
+                        yield self.env.timeout(_sample_pick_time(
+                            self.rng, config.KARDEX_PICK_TIME,
+                            getattr(config, "KARDEX_PICK_TIME_SIGMA", 0.0)))
+                        self.kpi.record_pick(rack_id="KDX", material_id=mat_id)
                 current_xy = (kx, ky)
 
             # Walk back to the line's kitting point
