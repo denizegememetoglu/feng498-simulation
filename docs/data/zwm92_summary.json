@@ -43,6 +43,12 @@
   "iat_within_shift_mean": 5.360964668886423,
   "iat_within_shift_n": 3604,
   "iat_calendar_mean": 4.804011142971514,
+  "timestamped_orders": 18164,
+  "n_batches": 3885,
+  "batch_size_mean": 4.675418275418275,
+  "batch_size_max": 79,
+  "active_days": 103,
+  "orders_per_active_day": 396.15533980582524,
   "n_picks_per_kit_mean": 16.720615625919027,
   "n_distinct_per_kit_mean": 4.009876482697774,
   "picks_by_material": {

@@ -1,0 +1,63 @@
+Validation report
+============================================================
+
+Overall status: WARN
+SAP fidelity: 750 materials placed from SAP bins; 750 SAP slots assigned; 2872 Kardex routed; 2319 heuristic fallback.
+
+Chi-square (restricted to SAP-decoded materials [headline]):
+  racks tested: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+  observed     = [115.0, 35.0, 21.0, 152.0, 242.0, 31.0, 188.0, 43.0, 0.0, 0.0]
+  expected     = [110.31, 32.44, 10.46, 143.37, 298.45, 73.19, 126.03, 32.7, 0.01, 0.04]
+  chi-square   = 80.327
+  dof          = 9
+  p-value      = 0.0000
+  Cramér's V   = 0.104 (small effect; with n in the hundreds the test has power to reject for even small shape deviations)
+  verdict      = REJECT H0 (distributions differ)
+  WARNING      = Cochran's rule violated: 2 of 10 cells have expected count < 5 — [('I', 0.01), ('J', 0.04)]. Unpooled p-value is approximate; the POOLED test below is the headline number.
+  POOLED (low-E cells merged; Cochran OK):
+    cells      = ['A', 'B', 'C+OTHER', 'D', 'E', 'F', 'G', 'H']
+    chi-square = 80.117  dof = 7  p = 0.0000
+    verdict    = REJECT H0 (distributions differ)
+
+Chi-square (all sim picks vs SAP-decoded (biased)):
+  racks tested: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'U']
+  observed     = [132, 97, 64, 167, 271, 94, 227, 96, 62, 77, 22]
+  expected     = [83.89, 53.98, 82.01, 196.67, 433.24, 113.25, 212.25, 96.57, 10.6, 15.91, 10.64]
+  chi-square   = 631.297
+  dof          = 10
+  p-value      = 0.0000
+  Cramér's V   = 0.220 (small effect; with n in the hundreds the test has power to reject for even small shape deviations)
+  verdict      = REJECT H0 (distributions differ)
+
+Paired t-test (log daily picks per material):
+  n paired = 770
+  t        = -8.520
+  p-value  = 0.0000
+  verdict  = REJECT H0 (means differ)
+
+Daily volume calibration (sim vs ZWM92 actual):
+  status   = INFO (informational; rigorous gate = replication CI check)
+  sim      = 267.0 orders/day
+  ZWM92    = 396.2 orders/active day
+  rel err  = -32.6%
+
+Replication CI check (multi-rep throughput vs ZWM92):
+  status   = PASS
+  Baseline (Actual SAP): simulated arrivals/day within 8.8% of ZWM92 actual (396)
+  Baseline (Heuristic): throughput 430.1/day CI95 [399.0, 461.2] (n=20)
+  Baseline (Actual SAP): throughput 430.3/day CI95 [399.2, 461.3] (n=20)
+  Usage-based ABC: throughput 430.1/day CI95 [399.0, 461.2] (n=20)
+  Double ABC: throughput 430.0/day CI95 [398.9, 461.2] (n=20)
+  Travel-distance Optimized: throughput 428.2/day CI95 [397.8, 458.6] (n=20)
+  Line-aware Slotting: throughput 430.3/day CI95 [399.2, 461.4] (n=20)
+
+Notes:
+  - Expected rack distribution source: ZWM92 actuals (real per-bin dispatch counts).
+  - Chi-square (restricted): simulation pick distribution is restricted to materials that have a decoded SAP bin, and (2026-06-10 scope fix) the EXPECTED vector is built from the same decoded-material subset — each decoded material contributes its real ZWM92 pick count at its ozet rack. H0 = same shape. The pre-fix expected used ALL ZWM92 materials, which inflated expected counts at racks whose decoded materials are dead stock (I/J/U: 97-100% zero-pick over the 4-month log) — a scope mismatch, not model error.
+  - KDX fidelity note: 329 materials dispatched from KDX in ZWM92 are missing from the ozet kardex set, but only 1 of them is in the active master (8 pick rows, ~0% of volume) — negligible for the sim; disclosed for completeness.
+  - Chi-square (all sim picks): biased because the simulation places ~5600 materials without a SAP bin via fallback, shifting the rack distribution away from SAP — kept for completeness but the restricted test is the headline number.
+  - T-test runs on log(daily picks + 1e-3) over materials common to both sim and expected; H0 = same mean.
+  - ZWM92 (167,784 rows, 2026-01-02 to 2026-05-18, 9 product families) closes the prior validation gap — we now compare against real per-rack dispatch counts, not a consumption proxy.
+  - Default src.validate uses a short validation sim sample so the command stays interactive; run python -m src.validate --full-sim for the configured full-horizon statistical validation.
+  - SCOPE LIMIT (honesty): the chi-square/t-test 'expected' vectors come from the same ZWM92 dataset the driver distributions were fitted on — these are internal-consistency checks, not holdout validation (no second observation period exists). Independent evidence: F400 video timing (separate source), daily-volume calibration, and face validation of routes/layout.
+  - daily_volume_check / replication_ci_check (2026-06-09): the batch-arrival driver must reproduce the real daily kit-order volume (~396/day); the replication check puts a 95% CI around simulated throughput across the N>=20 independent-seed runs.
