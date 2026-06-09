@@ -1,499 +1,642 @@
 {
   "n_replications": {
-    "Baseline (Heuristic)": 1,
-    "Baseline (Actual SAP)": 1,
-    "Usage-based ABC": 1,
-    "Double ABC": 1,
-    "Travel-distance Optimized": 1
+    "Baseline (Heuristic)": 20,
+    "Baseline (Actual SAP)": 20,
+    "Usage-based ABC": 20,
+    "Double ABC": 20,
+    "Travel-distance Optimized": 20,
+    "Line-aware Slotting": 20
   },
   "metrics": {
-    "avg_prep_time": {
-      "label": "Avg prep time (min/order)",
-      "direction": "lower",
-      "winner": "Baseline (Actual SAP)",
-      "per_policy": {
-        "Baseline (Heuristic)": {
-          "n": 1,
-          "mean": 3.9481124871149507,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 3.9481124871149507,
-          "ci95_high": 3.9481124871149507,
-          "cv": 0.0,
-          "min": 3.9481124871149507,
-          "max": 3.9481124871149507
-        },
-        "Baseline (Actual SAP)": {
-          "n": 1,
-          "mean": 3.5747145931162314,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 3.5747145931162314,
-          "ci95_high": 3.5747145931162314,
-          "cv": 0.0,
-          "min": 3.5747145931162314,
-          "max": 3.5747145931162314
-        },
-        "Usage-based ABC": {
-          "n": 1,
-          "mean": 3.832558733125838,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 3.832558733125838,
-          "ci95_high": 3.832558733125838,
-          "cv": 0.0,
-          "min": 3.832558733125838,
-          "max": 3.832558733125838
-        },
-        "Double ABC": {
-          "n": 1,
-          "mean": 4.7644376923845435,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 4.7644376923845435,
-          "ci95_high": 4.7644376923845435,
-          "cv": 0.0,
-          "min": 4.7644376923845435,
-          "max": 4.7644376923845435
-        },
-        "Travel-distance Optimized": {
-          "n": 1,
-          "mean": 4.687152686962853,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 4.687152686962853,
-          "ci95_high": 4.687152686962853,
-          "cv": 0.0,
-          "min": 4.687152686962853,
-          "max": 4.687152686962853
-        }
-      },
-      "anova": null,
-      "tukey_hsd": null,
-      "welch_vs_baseline": [
-        {
-          "policy": "Baseline (Actual SAP)",
-          "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
-          "significant_at_0.05": false
-        },
-        {
-          "policy": "Usage-based ABC",
-          "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
-          "significant_at_0.05": false
-        },
-        {
-          "policy": "Double ABC",
-          "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
-          "significant_at_0.05": false
-        },
-        {
-          "policy": "Travel-distance Optimized",
-          "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
-          "significant_at_0.05": false
-        }
-      ]
-    },
     "avg_lead_time": {
-      "label": "Avg lead time (min/order)",
+      "label": "Avg kitting lead time (min/order)",
       "direction": "lower",
-      "winner": "Baseline (Actual SAP)",
+      "winner": "Line-aware Slotting",
       "per_policy": {
         "Baseline (Heuristic)": {
-          "n": 1,
-          "mean": 3.9481124871149507,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 3.9481124871149507,
-          "ci95_high": 3.9481124871149507,
-          "cv": 0.0,
-          "min": 3.9481124871149507,
-          "max": 3.9481124871149507
+          "n": 20,
+          "mean": 15.841683231965067,
+          "stdev": 5.001947884615857,
+          "ci95_half_width": 2.3409836701618634,
+          "ci95_low": 13.500699561803204,
+          "ci95_high": 18.182666902126932,
+          "cv": 0.3157459855353638,
+          "min": 9.883242934995266,
+          "max": 27.173676776170037
         },
         "Baseline (Actual SAP)": {
-          "n": 1,
-          "mean": 3.5747145931162314,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 3.5747145931162314,
-          "ci95_high": 3.5747145931162314,
-          "cv": 0.0,
-          "min": 3.5747145931162314,
-          "max": 3.5747145931162314
+          "n": 20,
+          "mean": 14.594028236028919,
+          "stdev": 4.252489608095815,
+          "ci95_half_width": 1.9902263997398397,
+          "ci95_low": 12.60380183628908,
+          "ci95_high": 16.584254635768758,
+          "cv": 0.2913855954860706,
+          "min": 9.570214505805314,
+          "max": 24.47999812485629
         },
         "Usage-based ABC": {
-          "n": 1,
-          "mean": 3.832558733125838,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 3.832558733125838,
-          "ci95_high": 3.832558733125838,
-          "cv": 0.0,
-          "min": 3.832558733125838,
-          "max": 3.832558733125838
+          "n": 20,
+          "mean": 16.354883594668962,
+          "stdev": 5.193462265904601,
+          "ci95_half_width": 2.430615159641593,
+          "ci95_low": 13.924268435027368,
+          "ci95_high": 18.785498754310556,
+          "cv": 0.31754810334434064,
+          "min": 10.197313507022818,
+          "max": 28.432275973148855
         },
         "Double ABC": {
-          "n": 1,
-          "mean": 4.7644376923845435,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 4.7644376923845435,
-          "ci95_high": 4.7644376923845435,
-          "cv": 0.0,
-          "min": 4.7644376923845435,
-          "max": 4.7644376923845435
+          "n": 20,
+          "mean": 18.311037780175052,
+          "stdev": 6.010040943701849,
+          "ci95_half_width": 2.812785744826035,
+          "ci95_low": 15.498252035349017,
+          "ci95_high": 21.123823525001086,
+          "cv": 0.32821956984921874,
+          "min": 11.246735080304807,
+          "max": 32.88074038245504
         },
         "Travel-distance Optimized": {
-          "n": 1,
-          "mean": 4.687152686962853,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 4.687152686962853,
-          "ci95_high": 4.687152686962853,
-          "cv": 0.0,
-          "min": 4.687152686962853,
-          "max": 4.687152686962853
+          "n": 20,
+          "mean": 28.22739293508735,
+          "stdev": 10.375647423629383,
+          "ci95_half_width": 4.855952470192275,
+          "ci95_low": 23.371440464895077,
+          "ci95_high": 33.08334540527963,
+          "cv": 0.3675737057081242,
+          "min": 14.020381563362566,
+          "max": 50.677290232261015
+        },
+        "Line-aware Slotting": {
+          "n": 20,
+          "mean": 8.244484297330121,
+          "stdev": 1.9669175449713237,
+          "ci95_half_width": 0.9205457472866796,
+          "ci95_low": 7.323938550043442,
+          "ci95_high": 9.1650300446168,
+          "cv": 0.2385737511330195,
+          "min": 6.0724467478863735,
+          "max": 12.924731477788338
         }
       },
-      "anova": null,
-      "tukey_hsd": null,
+      "anova": {
+        "F": 23.3639350870068,
+        "p_value": 4.2520681875131167e-16,
+        "k": 6,
+        "df_between": 5,
+        "df_within": 114
+      },
+      "tukey_hsd": [
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Baseline (Actual SAP)",
+          "mean_diff": 1.2476549959361503,
+          "p_value": 0.9863444492594853,
+          "ci_low": -4.274224459617886,
+          "ci_high": 6.769534451490187,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": -0.513200362703893,
+          "p_value": 0.9998031336372368,
+          "ci_low": -6.0350798182579295,
+          "ci_high": 5.0086790928501435,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Double ABC",
+          "mean_diff": -2.469354548209987,
+          "p_value": 0.7864998395194416,
+          "ci_low": -7.991234003764023,
+          "ci_high": 3.0525249073440497,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -12.385709703122282,
+          "p_value": 3.2532891602876646e-08,
+          "ci_low": -17.90758915867632,
+          "ci_high": -6.863830247568246,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 7.597198934634948,
+          "p_value": 0.001612489852578114,
+          "ci_low": 2.0753194790809113,
+          "ci_high": 13.119078390188985,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": -1.7608553586400433,
+          "p_value": 0.9394766058416542,
+          "ci_low": -7.28273481419408,
+          "ci_high": 3.761024096913993,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Double ABC",
+          "mean_diff": -3.717009544146137,
+          "p_value": 0.37687450396520894,
+          "ci_low": -9.238888999700173,
+          "ci_high": 1.8048699114078994,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -13.633364699058433,
+          "p_value": 1.2807428451111491e-09,
+          "ci_low": -19.15524415461247,
+          "ci_high": -8.111485243504397,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 6.3495439386987975,
+          "p_value": 0.014373812491623172,
+          "ci_low": 0.827664483144761,
+          "ci_high": 11.871423394252833,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Double ABC",
+          "mean_diff": -1.9561541855060938,
+          "p_value": 0.9079887184772255,
+          "ci_low": -7.47803364106013,
+          "ci_high": 3.5657252700479427,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -11.87250934041839,
+          "p_value": 1.1851727244049926e-07,
+          "ci_low": -17.394388795972425,
+          "ci_high": -6.350629884864353,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 8.11039929733884,
+          "p_value": 0.0005972234078206462,
+          "ci_low": 2.5885198417848043,
+          "ci_high": 13.632278752892876,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -9.916355154912296,
+          "p_value": 1.267483940037284e-05,
+          "ci_low": -15.438234610466331,
+          "ci_high": -4.394475699358259,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 10.066553482844935,
+          "p_value": 9.000481983600928e-06,
+          "ci_low": 4.544674027290898,
+          "ci_high": 15.58843293839897,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Travel-distance Optimized",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 19.98290863775723,
+          "p_value": 0.0,
+          "ci_low": 14.461029182203195,
+          "ci_high": 25.504788093311266,
+          "significant_at_0.05": true
+        }
+      ],
       "welch_vs_baseline": [
         {
           "policy": "Baseline (Actual SAP)",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
+          "t": -0.8498748946572163,
+          "p_value": 0.40085468655798656,
+          "cohens_d": -0.2687540393312466,
           "significant_at_0.05": false
         },
         {
           "policy": "Usage-based ABC",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
+          "t": 0.31829926895537053,
+          "p_value": 0.7520032033860939,
+          "cohens_d": 0.10065506674654982,
           "significant_at_0.05": false
         },
         {
           "policy": "Double ABC",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
+          "t": 1.4123276613505031,
+          "p_value": 0.16625768666209947,
+          "cohens_d": 0.4466172212326545,
           "significant_at_0.05": false
         },
         {
           "policy": "Travel-distance Optimized",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
-          "significant_at_0.05": false
+          "t": 4.808877704592539,
+          "p_value": 4.927236167645466e-05,
+          "cohens_d": 1.5207006535714784,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "t": -6.321321808105211,
+          "p_value": 1.3538473252002946e-06,
+          "cohens_d": -1.9989774736506294,
+          "significant_at_0.05": true
+        }
+      ],
+      "paired_t_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -1.2476549959361485,
+          "diff_ci95_low": -1.7291933008916902,
+          "diff_ci95_high": -0.7661166909806068,
+          "t": -5.422978590121,
+          "p_value": 3.118334486857741e-05,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 0.5132003627038941,
+          "diff_ci95_low": 0.14981781302359848,
+          "diff_ci95_high": 0.8765829123841897,
+          "t": 2.9559501545006746,
+          "p_value": 0.008114645471344549,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 2.469354548209987,
+          "diff_ci95_low": 1.8117498520710837,
+          "diff_ci95_high": 3.12695924434889,
+          "t": 7.859461008432884,
+          "p_value": 2.1784552212498637e-07,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 12.385709703122284,
+          "diff_ci95_low": 9.53455997917347,
+          "diff_ci95_high": 15.2368594270711,
+          "t": 9.092327955211488,
+          "p_value": 2.3820031528809476e-08,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -7.597198934634946,
+          "diff_ci95_low": -9.083084840796818,
+          "diff_ci95_high": -6.111313028473073,
+          "t": -10.701440837668086,
+          "p_value": 1.74684664457361e-09,
+          "significant_at_0.05": true
         }
       ]
     },
-    "avg_op_queue_wait": {
-      "label": "Avg operator-queue wait (min)",
+    "avg_total_wait": {
+      "label": "Avg waiting time (op+RT queue, min)",
       "direction": "lower",
-      "winner": "Baseline (Heuristic)",
+      "winner": "Line-aware Slotting",
       "per_policy": {
         "Baseline (Heuristic)": {
-          "n": 1,
-          "mean": 0.0,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 0.0,
-          "ci95_high": 0.0,
-          "cv": NaN,
-          "min": 0.0,
-          "max": 0.0
+          "n": 20,
+          "mean": 11.689549954708372,
+          "stdev": 5.007832013912088,
+          "ci95_half_width": 2.3437375274417365,
+          "ci95_low": 9.345812427266637,
+          "ci95_high": 14.033287482150108,
+          "cv": 0.42840246487804345,
+          "min": 5.86013536819808,
+          "max": 23.058318335855986
         },
         "Baseline (Actual SAP)": {
-          "n": 1,
-          "mean": 0.0,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 0.0,
-          "ci95_high": 0.0,
-          "cv": NaN,
-          "min": 0.0,
-          "max": 0.0
+          "n": 20,
+          "mean": 10.622591407617545,
+          "stdev": 4.255874765248306,
+          "ci95_half_width": 1.9918107020552007,
+          "ci95_low": 8.630780705562344,
+          "ci95_high": 12.614402109672746,
+          "cv": 0.4006437414317173,
+          "min": 5.67725751232274,
+          "max": 20.47216324003471
         },
         "Usage-based ABC": {
-          "n": 1,
-          "mean": 0.0,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 0.0,
-          "ci95_high": 0.0,
-          "cv": NaN,
-          "min": 0.0,
-          "max": 0.0
+          "n": 20,
+          "mean": 12.138082418989015,
+          "stdev": 5.19000576306608,
+          "ci95_half_width": 2.4289974665173335,
+          "ci95_low": 9.709084952471681,
+          "ci95_high": 14.567079885506349,
+          "cv": 0.4275803692803033,
+          "min": 6.128305916613334,
+          "max": 24.235792788023097
         },
         "Double ABC": {
-          "n": 1,
-          "mean": 0.0,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 0.0,
-          "ci95_high": 0.0,
-          "cv": NaN,
-          "min": 0.0,
-          "max": 0.0
+          "n": 20,
+          "mean": 13.83701623873596,
+          "stdev": 6.008270222286548,
+          "ci95_half_width": 2.8119570216939174,
+          "ci95_low": 11.025059217042042,
+          "ci95_high": 16.648973260429877,
+          "cv": 0.43421718372106327,
+          "min": 6.923446017431489,
+          "max": 28.419159400766006
         },
         "Travel-distance Optimized": {
-          "n": 1,
-          "mean": 0.0,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 0.0,
-          "ci95_high": 0.0,
-          "cv": NaN,
-          "min": 0.0,
-          "max": 0.0
+          "n": 20,
+          "mean": 22.78054929350769,
+          "stdev": 10.347128029124319,
+          "ci95_half_width": 4.842604982701531,
+          "ci95_low": 17.93794431080616,
+          "ci95_high": 27.62315427620922,
+          "cv": 0.45420889091876215,
+          "min": 8.836430120980996,
+          "max": 45.203016906548726
+        },
+        "Line-aware Slotting": {
+          "n": 20,
+          "mean": 5.464001511152808,
+          "stdev": 1.9691198576214446,
+          "ci95_half_width": 0.9215764613343771,
+          "ci95_low": 4.542425049818431,
+          "ci95_high": 6.385577972487185,
+          "cv": 0.36038054777294437,
+          "min": 3.347614964844946,
+          "max": 10.186907222737625
         }
       },
-      "anova": null,
-      "tukey_hsd": null,
+      "anova": {
+        "F": 17.78216376946288,
+        "p_value": 5.348957524009502e-13,
+        "k": 6,
+        "df_between": 5,
+        "df_within": 114
+      },
+      "tukey_hsd": [
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Baseline (Actual SAP)",
+          "mean_diff": 1.0669585470908292,
+          "p_value": 0.9932969363459513,
+          "ci_low": -4.447918926072925,
+          "ci_high": 6.581836020254583,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": -0.44853246428064075,
+          "p_value": 0.9998979719001407,
+          "ci_low": -5.9634099374443945,
+          "ci_high": 5.066345008883113,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Double ABC",
+          "mean_diff": -2.147466284027585,
+          "p_value": 0.8684449005269912,
+          "ci_low": -7.662343757191339,
+          "ci_high": 3.3674111891361687,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -11.090999338799316,
+          "p_value": 7.805861035325989e-07,
+          "ci_low": -16.60587681196307,
+          "ci_high": -5.576121865635562,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 6.225548443555567,
+          "p_value": 0.017302410589719153,
+          "ci_low": 0.7106709703918135,
+          "ci_high": 11.740425916719321,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": -1.51549101137147,
+          "p_value": 0.9675772643800643,
+          "ci_low": -7.030368484535224,
+          "ci_high": 3.999386461792284,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Double ABC",
+          "mean_diff": -3.2144248311184143,
+          "p_value": 0.5414704077007466,
+          "ci_low": -8.729302304282168,
+          "ci_high": 2.3004526420453395,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -12.157957885890145,
+          "p_value": 5.570271455201947e-08,
+          "ci_low": -17.6728353590539,
+          "ci_high": -6.643080412726391,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 5.158589896464738,
+          "p_value": 0.08079596004458922,
+          "ci_low": -0.3562875766990157,
+          "ci_high": 10.673467369628492,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Double ABC",
+          "mean_diff": -1.6989338197469444,
+          "p_value": 0.9474786250332344,
+          "ci_low": -7.213811292910698,
+          "ci_high": 3.8159436534168094,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -10.642466874518675,
+          "p_value": 2.2832952407680907e-06,
+          "ci_low": -16.15734434768243,
+          "ci_high": -5.127589401354921,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 6.674080907836208,
+          "p_value": 0.008293763252737674,
+          "ci_low": 1.1592034346724542,
+          "ci_high": 12.188958380999962,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -8.94353305477173,
+          "p_value": 0.0001051125830018318,
+          "ci_low": -14.458410527935484,
+          "ci_high": -3.428655581607977,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 8.373014727583152,
+          "p_value": 0.00034501498892480775,
+          "ci_low": 2.8581372544193986,
+          "ci_high": 13.887892200746906,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Travel-distance Optimized",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 17.31654778235488,
+          "p_value": 4.5630166312093934e-14,
+          "ci_low": 11.801670309191127,
+          "ci_high": 22.831425255518635,
+          "significant_at_0.05": true
+        }
+      ],
       "welch_vs_baseline": [
         {
           "policy": "Baseline (Actual SAP)",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
+          "t": -0.726050220301604,
+          "p_value": 0.4723715865187811,
+          "cohens_d": -0.2295972391820089,
           "significant_at_0.05": false
         },
         {
           "policy": "Usage-based ABC",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
+          "t": 0.27812914045625475,
+          "p_value": 0.7824229408977665,
+          "cohens_d": 0.08795215675066513,
           "significant_at_0.05": false
         },
         {
           "policy": "Double ABC",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
+          "t": 1.2278485608681384,
+          "p_value": 0.22729866081799927,
+          "cohens_d": 0.3882798074103212,
           "significant_at_0.05": false
         },
         {
           "policy": "Travel-distance Optimized",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
-          "significant_at_0.05": false
+          "t": 4.314854541527736,
+          "p_value": 0.00018619560011138366,
+          "cohens_d": 1.3644768123549238,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "t": -5.173979717508461,
+          "p_value": 2.4510514932265753e-05,
+          "cohens_d": -1.6361560474841297,
+          "significant_at_0.05": true
         }
-      ]
-    },
-    "avg_walk_distance": {
-      "label": "Avg walk distance (m/order)",
-      "direction": "lower",
-      "winner": "Travel-distance Optimized",
-      "per_policy": {
-        "Baseline (Heuristic)": {
-          "n": 1,
-          "mean": 92.0923325415677,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 92.0923325415677,
-          "ci95_high": 92.0923325415677,
-          "cv": 0.0,
-          "min": 92.0923325415677,
-          "max": 92.0923325415677
-        },
-        "Baseline (Actual SAP)": {
-          "n": 1,
-          "mean": 86.59911111111111,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 86.59911111111111,
-          "ci95_high": 86.59911111111111,
-          "cv": 0.0,
-          "min": 86.59911111111111,
-          "max": 86.59911111111111
-        },
-        "Usage-based ABC": {
-          "n": 1,
-          "mean": 90.25005673758866,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 90.25005673758866,
-          "ci95_high": 90.25005673758866,
-          "cv": 0.0,
-          "min": 90.25005673758866,
-          "max": 90.25005673758866
-        },
-        "Double ABC": {
-          "n": 1,
-          "mean": 103.92805882352941,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 103.92805882352941,
-          "ci95_high": 103.92805882352941,
-          "cv": 0.0,
-          "min": 103.92805882352941,
-          "max": 103.92805882352941
-        },
-        "Travel-distance Optimized": {
-          "n": 1,
-          "mean": 74.19069509594883,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 74.19069509594883,
-          "ci95_high": 74.19069509594883,
-          "cv": 0.0,
-          "min": 74.19069509594883,
-          "max": 74.19069509594883
-        }
-      },
-      "anova": null,
-      "tukey_hsd": null,
-      "welch_vs_baseline": [
+      ],
+      "paired_t_vs_baseline": [
         {
           "policy": "Baseline (Actual SAP)",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
-          "significant_at_0.05": false
+          "n_pairs": 20,
+          "mean_diff": -1.0669585470908274,
+          "diff_ci95_low": -1.5340845427726828,
+          "diff_ci95_high": -0.5998325514089721,
+          "t": -4.7806585905327825,
+          "p_value": 0.00013000311538144508,
+          "significant_at_0.05": true
         },
         {
           "policy": "Usage-based ABC",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
-          "significant_at_0.05": false
+          "n_pairs": 20,
+          "mean_diff": 0.4485324642806418,
+          "diff_ci95_low": 0.10348845255355105,
+          "diff_ci95_high": 0.7935764760077326,
+          "t": 2.720781132306523,
+          "p_value": 0.013566578855574746,
+          "significant_at_0.05": true
         },
         {
           "policy": "Double ABC",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
-          "significant_at_0.05": false
+          "n_pairs": 20,
+          "mean_diff": 2.147466284027586,
+          "diff_ci95_low": 1.502891213728167,
+          "diff_ci95_high": 2.7920413543270053,
+          "t": 6.9731188741331245,
+          "p_value": 1.2102807416600102e-06,
+          "significant_at_0.05": true
         },
         {
           "policy": "Travel-distance Optimized",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
-          "significant_at_0.05": false
-        }
-      ]
-    },
-    "total_walk_distance": {
-      "label": "Total walk distance (m)",
-      "direction": "lower",
-      "winner": "Travel-distance Optimized",
-      "per_policy": {
-        "Baseline (Heuristic)": {
-          "n": 1,
-          "mean": 38770.872,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 38770.872,
-          "ci95_high": 38770.872,
-          "cv": 0.0,
-          "min": 38770.872,
-          "max": 38770.872
-        },
-        "Baseline (Actual SAP)": {
-          "n": 1,
-          "mean": 41307.776,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 41307.776,
-          "ci95_high": 41307.776,
-          "cv": 0.0,
-          "min": 41307.776,
-          "max": 41307.776
-        },
-        "Usage-based ABC": {
-          "n": 1,
-          "mean": 38175.774000000005,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 38175.774000000005,
-          "ci95_high": 38175.774000000005,
-          "cv": 0.0,
-          "min": 38175.774000000005,
-          "max": 38175.774000000005
-        },
-        "Double ABC": {
-          "n": 1,
-          "mean": 45936.202,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 45936.202,
-          "ci95_high": 45936.202,
-          "cv": 0.0,
-          "min": 45936.202,
-          "max": 45936.202
-        },
-        "Travel-distance Optimized": {
-          "n": 1,
-          "mean": 34795.436,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 34795.436,
-          "ci95_high": 34795.436,
-          "cv": 0.0,
-          "min": 34795.436,
-          "max": 34795.436
-        }
-      },
-      "anova": null,
-      "tukey_hsd": null,
-      "welch_vs_baseline": [
-        {
-          "policy": "Baseline (Actual SAP)",
-          "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
-          "significant_at_0.05": false
+          "n_pairs": 20,
+          "mean_diff": 11.090999338799318,
+          "diff_ci95_low": 8.264703307623176,
+          "diff_ci95_high": 13.91729536997546,
+          "t": 8.213480876549724,
+          "p_value": 1.1309163729541175e-07,
+          "significant_at_0.05": true
         },
         {
-          "policy": "Usage-based ABC",
+          "policy": "Line-aware Slotting",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
-          "significant_at_0.05": false
-        },
-        {
-          "policy": "Double ABC",
-          "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
-          "significant_at_0.05": false
-        },
-        {
-          "policy": "Travel-distance Optimized",
-          "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
-          "significant_at_0.05": false
+          "n_pairs": 20,
+          "mean_diff": -6.2255484435555655,
+          "diff_ci95_low": -7.712713150690906,
+          "diff_ci95_high": -4.738383736420225,
+          "t": -8.76178851053126,
+          "p_value": 4.2306441434998674e-08,
+          "significant_at_0.05": true
         }
       ]
     },
@@ -503,95 +646,1893 @@
       "winner": "Travel-distance Optimized",
       "per_policy": {
         "Baseline (Heuristic)": {
-          "n": 1,
-          "mean": 0.037609154862038134,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 0.037609154862038134,
-          "ci95_high": 0.037609154862038134,
-          "cv": 0.0,
-          "min": 0.037609154862038134,
-          "max": 0.037609154862038134
+          "n": 20,
+          "mean": 0.21957112412133753,
+          "stdev": 0.036235142239353764,
+          "ci95_half_width": 0.016958568586692507,
+          "ci95_low": 0.20261255553464502,
+          "ci95_high": 0.23652969270803004,
+          "cv": 0.1650269013485116,
+          "min": 0.1638398023125181,
+          "max": 0.2800507793314419
         },
         "Baseline (Actual SAP)": {
-          "n": 1,
-          "mean": 0.034281988154045255,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 0.034281988154045255,
-          "ci95_high": 0.034281988154045255,
-          "cv": 0.0,
-          "min": 0.034281988154045255,
-          "max": 0.034281988154045255
+          "n": 20,
+          "mean": 0.20928961004751606,
+          "stdev": 0.0337188015109626,
+          "ci95_half_width": 0.01578088487434425,
+          "ci95_low": 0.1935087251731718,
+          "ci95_high": 0.22507049492186032,
+          "cv": 0.16111072835057244,
+          "min": 0.1593981733024946,
+          "max": 0.27844975548618983
         },
         "Usage-based ABC": {
-          "n": 1,
-          "mean": 0.03701741221393435,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 0.03701741221393435,
-          "ci95_high": 0.03701741221393435,
-          "cv": 0.0,
-          "min": 0.03701741221393435,
-          "max": 0.03701741221393435
+          "n": 20,
+          "mean": 0.2391039213324191,
+          "stdev": 0.0385850860335055,
+          "ci95_half_width": 0.01805837613663261,
+          "ci95_low": 0.22104554519578648,
+          "ci95_high": 0.2571622974690517,
+          "cv": 0.1613737065393495,
+          "min": 0.1778512841277458,
+          "max": 0.3047966243274444
         },
         "Double ABC": {
-          "n": 1,
-          "mean": 0.05614472510469265,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 0.05614472510469265,
-          "ci95_high": 0.05614472510469265,
-          "cv": 0.0,
-          "min": 0.05614472510469265,
-          "max": 0.05614472510469265
+          "n": 20,
+          "mean": 0.2797123503012199,
+          "stdev": 0.047188166336039866,
+          "ci95_half_width": 0.02208474165780613,
+          "ci95_low": 0.2576276086434138,
+          "ci95_high": 0.301797091959026,
+          "cv": 0.1687024769740175,
+          "min": 0.2052671251110157,
+          "max": 0.36294406334076573
         },
         "Travel-distance Optimized": {
-          "n": 1,
-          "mean": 0.07541203493699984,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 0.07541203493699984,
-          "ci95_high": 0.07541203493699984,
-          "cv": 0.0,
-          "min": 0.07541203493699984,
-          "max": 0.07541203493699984
+          "n": 20,
+          "mean": 0.4367457069252296,
+          "stdev": 0.06839912077546664,
+          "ci95_half_width": 0.032011773909374416,
+          "ci95_low": 0.4047339330158552,
+          "ci95_high": 0.46875748083460406,
+          "cv": 0.15661086002884625,
+          "min": 0.3244606900116525,
+          "max": 0.5681114714937759
+        },
+        "Line-aware Slotting": {
+          "n": 20,
+          "mean": 0.010774024724478507,
+          "stdev": 0.002255975780196049,
+          "ci95_half_width": 0.0010558291656661693,
+          "ci95_low": 0.009718195558812337,
+          "ci95_high": 0.011829853890144676,
+          "cv": 0.20939025460657135,
+          "min": 0.00714487731632109,
+          "max": 0.014715793339262725
         }
       },
-      "anova": null,
-      "tukey_hsd": null,
+      "anova": {
+        "F": 207.62946689074312,
+        "p_value": 1.5677483106911357e-55,
+        "k": 6,
+        "df_between": 5,
+        "df_within": 114
+      },
+      "tukey_hsd": [
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Baseline (Actual SAP)",
+          "mean_diff": 0.010281514073821496,
+          "p_value": 0.972846703879459,
+          "ci_low": -0.028697789550363097,
+          "ci_high": 0.04926081769800609,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": -0.019532797211081476,
+          "p_value": 0.694804250111315,
+          "ci_low": -0.05851210083526607,
+          "ci_high": 0.019446506413103117,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Double ABC",
+          "mean_diff": -0.06014122617988235,
+          "p_value": 0.0002612422846278717,
+          "ci_low": -0.09912052980406694,
+          "ci_high": -0.02116192255569776,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -0.2171745828038921,
+          "p_value": 0.0,
+          "ci_low": -0.2561538864280767,
+          "ci_high": -0.1781952791797075,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 0.20879709939685903,
+          "p_value": 0.0,
+          "ci_low": 0.16981779577267445,
+          "ci_high": 0.24777640302104362,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": -0.029814311284902972,
+          "p_value": 0.2380572763529043,
+          "ci_low": -0.06879361490908756,
+          "ci_high": 0.00916499233928162,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Double ABC",
+          "mean_diff": -0.07042274025370385,
+          "p_value": 1.1062355344648722e-05,
+          "ci_low": -0.10940204387788843,
+          "ci_high": -0.031443436629519254,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -0.2274560968777136,
+          "p_value": 0.0,
+          "ci_low": -0.2664354005018982,
+          "ci_high": -0.188476793253529,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 0.19851558532303754,
+          "p_value": 0.0,
+          "ci_low": 0.15953628169885295,
+          "ci_high": 0.23749488894722212,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Double ABC",
+          "mean_diff": -0.040608428968800875,
+          "p_value": 0.03596468147107379,
+          "ci_low": -0.07958773259298546,
+          "ci_high": -0.001629125344616282,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -0.19764178559281062,
+          "p_value": 0.0,
+          "ci_low": -0.2366210892169952,
+          "ci_high": -0.15866248196862603,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 0.2283298966079405,
+          "p_value": 0.0,
+          "ci_low": 0.18935059298375592,
+          "ci_high": 0.2673092002321251,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -0.15703335662400975,
+          "p_value": 0.0,
+          "ci_low": -0.19601266024819433,
+          "ci_high": -0.11805405299982516,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 0.26893832557674135,
+          "p_value": 0.0,
+          "ci_low": 0.22995902195255677,
+          "ci_high": 0.30791762920092597,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Travel-distance Optimized",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 0.4259716822007511,
+          "p_value": 0.0,
+          "ci_low": 0.3869923785765665,
+          "ci_high": 0.4649509858249357,
+          "significant_at_0.05": true
+        }
+      ],
       "welch_vs_baseline": [
         {
           "policy": "Baseline (Actual SAP)",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
+          "t": -0.9289537076530608,
+          "p_value": 0.35880683597737034,
+          "cohens_d": -0.29376095570418537,
           "significant_at_0.05": false
         },
         {
           "policy": "Usage-based ABC",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
+          "t": 1.6502939511204382,
+          "p_value": 0.10715797048528476,
+          "cohens_d": 0.5218687694339191,
           "significant_at_0.05": false
         },
         {
           "policy": "Double ABC",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
+          "t": 4.520677460268233,
+          "p_value": 6.552060491769537e-05,
+          "cohens_d": 1.4295637341432959,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "t": 12.547549592140745,
+          "p_value": 3.22854568906903e-13,
+          "cohens_d": 3.9678835765081546,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "t": -25.71990761030711,
+          "p_value": 2.592899454422262e-16,
+          "cohens_d": -8.133348925766887,
+          "significant_at_0.05": true
+        }
+      ],
+      "paired_t_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -0.010281514073821446,
+          "diff_ci95_low": -0.01411813403542001,
+          "diff_ci95_high": -0.006444894112222882,
+          "t": -5.608962182243237,
+          "p_value": 2.0787421275450436e-05,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 0.019532797211081563,
+          "diff_ci95_low": 0.015761229113572413,
+          "diff_ci95_high": 0.023304365308590713,
+          "t": 10.839686134707014,
+          "p_value": 1.4143158256405e-09,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 0.06014122617988239,
+          "diff_ci95_low": 0.05409008476094304,
+          "diff_ci95_high": 0.06619236759882174,
+          "t": 20.802196534710685,
+          "p_value": 1.556235578140251e-14,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 0.2171745828038921,
+          "diff_ci95_low": 0.20007728917425877,
+          "diff_ci95_high": 0.23427187643352543,
+          "t": 26.586174143187122,
+          "p_value": 1.7073205795615706e-16,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -0.208797099396859,
+          "diff_ci95_low": -0.22478213670016745,
+          "diff_ci95_high": -0.19281206209355056,
+          "t": -27.339151184705635,
+          "p_value": 1.0173094027099906e-16,
+          "significant_at_0.05": true
+        }
+      ]
+    },
+    "throughput_orders_per_day": {
+      "label": "Throughput (kit-orders/day)",
+      "direction": "higher",
+      "winner": "Line-aware Slotting",
+      "per_policy": {
+        "Baseline (Heuristic)": {
+          "n": 20,
+          "mean": 430.1025641025641,
+          "stdev": 66.45606931729792,
+          "ci95_half_width": 31.10239783453622,
+          "ci95_low": 399.0001662680279,
+          "ci95_high": 461.2049619371003,
+          "cv": 0.15451214399514837,
+          "min": 337.02564102564105,
+          "max": 564.1025641025641
+        },
+        "Baseline (Actual SAP)": {
+          "n": 20,
+          "mean": 430.2564102564103,
+          "stdev": 66.4167557092525,
+          "ci95_half_width": 31.083998499602618,
+          "ci95_low": 399.17241175680766,
+          "ci95_high": 461.3404087560129,
+          "cv": 0.15436552280457969,
+          "min": 337.02564102564105,
+          "max": 564.1025641025641
+        },
+        "Usage-based ABC": {
+          "n": 20,
+          "mean": 430.12307692307695,
+          "stdev": 66.45041725649588,
+          "ci95_half_width": 31.099752588654905,
+          "ci95_low": 399.02332433442206,
+          "ci95_high": 461.22282951173185,
+          "cv": 0.15449163465456156,
+          "min": 337.02564102564105,
+          "max": 564.1025641025641
+        },
+        "Double ABC": {
+          "n": 20,
+          "mean": 430.04102564102567,
+          "stdev": 66.47378221470548,
+          "ci95_half_width": 31.110687725702398,
+          "ci95_low": 398.93033791532326,
+          "ci95_high": 461.1517133667281,
+          "cv": 0.1545754433908222,
+          "min": 337.02564102564105,
+          "max": 564.1025641025641
+        },
+        "Travel-distance Optimized": {
+          "n": 20,
+          "mean": 428.20512820512823,
+          "stdev": 64.87998433423006,
+          "ci95_half_width": 30.364767356718367,
+          "ci95_low": 397.8403608484099,
+          "ci95_high": 458.5698955618466,
+          "cv": 0.15151613107993844,
+          "min": 337.02564102564105,
+          "max": 558.974358974359
+        },
+        "Line-aware Slotting": {
+          "n": 20,
+          "mean": 430.2871794871795,
+          "stdev": 66.4097455677808,
+          "ci95_half_width": 31.08071765240282,
+          "ci95_low": 399.2064618347767,
+          "ci95_high": 461.36789713958234,
+          "cv": 0.15433819256927103,
+          "min": 337.02564102564105,
+          "max": 564.1025641025641
+        }
+      },
+      "anova": {
+        "F": 0.0029546560438730263,
+        "p_value": 0.9999985503220062,
+        "k": 6,
+        "df_between": 5,
+        "df_within": 114
+      },
+      "tukey_hsd": [
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Baseline (Actual SAP)",
+          "mean_diff": -0.15384615384613198,
+          "p_value": 0.9999999999969037,
+          "ci_low": -60.82269072311162,
+          "ci_high": 60.514998415419356,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": -0.02051282051280623,
+          "p_value": 0.9999999999999999,
+          "ci_low": -60.689357389778294,
+          "ci_high": 60.64833174875268,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Double ABC",
+          "mean_diff": 0.06153846153847553,
+          "p_value": 0.9999999999999682,
+          "ci_low": -60.60730610772701,
+          "ci_high": 60.730383030803964,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": 1.8974358974360257,
+          "p_value": 0.9999991182733865,
+          "ci_low": -58.77140867182946,
+          "ci_high": 62.566280466701514,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": -0.18461538461536975,
+          "p_value": 0.9999999999922767,
+          "ci_low": -60.85345995388086,
+          "ci_high": 60.48422918465012,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": 0.13333333333332575,
+          "p_value": 0.9999999999984861,
+          "ci_low": -60.53551123593216,
+          "ci_high": 60.802177902598814,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Double ABC",
+          "mean_diff": 0.21538461538460751,
+          "p_value": 0.9999999999833039,
+          "ci_low": -60.45345995388088,
+          "ci_high": 60.884229184650096,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": 2.0512820512821577,
+          "p_value": 0.9999986990031393,
+          "ci_low": -58.61756251798333,
+          "ci_high": 62.720126620547646,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": -0.030769230769237765,
+          "p_value": 0.999999999999999,
+          "ci_low": -60.699613800034726,
+          "ci_high": 60.63807533849625,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Double ABC",
+          "mean_diff": 0.08205128205128176,
+          "p_value": 0.9999999999998664,
+          "ci_low": -60.586793287214206,
+          "ci_high": 60.75089585131677,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": 1.917948717948832,
+          "p_value": 0.9999990696671182,
+          "ci_low": -58.750895851316656,
+          "ci_high": 62.58679328721432,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": -0.16410256410256352,
+          "p_value": 0.9999999999957245,
+          "ci_low": -60.83294713336805,
+          "ci_high": 60.504742005162925,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": 1.8358974358975502,
+          "p_value": 0.9999992520501622,
+          "ci_low": -58.83294713336794,
+          "ci_high": 62.50474200516304,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": -0.24615384615384528,
+          "p_value": 0.9999999999674489,
+          "ci_low": -60.91499841541933,
+          "ci_high": 60.42269072311164,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Travel-distance Optimized",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": -2.0820512820513954,
+          "p_value": 0.9999985986926698,
+          "ci_low": -62.75089585131688,
+          "ci_high": 58.58679328721409,
+          "significant_at_0.05": false
+        }
+      ],
+      "welch_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "t": 0.007322855279378743,
+          "p_value": 0.9941955689426386,
+          "cohens_d": 0.002315690165863403,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": 0.0009761334554580669,
+          "p_value": 0.9992262648667797,
+          "cohens_d": 0.00030868050195465637,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": -0.002927885620782038,
+          "p_value": 0.9976792056408059,
+          "cohens_d": -0.0009258787290118713,
           "significant_at_0.05": false
         },
         {
           "policy": "Travel-distance Optimized",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
+          "t": -0.0913654245797213,
+          "p_value": 0.927682453223654,
+          "cohens_d": -0.02889228410602256,
           "significant_at_0.05": false
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "t": 0.008787889819735252,
+          "p_value": 0.9930343434807019,
+          "cohens_d": 0.0027789747656978467,
+          "significant_at_0.05": false
+        }
+      ],
+      "paired_t_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 0.15384615384615472,
+          "diff_ci95_low": -0.16815754683204845,
+          "diff_ci95_high": 0.4758498545243579,
+          "t": 1.0,
+          "p_value": 0.329876800921125,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 0.02051282051282044,
+          "diff_ci95_low": -0.022421006244272915,
+          "diff_ci95_high": 0.0634466472699138,
+          "t": 1.0,
+          "p_value": 0.329876800921125,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -0.061538461538458475,
+          "diff_ci95_low": -0.19033994180973263,
+          "diff_ci95_high": 0.06726301873281566,
+          "t": -1.0,
+          "p_value": 0.329876800921125,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -1.8974358974358978,
+          "diff_ci95_low": -3.9332216338104633,
+          "diff_ci95_high": 0.1383498389386677,
+          "t": -1.95078436009852,
+          "p_value": 0.06598898418065649,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 0.1846153846153868,
+          "diff_ci95_low": -0.20178905619845938,
+          "diff_ci95_high": 0.5710198254292329,
+          "t": 1.0,
+          "p_value": 0.329876800921125,
+          "significant_at_0.05": false
+        }
+      ]
+    },
+    "avg_prep_time": {
+      "label": "Avg prep time (min/order)",
+      "direction": "lower",
+      "winner": "Line-aware Slotting",
+      "per_policy": {
+        "Baseline (Heuristic)": {
+          "n": 20,
+          "mean": 4.153424624911501,
+          "stdev": 0.11291769834083185,
+          "ci95_half_width": 0.05284710956328796,
+          "ci95_low": 4.100577515348213,
+          "ci95_high": 4.2062717344747895,
+          "cv": 0.027186649220397933,
+          "min": 3.958723204615752,
+          "max": 4.352361653715611
+        },
+        "Baseline (Actual SAP)": {
+          "n": 20,
+          "mean": 3.972523137327047,
+          "stdev": 0.0929227969464021,
+          "ci95_half_width": 0.0434892076557491,
+          "ci95_low": 3.9290339296712977,
+          "ci95_high": 4.016012344982796,
+          "cv": 0.023391379668319858,
+          "min": 3.8013976201491575,
+          "max": 4.1287379540167315
+        },
+        "Usage-based ABC": {
+          "n": 20,
+          "mean": 4.218782141433309,
+          "stdev": 0.09637353279340505,
+          "ci95_half_width": 0.04510420174489613,
+          "ci95_low": 4.173677939688413,
+          "ci95_high": 4.263886343178204,
+          "cv": 0.022843922620916057,
+          "min": 4.014846367967838,
+          "max": 4.4017816318567045
+        },
+        "Double ABC": {
+          "n": 20,
+          "mean": 4.477146421904034,
+          "stdev": 0.11212414174093775,
+          "ci95_half_width": 0.05247571364222792,
+          "ci95_low": 4.4246707082618055,
+          "ci95_high": 4.529622135546262,
+          "cv": 0.025043662005866177,
+          "min": 4.278036374031187,
+          "max": 4.671061603611607
+        },
+        "Travel-distance Optimized": {
+          "n": 20,
+          "mean": 5.49257033704864,
+          "stdev": 0.16647706515357052,
+          "ci95_half_width": 0.07791366483037859,
+          "ci95_low": 5.414656672218261,
+          "ci95_high": 5.570484001879019,
+          "cv": 0.03030950082343866,
+          "min": 5.21562321035416,
+          "max": 5.797166327768069
+        },
+        "Line-aware Slotting": {
+          "n": 20,
+          "mean": 2.7804827861773136,
+          "stdev": 0.05603886394200639,
+          "ci95_half_width": 0.026226995644264763,
+          "ci95_low": 2.754255790533049,
+          "ci95_high": 2.8067097818215783,
+          "cv": 0.020154364637894488,
+          "min": 2.6526411933587237,
+          "max": 2.8467284353456455
+        }
+      },
+      "anova": {
+        "F": 1235.6341710589834,
+        "p_value": 1.6770332686178768e-97,
+        "k": 6,
+        "df_between": 5,
+        "df_within": 114
+      },
+      "tukey_hsd": [
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Baseline (Actual SAP)",
+          "mean_diff": 0.18090148758445546,
+          "p_value": 1.6276390756853054e-05,
+          "ci_low": 0.07903123882365656,
+          "ci_high": 0.2827717363452543,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": -0.06535751652180721,
+          "p_value": 0.43221769340983507,
+          "ci_low": -0.1672277652826061,
+          "ci_high": 0.03651273223899168,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Double ABC",
+          "mean_diff": -0.32372179699253145,
+          "p_value": 2.2870594307278225e-14,
+          "ci_low": -0.4255920457533303,
+          "ci_high": -0.22185154823173256,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -1.339145712137138,
+          "p_value": 0.0,
+          "ci_low": -1.441015960897937,
+          "ci_high": -1.237275463376339,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 1.3729418387341892,
+          "p_value": 0.0,
+          "ci_low": 1.2710715899733902,
+          "ci_high": 1.4748120874949882,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": -0.24625900410626267,
+          "p_value": 2.7086231035866604e-09,
+          "ci_low": -0.34812925286706153,
+          "ci_high": -0.14438875534546378,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Double ABC",
+          "mean_diff": -0.5046232845769869,
+          "p_value": 0.0,
+          "ci_low": -0.6064935333377858,
+          "ci_high": -0.40275303581618804,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -1.5200471997215934,
+          "p_value": 0.0,
+          "ci_low": -1.6219174484823924,
+          "ci_high": -1.4181769509607944,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 1.1920403511497337,
+          "p_value": 0.0,
+          "ci_low": 1.0901701023889347,
+          "ci_high": 1.2939105999105327,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Double ABC",
+          "mean_diff": -0.25836428047072424,
+          "p_value": 4.786060436856587e-10,
+          "ci_low": -0.3602345292315231,
+          "ci_high": -0.15649403170992535,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -1.2737881956153307,
+          "p_value": 0.0,
+          "ci_low": -1.3756584443761297,
+          "ci_high": -1.1719179468545318,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 1.4382993552559964,
+          "p_value": 0.0,
+          "ci_low": 1.3364291064951974,
+          "ci_high": 1.5401696040167954,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -1.0154239151446065,
+          "p_value": 0.0,
+          "ci_low": -1.1172941639054055,
+          "ci_high": -0.9135536663838076,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 1.6966636357267206,
+          "p_value": 0.0,
+          "ci_low": 1.5947933869659217,
+          "ci_high": 1.7985338844875196,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Travel-distance Optimized",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 2.712087550871327,
+          "p_value": 0.0,
+          "ci_low": 2.610217302110528,
+          "ci_high": 2.813957799632126,
+          "significant_at_0.05": true
+        }
+      ],
+      "welch_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "t": -5.532252231518166,
+          "p_value": 2.78023214200046e-06,
+          "cohens_d": -1.7494517642146477,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": 1.9688917735981302,
+          "p_value": 0.056472659236443616,
+          "cohens_d": 0.6226182470938666,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": 9.097791253616295,
+          "p_value": 4.418331292767568e-11,
+          "cohens_d": 2.8769742038186163,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "t": 29.771653389960374,
+          "p_value": 1.2104815421837133e-25,
+          "cohens_d": 9.414623442134793,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "t": -48.707382498001,
+          "p_value": 1.7657511410532516e-28,
+          "cohens_d": -15.402626755870473,
+          "significant_at_0.05": true
+        }
+      ],
+      "paired_t_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -0.180901487584455,
+          "diff_ci95_low": -0.21139780820907106,
+          "diff_ci95_high": -0.15040516695983897,
+          "t": -12.415634320387046,
+          "p_value": 1.4546840743573988e-10,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 0.06535751652180696,
+          "diff_ci95_low": 0.03639441190959743,
+          "diff_ci95_high": 0.0943206211340165,
+          "t": 4.7230728904270824,
+          "p_value": 0.00014801363361496037,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 0.32372179699253245,
+          "diff_ci95_low": 0.30008067944541617,
+          "diff_ci95_high": 0.34736291453964874,
+          "t": 28.66013024516694,
+          "p_value": 4.235129488527275e-17,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 1.3391457121371386,
+          "diff_ci95_low": 1.2784688182406687,
+          "diff_ci95_high": 1.3998226060336085,
+          "t": 46.19327074723326,
+          "p_value": 5.535816600528602e-21,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -1.3729418387341883,
+          "diff_ci95_low": -1.408496696939273,
+          "diff_ci95_high": -1.3373869805291037,
+          "t": -80.8215934148566,
+          "p_value": 1.414416190342449e-25,
+          "significant_at_0.05": true
+        }
+      ]
+    },
+    "avg_op_queue_wait": {
+      "label": "Avg operator-queue wait (min)",
+      "direction": "lower",
+      "winner": "Line-aware Slotting",
+      "per_policy": {
+        "Baseline (Heuristic)": {
+          "n": 20,
+          "mean": 11.688258607053566,
+          "stdev": 5.00767329911877,
+          "ci95_half_width": 2.343663246631952,
+          "ci95_low": 9.344595360421614,
+          "ci95_high": 14.031921853685517,
+          "cv": 0.42843621684557587,
+          "min": 5.859897431827456,
+          "max": 23.056375362393318
+        },
+        "Baseline (Actual SAP)": {
+          "n": 20,
+          "mean": 10.62150509870187,
+          "stdev": 4.255808699560022,
+          "ci95_half_width": 1.991779782361314,
+          "ci95_low": 8.629725316340556,
+          "ci95_high": 12.613284881063185,
+          "cv": 0.4006784970691352,
+          "min": 5.676465989636352,
+          "max": 20.470552410234337
+        },
+        "Usage-based ABC": {
+          "n": 20,
+          "mean": 12.136101453235653,
+          "stdev": 5.1899022164213395,
+          "ci95_half_width": 2.4289490051958587,
+          "ci95_low": 9.707152448039794,
+          "ci95_high": 14.565050458431513,
+          "cv": 0.42764163075100525,
+          "min": 6.127062040552391,
+          "max": 24.234225469016813
+        },
+        "Double ABC": {
+          "n": 20,
+          "mean": 13.833891358271021,
+          "stdev": 6.007914721673719,
+          "ci95_half_width": 2.8117906422856223,
+          "ci95_low": 11.022100715985399,
+          "ci95_high": 16.645682000556643,
+          "cv": 0.4342895694407562,
+          "min": 6.922166300588973,
+          "max": 28.415949856771515
+        },
+        "Travel-distance Optimized": {
+          "n": 20,
+          "mean": 22.73482259803871,
+          "stdev": 10.342696414180976,
+          "ci95_half_width": 4.840530923064341,
+          "ci95_low": 17.89429167497437,
+          "ci95_high": 27.575353521103054,
+          "cv": 0.4549275178893729,
+          "min": 8.804758353008404,
+          "max": 45.14785364519506
+        },
+        "Line-aware Slotting": {
+          "n": 20,
+          "mean": 5.464001511152808,
+          "stdev": 1.9691198576214446,
+          "ci95_half_width": 0.9215764613343771,
+          "ci95_low": 4.542425049818431,
+          "ci95_high": 6.385577972487185,
+          "cv": 0.36038054777294437,
+          "min": 3.347614964844946,
+          "max": 10.186907222737625
+        }
+      },
+      "anova": {
+        "F": 17.689439185927686,
+        "p_value": 6.068118346880699e-13,
+        "k": 6,
+        "df_between": 5,
+        "df_within": 114
+      },
+      "tukey_hsd": [
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Baseline (Actual SAP)",
+          "mean_diff": 1.0667535083516952,
+          "p_value": 0.9932958082711734,
+          "ci_low": -4.446864400220432,
+          "ci_high": 6.580371416923822,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": -0.4478428461820858,
+          "p_value": 0.9998986296214077,
+          "ci_low": -5.961460754754213,
+          "ci_high": 5.065775062390041,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Double ABC",
+          "mean_diff": -2.1456327512174553,
+          "p_value": 0.8687470440866442,
+          "ci_low": -7.659250659789582,
+          "ci_high": 3.3679851573546715,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -11.046563990985145,
+          "p_value": 8.637772997976967e-07,
+          "ci_low": -16.56018189955727,
+          "ci_high": -5.5329460824130186,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 6.224257095900759,
+          "p_value": 0.017298830277209687,
+          "ci_low": 0.7106391873286322,
+          "ci_high": 11.737875004472887,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": -1.514596354533781,
+          "p_value": 0.9676277374367137,
+          "ci_low": -7.028214263105908,
+          "ci_high": 3.999021554038346,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Double ABC",
+          "mean_diff": -3.2123862595691506,
+          "p_value": 0.5419199377813996,
+          "ci_low": -8.726004168141277,
+          "ci_high": 2.3012316490029763,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -12.11331749933684,
+          "p_value": 6.19138297297539e-08,
+          "ci_low": -17.626935407908967,
+          "ci_high": -6.599699590764714,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 5.157503587549064,
+          "p_value": 0.08078634292401832,
+          "ci_low": -0.35611432102306306,
+          "ci_high": 10.671121496121192,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Double ABC",
+          "mean_diff": -1.6977899050353695,
+          "p_value": 0.9475752195802515,
+          "ci_low": -7.211407813607496,
+          "ci_high": 3.8158280035367573,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -10.59872114480306,
+          "p_value": 2.517632291643146e-06,
+          "ci_low": -16.112339053375187,
+          "ci_high": -5.085103236230933,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 6.672099942082845,
+          "p_value": 0.008300177010804322,
+          "ci_low": 1.158482033510718,
+          "ci_high": 12.18571785065497,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -8.90093123976769,
+          "p_value": 0.00011458545184073188,
+          "ci_low": -14.414549148339816,
+          "ci_high": -3.387313331195563,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 8.369889847118214,
+          "p_value": 0.00034586746523135314,
+          "ci_low": 2.8562719385460875,
+          "ci_high": 13.883507755690342,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Travel-distance Optimized",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 17.270821086885903,
+          "p_value": 5.1958437552457326e-14,
+          "ci_low": 11.757203178313777,
+          "ci_high": 22.78443899545803,
+          "significant_at_0.05": true
+        }
+      ],
+      "welch_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "t": -0.7259287788828483,
+          "p_value": 0.4724451278666414,
+          "cohens_d": -0.22955883603345426,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": 0.2777086300729348,
+          "p_value": 0.7827433178842024,
+          "cohens_d": 0.08781917969156097,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": 1.2268589822836182,
+          "p_value": 0.22766598740858324,
+          "cohens_d": 0.38796687518524,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "t": 4.299084999930233,
+          "p_value": 0.0001941871745799602,
+          "cohens_d": 1.3594900454444356,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "t": -5.1730484900294424,
+          "p_value": 2.4568161031114634e-05,
+          "cohens_d": -1.6358615674987873,
+          "significant_at_0.05": true
+        }
+      ],
+      "paired_t_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -1.0667535083516935,
+          "diff_ci95_low": -1.5337786085574003,
+          "diff_ci95_high": -0.5997284081459866,
+          "t": -4.780772494071757,
+          "p_value": 0.0001299697878582512,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 0.44784284618208775,
+          "diff_ci95_low": 0.10289081330197991,
+          "diff_ci95_high": 0.7927948790621956,
+          "t": 2.7173222950089855,
+          "p_value": 0.013668383559464429,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 2.1456327512174553,
+          "diff_ci95_low": 1.501228916210182,
+          "diff_ci95_high": 2.790036586224729,
+          "t": 6.969016502165484,
+          "p_value": 1.2202257357521208e-06,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 11.046563990985145,
+          "diff_ci95_low": 8.22279734061706,
+          "diff_ci95_high": 13.870330641353231,
+          "t": 8.187901839792149,
+          "p_value": 1.1851207535517397e-07,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -6.224257095900757,
+          "diff_ci95_low": -7.7113613824746166,
+          "diff_ci95_high": -4.737152809326898,
+          "t": -8.76032699263883,
+          "p_value": 4.241531002064068e-08,
+          "significant_at_0.05": true
+        }
+      ]
+    },
+    "avg_walk_distance": {
+      "label": "Avg walk distance (m/order)",
+      "direction": "lower",
+      "winner": "Line-aware Slotting",
+      "per_policy": {
+        "Baseline (Heuristic)": {
+          "n": 20,
+          "mean": 102.90239923699842,
+          "stdev": 2.103839100809271,
+          "ci95_half_width": 0.9846270079682684,
+          "ci95_low": 101.91777222903015,
+          "ci95_high": 103.88702624496669,
+          "cv": 0.020444995611461295,
+          "min": 99.46130601383713,
+          "max": 106.31539653304442
+        },
+        "Baseline (Actual SAP)": {
+          "n": 20,
+          "mean": 97.93013429181981,
+          "stdev": 1.997925404458149,
+          "ci95_half_width": 0.9350578722387584,
+          "ci95_low": 96.99507641958105,
+          "ci95_high": 98.86519216405857,
+          "cv": 0.020401538493805958,
+          "min": 94.77465992549227,
+          "max": 102.54220151679306
+        },
+        "Usage-based ABC": {
+          "n": 20,
+          "mean": 101.86696698883362,
+          "stdev": 1.8349256930075784,
+          "ci95_half_width": 0.8587716590376014,
+          "ci95_low": 101.00819532979602,
+          "ci95_high": 102.72573864787122,
+          "cv": 0.018012960896427965,
+          "min": 97.77050239489088,
+          "max": 104.81296208017335
+        },
+        "Double ABC": {
+          "n": 20,
+          "mean": 102.99899442411409,
+          "stdev": 1.9288258889636505,
+          "ci95_half_width": 0.9027183035106967,
+          "ci95_low": 102.09627612060339,
+          "ci95_high": 103.90171272762478,
+          "cv": 0.018726647767272515,
+          "min": 99.25560404470463,
+          "max": 106.22569230769231
+        },
+        "Travel-distance Optimized": {
+          "n": 20,
+          "mean": 98.07464752256587,
+          "stdev": 2.1546697310450873,
+          "ci95_half_width": 1.0084164752060345,
+          "ci95_low": 97.06623104735984,
+          "ci95_high": 99.0830639977719,
+          "cv": 0.021969691306301376,
+          "min": 94.91567279767666,
+          "max": 102.34783640303357
+        },
+        "Line-aware Slotting": {
+          "n": 20,
+          "mean": 95.60616908062923,
+          "stdev": 2.2847949857200396,
+          "ci95_half_width": 1.0693169690329731,
+          "ci95_low": 94.53685211159626,
+          "ci95_high": 96.6754860496622,
+          "cv": 0.023897986999072866,
+          "min": 90.93987318489835,
+          "max": 99.70278548212352
+        }
+      },
+      "anova": {
+        "F": 45.54041171816199,
+        "p_value": 1.2335334299754595e-25,
+        "k": 6,
+        "df_between": 5,
+        "df_within": 114
+      },
+      "tukey_hsd": [
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Baseline (Actual SAP)",
+          "mean_diff": 4.972264945178637,
+          "p_value": 1.061558618786762e-10,
+          "ci_low": 3.0873891636980813,
+          "ci_high": 6.857140726659193,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": 1.0354322481648097,
+          "p_value": 0.6052306925822406,
+          "ci_low": -0.8494435333157457,
+          "ci_high": 2.920308029645365,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Double ABC",
+          "mean_diff": -0.09659518711563919,
+          "p_value": 0.999989667459327,
+          "ci_low": -1.9814709685961946,
+          "ci_high": 1.7882805943649163,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": 4.827751714432537,
+          "p_value": 3.3068803251268264e-10,
+          "ci_low": 2.942875932951982,
+          "ci_high": 6.712627495913093,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 7.296230156369191,
+          "p_value": 0.0,
+          "ci_low": 5.411354374888635,
+          "ci_high": 9.181105937849747,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": -3.936832697013827,
+          "p_value": 2.7476204667031823e-07,
+          "ci_low": -5.821708478494383,
+          "ci_high": -2.0519569155332715,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Double ABC",
+          "mean_diff": -5.068860132294276,
+          "p_value": 4.939637587852985e-11,
+          "ci_low": -6.953735913774832,
+          "ci_high": -3.1839843508137204,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -0.14451323074609945,
+          "p_value": 0.9999237734961364,
+          "ci_low": -2.029389012226655,
+          "ci_high": 1.740362550734456,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 2.323965211190554,
+          "p_value": 0.006694418398479063,
+          "ci_low": 0.43908942970999876,
+          "ci_high": 4.20884099267111,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Double ABC",
+          "mean_diff": -1.132027435280449,
+          "p_value": 0.5079285637036699,
+          "ci_low": -3.0169032167610044,
+          "ci_high": 0.7528483462001065,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": 3.7923194662677275,
+          "p_value": 7.716014703840202e-07,
+          "ci_low": 1.907443684787172,
+          "ci_high": 5.677195247748283,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 6.260797908204381,
+          "p_value": 0.0,
+          "ci_low": 4.375922126723825,
+          "ci_high": 8.145673689684937,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": 4.9243469015481764,
+          "p_value": 1.5490475568924467e-10,
+          "ci_low": 3.039471120067621,
+          "ci_high": 6.809222683028732,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 7.39282534348483,
+          "p_value": 0.0,
+          "ci_low": 5.507949562004274,
+          "ci_high": 9.277701124965386,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Travel-distance Optimized",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 2.4684784419366537,
+          "p_value": 0.0031701305867082308,
+          "ci_low": 0.5836026604560982,
+          "ci_high": 4.35335422341721,
+          "significant_at_0.05": true
+        }
+      ],
+      "welch_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "t": -7.664234782979617,
+          "p_value": 3.2181903160967826e-09,
+          "cohens_d": -2.4236438436501753,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": -1.6587533142044983,
+          "p_value": 0.10555014442075612,
+          "cohens_d": -0.5245438549239073,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": 0.1513508047576859,
+          "p_value": 0.8805056330724375,
+          "cohens_d": 0.047861326873387705,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "t": -7.169459808764246,
+          "p_value": 1.4569049843630195e-08,
+          "cohens_d": -2.2671822588730297,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "t": -10.505827845978256,
+          "p_value": 9.235737974909474e-13,
+          "cohens_d": -3.3222344698911916,
+          "significant_at_0.05": true
+        }
+      ],
+      "paired_t_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -4.97226494517861,
+          "diff_ci95_low": -5.40443768606891,
+          "diff_ci95_high": -4.54009220428831,
+          "t": -24.08081109815232,
+          "p_value": 1.0630908783943775e-15,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -1.0354322481647962,
+          "diff_ci95_low": -1.5108623009370201,
+          "diff_ci95_high": -0.5600021953925722,
+          "t": -4.558366871177322,
+          "p_value": 0.00021478962344689852,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 0.0965951871156669,
+          "diff_ci95_low": -0.31719950042936923,
+          "diff_ci95_high": 0.5103898746607031,
+          "t": 0.48859025081407836,
+          "p_value": 0.6307234815308276,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -4.827751714432545,
+          "diff_ci95_low": -5.207072751212344,
+          "diff_ci95_high": -4.4484306776527465,
+          "t": -26.638650344310154,
+          "p_value": 1.6460723363469366e-16,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -7.296230156369182,
+          "diff_ci95_low": -7.753955019962226,
+          "diff_ci95_high": -6.838505292776138,
+          "t": -33.36324162927138,
+          "p_value": 2.4911887613476008e-18,
+          "significant_at_0.05": true
+        }
+      ]
+    },
+    "total_walk_distance": {
+      "label": "Total walk distance (m)",
+      "direction": "lower",
+      "winner": "Line-aware Slotting",
+      "per_policy": {
+        "Baseline (Heuristic)": {
+          "n": 20,
+          "mean": 215832.95099999997,
+          "stdev": 34050.754713531176,
+          "ci95_half_width": 15936.243755403575,
+          "ci95_low": 199896.7072445964,
+          "ci95_high": 231769.19475540356,
+          "cv": 0.1577643939712022,
+          "min": 164170.96399999998,
+          "max": 280844.35
+        },
+        "Baseline (Actual SAP)": {
+          "n": 20,
+          "mean": 205417.72699999998,
+          "stdev": 31991.660330848506,
+          "ci95_half_width": 14972.557920129755,
+          "ci95_low": 190445.16907987022,
+          "ci95_high": 220390.28492012975,
+          "cv": 0.15573953036121616,
+          "min": 158975.362,
+          "max": 268619.66599999997
+        },
+        "Usage-based ABC": {
+          "n": 20,
+          "mean": 213679.7865,
+          "stdev": 33664.83929315216,
+          "ci95_half_width": 15755.629779006595,
+          "ci95_low": 197924.1567209934,
+          "ci95_high": 229435.41627900657,
+          "cv": 0.1575480762339313,
+          "min": 163490.73199999996,
+          "max": 279303.192
+        },
+        "Double ABC": {
+          "n": 20,
+          "mean": 215965.3156,
+          "stdev": 33767.95575444257,
+          "ci95_half_width": 15803.889768429548,
+          "ci95_low": 200161.42583157046,
+          "ci95_high": 231769.20536842954,
+          "cv": 0.15635823586128925,
+          "min": 165618.402,
+          "max": 283708.18799999997
+        },
+        "Travel-distance Optimized": {
+          "n": 20,
+          "mean": 204758.1305,
+          "stdev": 31396.62633158592,
+          "ci95_half_width": 14694.073436165205,
+          "ci95_low": 190064.0570638348,
+          "ci95_high": 219452.2039361652,
+          "cv": 0.15333518749618552,
+          "min": 156503.472,
+          "max": 261566.88999999996
+        },
+        "Line-aware Slotting": {
+          "n": 20,
+          "mean": 200618.526,
+          "stdev": 31667.400723841984,
+          "ci95_half_width": 14820.799752630639,
+          "ci95_low": 185797.72624736937,
+          "ci95_high": 215439.32575263066,
+          "cv": 0.15784883557484608,
+          "min": 152550.23599999998,
+          "max": 262679.268
+        }
+      },
+      "anova": {
+        "F": 0.8092480767018964,
+        "p_value": 0.5453933152551649,
+        "k": 6,
+        "df_between": 5,
+        "df_within": 114
+      },
+      "tukey_hsd": [
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Baseline (Actual SAP)",
+          "mean_diff": 10415.223999999987,
+          "p_value": 0.9154434687723589,
+          "ci_low": -19628.488234556957,
+          "ci_high": 40458.93623455693,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": 2153.1644999999844,
+          "p_value": 0.9999454036021679,
+          "ci_low": -27890.54773455696,
+          "ci_high": 32196.87673455693,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Double ABC",
+          "mean_diff": -132.3646000000299,
+          "p_value": 0.9999999999508588,
+          "ci_low": -30176.076834556974,
+          "ci_high": 29911.347634556914,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": 11074.820499999973,
+          "p_value": 0.8928118041870005,
+          "ci_low": -18968.89173455697,
+          "ci_high": 41118.53273455692,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 15214.42499999996,
+          "p_value": 0.6852086246278648,
+          "ci_low": -14829.287234556985,
+          "ci_high": 45258.1372345569,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": -8262.059500000003,
+          "p_value": 0.9674752241736663,
+          "ci_low": -38305.77173455695,
+          "ci_high": 21781.65273455694,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Double ABC",
+          "mean_diff": -10547.588600000017,
+          "p_value": 0.9111610006299269,
+          "ci_low": -40591.30083455696,
+          "ci_high": 19496.123634556927,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": 659.5964999999851,
+          "p_value": 0.99999984933922,
+          "ci_low": -29384.11573455696,
+          "ci_high": 30703.30873455693,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 4799.200999999972,
+          "p_value": 0.9972776010104989,
+          "ci_low": -25244.511234556972,
+          "ci_high": 34842.913234556916,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Double ABC",
+          "mean_diff": -2285.5291000000143,
+          "p_value": 0.9999266602468472,
+          "ci_low": -32329.24133455696,
+          "ci_high": 27758.18313455693,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": 8921.655999999988,
+          "p_value": 0.954926427103504,
+          "ci_low": -21122.056234556956,
+          "ci_high": 38965.36823455693,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 13061.260499999975,
+          "p_value": 0.8057819251985628,
+          "ci_low": -16982.45173455697,
+          "ci_high": 43104.97273455692,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": 11207.185100000002,
+          "p_value": 0.8878817284231347,
+          "ci_low": -18836.52713455694,
+          "ci_high": 41250.89733455695,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 15346.78959999999,
+          "p_value": 0.6771765834855348,
+          "ci_low": -14696.922634556955,
+          "ci_high": 45390.50183455693,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Travel-distance Optimized",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 4139.604499999987,
+          "p_value": 0.9986587467579914,
+          "ci_low": -25904.107734556957,
+          "ci_high": 34183.31673455693,
+          "significant_at_0.05": false
+        }
+      ],
+      "welch_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "t": -0.996930034120823,
+          "p_value": 0.3251289921697667,
+          "cohens_d": -0.3152569575651178,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": -0.20109971788080053,
+          "p_value": 0.8416933103289848,
+          "cohens_d": -0.06359331453206189,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "t": 0.012343790543916912,
+          "p_value": 0.9902159150091582,
+          "cohens_d": 0.0039034493078826137,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "t": -1.0693443840590087,
+          "p_value": 0.29170428569416024,
+          "cohens_d": -0.3381563856736318,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "t": -1.463237288932428,
+          "p_value": 0.15166843969195687,
+          "cohens_d": -0.4627162590316361,
+          "significant_at_0.05": false
+        }
+      ],
+      "paired_t_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -10415.223999999998,
+          "diff_ci95_low": -11731.02572075899,
+          "diff_ci95_high": -9099.422279241007,
+          "t": -16.567324711717397,
+          "p_value": 9.466306083974719e-13,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -2153.1644999999976,
+          "diff_ci95_low": -3132.5036775393655,
+          "diff_ci95_high": -1173.8253224606299,
+          "t": -4.60169999827958,
+          "p_value": 0.0001947128709590903,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 132.36459999999641,
+          "diff_ci95_low": -797.0404364139349,
+          "diff_ci95_high": 1061.7696364139279,
+          "t": 0.29808563639926255,
+          "p_value": 0.7688729946129148,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -11074.820499999998,
+          "diff_ci95_low": -12787.063665259708,
+          "diff_ci95_high": -9362.577334740288,
+          "t": -13.537718342264991,
+          "p_value": 3.2958291887679165e-11,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -15214.424999999994,
+          "diff_ci95_low": -16736.726690122825,
+          "diff_ci95_high": -13692.12330987716,
+          "t": -20.918427474400065,
+          "p_value": 1.4058230554970659e-14,
+          "significant_at_0.05": true
         }
       ]
     },
@@ -601,337 +2542,631 @@
       "winner": "Travel-distance Optimized",
       "per_policy": {
         "Baseline (Heuristic)": {
-          "n": 1,
-          "mean": 0.0886790581618061,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 0.0886790581618061,
-          "ci95_high": 0.0886790581618061,
-          "cv": 0.0,
-          "min": 0.0886790581618061,
-          "max": 0.0886790581618061
+          "n": 20,
+          "mean": 0.4631625031887913,
+          "stdev": 0.07384276869300514,
+          "ci95_half_width": 0.03455947955826023,
+          "ci95_low": 0.4286030236305311,
+          "ci95_high": 0.49772198274705154,
+          "cv": 0.15943166423147564,
+          "min": 0.34974357655595145,
+          "max": 0.5966397652066135
         },
         "Baseline (Actual SAP)": {
-          "n": 1,
-          "mean": 0.0900669004316654,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 0.0900669004316654,
-          "ci95_high": 0.0900669004316654,
-          "cv": 0.0,
-          "min": 0.0900669004316654,
-          "max": 0.0900669004316654
+          "n": 20,
+          "mean": 0.4435378782418292,
+          "stdev": 0.07001092384832255,
+          "ci95_half_width": 0.03276612096778288,
+          "ci95_low": 0.41077175727404636,
+          "ci95_high": 0.4763039992096121,
+          "cv": 0.15784654994032019,
+          "min": 0.33831892550167497,
+          "max": 0.5848498278194638
         },
         "Usage-based ABC": {
-          "n": 1,
-          "mean": 0.08686300086124658,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 0.08686300086124658,
-          "ci95_high": 0.08686300086124658,
-          "cv": 0.0,
-          "min": 0.08686300086124658,
-          "max": 0.08686300086124658
+          "n": 20,
+          "mean": 0.4707671078312282,
+          "stdev": 0.07549670313707585,
+          "ci95_half_width": 0.03533354470535944,
+          "ci95_low": 0.4354335631258688,
+          "ci95_high": 0.5061006525365876,
+          "cv": 0.16036953704110887,
+          "min": 0.35406541513737866,
+          "max": 0.6131532908194123
         },
         "Double ABC": {
-          "n": 1,
-          "mean": 0.11137010609039417,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 0.11137010609039417,
-          "ci95_high": 0.11137010609039417,
-          "cv": 0.0,
-          "min": 0.11137010609039417,
-          "max": 0.11137010609039417
+          "n": 20,
+          "mean": 0.4991793642037668,
+          "stdev": 0.08017387584291266,
+          "ci95_half_width": 0.03752252891300511,
+          "ci95_low": 0.4616568352907617,
+          "ci95_high": 0.5367018931167719,
+          "cv": 0.16061135854603437,
+          "min": 0.3756183347540107,
+          "max": 0.653676287836454
         },
         "Travel-distance Optimized": {
-          "n": 1,
-          "mean": 0.11693585094921984,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 0.11693585094921984,
-          "ci95_high": 0.11693585094921984,
-          "cv": 0.0,
-          "min": 0.11693585094921984,
-          "max": 0.11693585094921984
+          "n": 20,
+          "mean": 0.6086373960772863,
+          "stdev": 0.09450461755870881,
+          "ci95_half_width": 0.04422952249068062,
+          "ci95_low": 0.5644078735866057,
+          "ci95_high": 0.6528669185679669,
+          "cv": 0.15527244656309022,
+          "min": 0.4565731973708509,
+          "max": 0.7855450704093268
+        },
+        "Line-aware Slotting": {
+          "n": 20,
+          "mean": 0.3110996798472155,
+          "stdev": 0.049257083304686096,
+          "ci95_half_width": 0.023053024604819197,
+          "ci95_low": 0.2880466552423963,
+          "ci95_high": 0.33415270445203465,
+          "cv": 0.15833215684720986,
+          "min": 0.23669804648970863,
+          "max": 0.4071484073525796
         }
       },
-      "anova": null,
-      "tukey_hsd": null,
+      "anova": {
+        "F": 32.60758702523329,
+        "p_value": 1.6054263222141572e-20,
+        "k": 6,
+        "df_between": 5,
+        "df_within": 114
+      },
+      "tukey_hsd": [
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Baseline (Actual SAP)",
+          "mean_diff": 0.01962462494696221,
+          "p_value": 0.9620677014932869,
+          "ci_low": -0.04921676456849425,
+          "ci_high": 0.08846601446241867,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": -0.007604604642436785,
+          "p_value": 0.9995409955609538,
+          "ci_low": -0.07644599415789324,
+          "ci_high": 0.06123678487301967,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Double ABC",
+          "mean_diff": -0.036016861014975254,
+          "p_value": 0.6543678344807131,
+          "ci_low": -0.10485825053043171,
+          "ci_high": 0.032824528500481204,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -0.14547489288849486,
+          "p_value": 1.9663745876030703e-07,
+          "ci_low": -0.2143162824039513,
+          "ci_high": -0.0766335033730384,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 0.152062823341576,
+          "p_value": 5.2453055898737944e-08,
+          "ci_low": 0.08322143382611955,
+          "ci_high": 0.22090421285703246,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": -0.027229229589398996,
+          "p_value": 0.8607018474758545,
+          "ci_low": -0.09607061910485545,
+          "ci_high": 0.04161215992605746,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Double ABC",
+          "mean_diff": -0.055641485961937465,
+          "p_value": 0.18578877424915252,
+          "ci_low": -0.12448287547739392,
+          "ci_high": 0.013199903553518993,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -0.16509951783545707,
+          "p_value": 3.569921691592981e-09,
+          "ci_low": -0.23394090735091352,
+          "ci_high": -0.09625812832000061,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 0.1324381983946138,
+          "p_value": 2.4677620873436723e-06,
+          "ci_low": 0.06359680887915733,
+          "ci_high": 0.20127958791007025,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Double ABC",
+          "mean_diff": -0.02841225637253847,
+          "p_value": 0.8377662610691532,
+          "ci_low": -0.09725364588799493,
+          "ci_high": 0.04042913314291799,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -0.13787028824605807,
+          "p_value": 8.728126547064008e-07,
+          "ci_low": -0.20671167776151453,
+          "ci_high": -0.06902889873060161,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 0.1596674279840128,
+          "p_value": 1.105795299771728e-08,
+          "ci_low": 0.09082603846855633,
+          "ci_high": 0.22850881749946925,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": -0.1094580318735196,
+          "p_value": 0.00015217988771720758,
+          "ci_low": -0.17829942138897606,
+          "ci_high": -0.04061664235806314,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 0.18807968435655126,
+          "p_value": 2.5974333794920312e-11,
+          "ci_low": 0.1192382948410948,
+          "ci_high": 0.2569210738720077,
+          "significant_at_0.05": true
+        },
+        {
+          "policy_a": "Travel-distance Optimized",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": 0.29753771623007086,
+          "p_value": 0.0,
+          "ci_low": 0.2286963267146144,
+          "ci_high": 0.36637910574552734,
+          "significant_at_0.05": true
+        }
+      ],
       "welch_vs_baseline": [
         {
           "policy": "Baseline (Actual SAP)",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
+          "t": -0.8624944876924302,
+          "p_value": 0.39384143027166263,
+          "cohens_d": -0.2727447050448128,
           "significant_at_0.05": false
         },
         {
           "policy": "Usage-based ABC",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
+          "t": 0.32203671826599045,
+          "p_value": 0.7491907258719345,
+          "cohens_d": 0.10183695199264949,
           "significant_at_0.05": false
         },
         {
           "policy": "Double ABC",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
+          "t": 1.4777520890691775,
+          "p_value": 0.1477704856619357,
+          "cohens_d": 0.4673062418530643,
           "significant_at_0.05": false
         },
         {
           "policy": "Travel-distance Optimized",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
-          "significant_at_0.05": false
+          "t": 5.424566781790044,
+          "p_value": 4.117532912661832e-06,
+          "cohens_d": 1.7153986350146146,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "t": -7.6612933367805285,
+          "p_value": 7.877149680488463e-09,
+          "cohens_d": -2.42271367668979,
+          "significant_at_0.05": true
+        }
+      ],
+      "paired_t_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -0.01962462494696219,
+          "diff_ci95_low": -0.023223240686491124,
+          "diff_ci95_high": -0.016026009207433255,
+          "t": -11.414058917585352,
+          "p_value": 6.005734447772053e-10,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 0.007604604642436882,
+          "diff_ci95_low": 0.004464754389732494,
+          "diff_ci95_high": 0.01074445489514127,
+          "t": 5.069229154217251,
+          "p_value": 6.812793474374594e-05,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 0.036016861014975414,
+          "diff_ci95_low": 0.03194250430438128,
+          "diff_ci95_high": 0.04009121772556955,
+          "t": 18.502100288030913,
+          "p_value": 1.3047793927659343e-13,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 0.14547489288849494,
+          "diff_ci95_low": 0.13358901940239373,
+          "diff_ci95_high": 0.15736076637459614,
+          "t": 25.617170709762316,
+          "p_value": 3.3943953840741293e-16,
+          "significant_at_0.05": true
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -0.1520628233415759,
+          "diff_ci95_low": -0.1639113369612929,
+          "diff_ci95_high": -0.1402143097218589,
+          "t": -26.86169398544031,
+          "p_value": 1.410397702113327e-16,
+          "significant_at_0.05": true
         }
       ]
     },
     "orders_completed": {
       "label": "Orders completed",
       "direction": "higher",
-      "winner": "Baseline (Actual SAP)",
+      "winner": "Line-aware Slotting",
       "per_policy": {
         "Baseline (Heuristic)": {
-          "n": 1,
-          "mean": 421.0,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 421.0,
-          "ci95_high": 421.0,
-          "cv": 0.0,
-          "min": 421,
-          "max": 421
+          "n": 20,
+          "mean": 2096.75,
+          "stdev": 323.97333792182735,
+          "ci95_half_width": 151.62418944336406,
+          "ci95_low": 1945.125810556636,
+          "ci95_high": 2248.3741894433642,
+          "cv": 0.15451214399514837,
+          "min": 1643,
+          "max": 2750
         },
         "Baseline (Actual SAP)": {
-          "n": 1,
-          "mean": 477.0,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 477.0,
-          "ci95_high": 477.0,
-          "cv": 0.0,
-          "min": 477,
-          "max": 477
+          "n": 20,
+          "mean": 2097.5,
+          "stdev": 323.7816840826059,
+          "ci95_half_width": 151.53449268556275,
+          "ci95_low": 1945.9655073144372,
+          "ci95_high": 2249.034492685563,
+          "cv": 0.1543655228045797,
+          "min": 1643,
+          "max": 2750
         },
         "Usage-based ABC": {
-          "n": 1,
-          "mean": 423.0,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 423.0,
-          "ci95_high": 423.0,
-          "cv": 0.0,
-          "min": 423,
-          "max": 423
+          "n": 20,
+          "mean": 2096.85,
+          "stdev": 323.94578412541745,
+          "ci95_half_width": 151.61129386969267,
+          "ci95_low": 1945.2387061303073,
+          "ci95_high": 2248.461293869693,
+          "cv": 0.1544916346545616,
+          "min": 1643,
+          "max": 2750
         },
         "Double ABC": {
-          "n": 1,
-          "mean": 442.0,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 442.0,
-          "ci95_high": 442.0,
-          "cv": 0.0,
-          "min": 442,
-          "max": 442
+          "n": 20,
+          "mean": 2096.45,
+          "stdev": 324.0596882966892,
+          "ci95_half_width": 151.66460266279918,
+          "ci95_low": 1944.7853973372007,
+          "ci95_high": 2248.114602662799,
+          "cv": 0.15457544339082221,
+          "min": 1643,
+          "max": 2750
         },
         "Travel-distance Optimized": {
-          "n": 1,
-          "mean": 469.0,
-          "stdev": 0.0,
-          "ci95_half_width": NaN,
-          "ci95_low": 469.0,
-          "ci95_high": 469.0,
-          "cv": 0.0,
-          "min": 469,
-          "max": 469
+          "n": 20,
+          "mean": 2087.5,
+          "stdev": 316.2899236293716,
+          "ci95_half_width": 148.02824086400204,
+          "ci95_low": 1939.471759135998,
+          "ci95_high": 2235.528240864002,
+          "cv": 0.15151613107993847,
+          "min": 1643,
+          "max": 2725
+        },
+        "Line-aware Slotting": {
+          "n": 20,
+          "mean": 2097.65,
+          "stdev": 323.74750964293145,
+          "ci95_half_width": 151.51849855546376,
+          "ci95_low": 1946.1315014445363,
+          "ci95_high": 2249.168498555464,
+          "cv": 0.15433819256927106,
+          "min": 1643,
+          "max": 2750
         }
       },
-      "anova": null,
-      "tukey_hsd": null,
+      "anova": {
+        "F": 0.002954656043873021,
+        "p_value": 0.9999985503220062,
+        "k": 6,
+        "df_between": 5,
+        "df_within": 114
+      },
+      "tukey_hsd": [
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Baseline (Actual SAP)",
+          "mean_diff": -0.75,
+          "p_value": 0.9999999999969037,
+          "ci_low": -296.5106172751693,
+          "ci_high": 295.0106172751693,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": -0.09999999999990905,
+          "p_value": 0.9999999999999999,
+          "ci_low": -295.8606172751692,
+          "ci_high": 295.6606172751694,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Double ABC",
+          "mean_diff": 0.3000000000001819,
+          "p_value": 0.9999999999999682,
+          "ci_low": -295.4606172751691,
+          "ci_high": 296.0606172751695,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": 9.25,
+          "p_value": 0.9999991182733865,
+          "ci_low": -286.5106172751693,
+          "ci_high": 305.0106172751693,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Heuristic)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": -0.900000000000091,
+          "p_value": 0.9999999999922767,
+          "ci_low": -296.6606172751694,
+          "ci_high": 294.8606172751692,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Usage-based ABC",
+          "mean_diff": 0.650000000000091,
+          "p_value": 0.9999999999984861,
+          "ci_low": -295.1106172751692,
+          "ci_high": 296.4106172751694,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Double ABC",
+          "mean_diff": 1.050000000000182,
+          "p_value": 0.9999999999833039,
+          "ci_low": -294.7106172751691,
+          "ci_high": 296.8106172751695,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": 10.0,
+          "p_value": 0.9999986990031393,
+          "ci_low": -285.7606172751693,
+          "ci_high": 305.7606172751693,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Baseline (Actual SAP)",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": -0.15000000000009095,
+          "p_value": 0.999999999999999,
+          "ci_low": -295.9106172751694,
+          "ci_high": 295.6106172751692,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Double ABC",
+          "mean_diff": 0.40000000000009095,
+          "p_value": 0.9999999999998664,
+          "ci_low": -295.3606172751692,
+          "ci_high": 296.1606172751694,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": 9.349999999999909,
+          "p_value": 0.9999990696671182,
+          "ci_low": -286.4106172751694,
+          "ci_high": 305.1106172751692,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Usage-based ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": -0.8000000000001819,
+          "p_value": 0.9999999999957245,
+          "ci_low": -296.5606172751695,
+          "ci_high": 294.9606172751691,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Travel-distance Optimized",
+          "mean_diff": 8.949999999999818,
+          "p_value": 0.9999992520501622,
+          "ci_low": -286.8106172751695,
+          "ci_high": 304.7106172751691,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Double ABC",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": -1.2000000000002728,
+          "p_value": 0.9999999999674489,
+          "ci_low": -296.96061727516957,
+          "ci_high": 294.560617275169,
+          "significant_at_0.05": false
+        },
+        {
+          "policy_a": "Travel-distance Optimized",
+          "policy_b": "Line-aware Slotting",
+          "mean_diff": -10.150000000000091,
+          "p_value": 0.9999985986926698,
+          "ci_low": -305.9106172751694,
+          "ci_high": 285.6106172751692,
+          "significant_at_0.05": false
+        }
+      ],
       "welch_vs_baseline": [
         {
           "policy": "Baseline (Actual SAP)",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
+          "t": 0.007322855279379782,
+          "p_value": 0.9941955689426378,
+          "cohens_d": 0.0023156901658628764,
           "significant_at_0.05": false
         },
         {
           "policy": "Usage-based ABC",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
+          "t": 0.0009761334554578586,
+          "p_value": 0.9992262648667799,
+          "cohens_d": 0.00030868050195373523,
           "significant_at_0.05": false
         },
         {
           "policy": "Double ABC",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
+          "t": -0.002927885620783147,
+          "p_value": 0.997679205640805,
+          "cohens_d": -0.0009258787290130774,
           "significant_at_0.05": false
         },
         {
           "policy": "Travel-distance Optimized",
           "vs": "Baseline (Heuristic)",
-          "t": NaN,
-          "p_value": NaN,
-          "cohens_d": NaN,
+          "t": -0.09136542457971512,
+          "p_value": 0.9276824532236587,
+          "cohens_d": -0.028892284106023205,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "t": 0.008787889819736846,
+          "p_value": 0.9930343434807006,
+          "cohens_d": 0.0027789747656974955,
+          "significant_at_0.05": false
+        }
+      ],
+      "paired_t_vs_baseline": [
+        {
+          "policy": "Baseline (Actual SAP)",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 0.75,
+          "diff_ci95_low": -0.8197680408062316,
+          "diff_ci95_high": 2.3197680408062316,
+          "t": 1.0,
+          "p_value": 0.329876800921125,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Usage-based ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 0.1,
+          "diff_ci95_low": -0.10930240544083086,
+          "diff_ci95_high": 0.3093024054408309,
+          "t": 1.0000000000000002,
+          "p_value": 0.3298768009211249,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Double ABC",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -0.3,
+          "diff_ci95_low": -0.9279072163224926,
+          "diff_ci95_high": 0.3279072163224926,
+          "t": -1.0,
+          "p_value": 0.329876800921125,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Travel-distance Optimized",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": -9.25,
+          "diff_ci95_low": -19.174455464826025,
+          "diff_ci95_high": 0.6744554648260266,
+          "t": -1.9507843600985155,
+          "p_value": 0.06598898418065713,
+          "significant_at_0.05": false
+        },
+        {
+          "policy": "Line-aware Slotting",
+          "vs": "Baseline (Heuristic)",
+          "n_pairs": 20,
+          "mean_diff": 0.9,
+          "diff_ci95_low": -0.9837216489674777,
+          "diff_ci95_high": 2.783721648967478,
+          "t": 1.0,
+          "p_value": 0.329876800921125,
           "significant_at_0.05": false
         }
       ]
-    }
-  },
-  "paired_by_order": {
-    "Baseline (Actual SAP)": {
-      "walk_distance": {
-        "label": "walk distance (m)",
-        "direction": "lower",
-        "n_paired": 434,
-        "mean_diff": -6.851082949308756,
-        "median_diff": 0.0,
-        "wilcoxon_W": 37832.5,
-        "p_raw": 0.10305181135449738,
-        "p_holm": 0.8244144908359791,
-        "significant_at_0.05": false
-      },
-      "prep_time": {
-        "label": "prep time (min)",
-        "direction": "lower",
-        "n_paired": 434,
-        "mean_diff": -0.4206221198156682,
-        "median_diff": 0.004999999999999893,
-        "wilcoxon_W": 44117.0,
-        "p_raw": 0.34746462314924154,
-        "p_holm": 1.0,
-        "significant_at_0.05": false
-      },
-      "lead_time": {
-        "label": "lead time (min)",
-        "direction": "lower",
-        "n_paired": 434,
-        "mean_diff": -0.4206221198156682,
-        "median_diff": 0.004999999999999893,
-        "wilcoxon_W": 44117.0,
-        "p_raw": 0.34746462314924154,
-        "p_holm": 1.0,
-        "significant_at_0.05": false
-      }
-    },
-    "Usage-based ABC": {
-      "walk_distance": {
-        "label": "walk distance (m)",
-        "direction": "lower",
-        "n_paired": 434,
-        "mean_diff": -1.859723502304148,
-        "median_diff": 0.0,
-        "wilcoxon_W": 39865.0,
-        "p_raw": 0.784814958765871,
-        "p_holm": 1.0,
-        "significant_at_0.05": false
-      },
-      "prep_time": {
-        "label": "prep time (min)",
-        "direction": "lower",
-        "n_paired": 434,
-        "mean_diff": -0.08311059907834105,
-        "median_diff": -0.020000000000000018,
-        "wilcoxon_W": 46928.0,
-        "p_raw": 0.983924013940372,
-        "p_holm": 1.0,
-        "significant_at_0.05": false
-      },
-      "lead_time": {
-        "label": "lead time (min)",
-        "direction": "lower",
-        "n_paired": 434,
-        "mean_diff": -0.08311059907834105,
-        "median_diff": -0.020000000000000018,
-        "wilcoxon_W": 46928.0,
-        "p_raw": 0.983924013940372,
-        "p_holm": 1.0,
-        "significant_at_0.05": false
-      }
-    },
-    "Double ABC": {
-      "walk_distance": {
-        "label": "walk distance (m)",
-        "direction": "lower",
-        "n_paired": 434,
-        "mean_diff": 12.132350230414746,
-        "median_diff": 7.770000000000003,
-        "wilcoxon_W": 33962.5,
-        "p_raw": 0.0011380506178302518,
-        "p_holm": 0.010925141814154283,
-        "significant_at_0.05": true
-      },
-      "prep_time": {
-        "label": "prep time (min)",
-        "direction": "lower",
-        "n_paired": 434,
-        "mean_diff": 0.8804377880184331,
-        "median_diff": 0.44500000000000006,
-        "wilcoxon_W": 38402.0,
-        "p_raw": 0.000993194710377662,
-        "p_holm": 0.010925141814154283,
-        "significant_at_0.05": true
-      },
-      "lead_time": {
-        "label": "lead time (min)",
-        "direction": "lower",
-        "n_paired": 434,
-        "mean_diff": 0.8804377880184331,
-        "median_diff": 0.44500000000000006,
-        "wilcoxon_W": 38402.0,
-        "p_raw": 0.000993194710377662,
-        "p_holm": 0.010925141814154283,
-        "significant_at_0.05": true
-      }
-    },
-    "Travel-distance Optimized": {
-      "walk_distance": {
-        "label": "walk distance (m)",
-        "direction": "lower",
-        "n_paired": 434,
-        "mean_diff": -17.214631336405528,
-        "median_diff": -11.849999999999998,
-        "wilcoxon_W": 31061.0,
-        "p_raw": 1.053489982571659e-06,
-        "p_holm": 1.2641879790859908e-05,
-        "significant_at_0.05": true
-      },
-      "prep_time": {
-        "label": "prep time (min)",
-        "direction": "lower",
-        "n_paired": 434,
-        "mean_diff": 0.8778341013824885,
-        "median_diff": 0.020000000000000018,
-        "wilcoxon_W": 42873.5,
-        "p_raw": 0.13403866445514764,
-        "p_holm": 0.9382706511860335,
-        "significant_at_0.05": false
-      },
-      "lead_time": {
-        "label": "lead time (min)",
-        "direction": "lower",
-        "n_paired": 434,
-        "mean_diff": 0.8778341013824885,
-        "median_diff": 0.020000000000000018,
-        "wilcoxon_W": 42873.5,
-        "p_raw": 0.13403866445514764,
-        "p_holm": 0.9382706511860335,
-        "significant_at_0.05": false
-      }
     }
   }
 }

@@ -1,14 +1,24 @@
 {
+  "status": "WARN",
   "expected_source": "ZWM92 actuals (real per-bin dispatch counts)",
   "static_sanity": {
     "status": "WARN",
     "issues": [],
     "warnings": [
       "9 decoded SAP bins do not map to a layout slot",
+      "31 decoded SAP bins use a bay position that does not exist in config/layout.json; see output/bin_validation_errors.csv",
       "412 storage-bin strings are malformed/non-rack"
     ],
     "pdf_capacity": 3203,
-    "modelled_positions": 3137
+    "modelled_positions": 3137,
+    "preprocess_stats": {
+      "materials_with_bin": 3804,
+      "materials_with_decoded_bin": 750,
+      "decoded_bin_slots_total": 802,
+      "bins_unmapped_position": 9,
+      "bins_invalid_position": 31,
+      "bin_validation_errors": 40
+    }
   },
   "assignment_sanity": {
     "status": "PASS",
@@ -22,6 +32,14 @@
     "issues": [],
     "sample_size": 10
   },
+  "sap_fidelity": {
+    "sap_materials_placed": 750,
+    "sap_slots_assigned": 750,
+    "kardex_materials_routed": 2872,
+    "heuristic_fallback_materials": 2319,
+    "bin_validation_errors": 40
+  },
+  "status_warnings": [],
   "route_model": {
     "status": "WARN",
     "issues_count": 0,
@@ -35,7 +53,7 @@
       "decorations are exported as visual_only_zones and do not affect KPIs unless promoted to blocked_zones in layout.json."
     ]
   },
-  "sim_days": 0.5,
+  "sim_days": 2.0,
   "full_sim_days": 5,
   "chi_square_per_rack_restricted": {
     "racks": [
@@ -48,51 +66,77 @@
       "G",
       "H",
       "I",
-      "J",
-      "U"
+      "J"
     ],
     "observed": [
-      6.0,
-      0.0,
-      2.0,
-      2.0,
-      15.0,
-      2.0,
-      2.0,
-      1.0,
-      0.0,
+      115.0,
+      35.0,
+      21.0,
+      152.0,
+      242.0,
+      31.0,
+      188.0,
+      43.0,
       0.0,
       0.0
     ],
     "expected": [
-      1.92,
-      1.24,
-      1.88,
-      4.51,
-      9.93,
-      2.6,
-      4.86,
-      2.21,
-      0.24,
-      0.36,
-      0.24
+      110.31,
+      32.44,
+      10.46,
+      143.37,
+      298.45,
+      73.19,
+      126.03,
+      32.7,
+      0.01,
+      0.04
     ],
-    "chi_square": 17.216970830119696,
-    "p_value": 0.06969873218461152,
-    "dof": 10,
+    "chi_square": 80.3270111080976,
+    "p_value": 1.391578080565429e-13,
+    "cramers_v": 0.1039,
+    "dof": 9,
     "cochran_low_cells": [
-      "A",
-      "B",
-      "C",
-      "D",
-      "F",
-      "G",
-      "H",
       "I",
-      "J",
-      "U"
+      "J"
     ],
-    "cochran_warning": "Cochran's rule violated: 10 of 11 cells have expected count < 5 \u2014 [('A', 1.92), ('B', 1.24), ('C', 1.88), ('D', 4.51), ('F', 2.6), ('G', 4.86), ('H', 2.21), ('I', 0.24), ('J', 0.36), ('U', 0.24)]. Chi-square p-value is approximate; consider Fisher's exact or pooling low cells."
+    "cochran_warning": "Cochran's rule violated: 2 of 10 cells have expected count < 5 \u2014 [('I', 0.01), ('J', 0.04)]. Unpooled p-value is approximate; the POOLED test below is the headline number.",
+    "pooled": {
+      "racks": [
+        "A",
+        "B",
+        "C+OTHER",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "observed": [
+        115.0,
+        35.0,
+        21.0,
+        152.0,
+        242.0,
+        31.0,
+        188.0,
+        43.0
+      ],
+      "expected": [
+        110.31,
+        32.44,
+        10.51,
+        143.37,
+        298.45,
+        73.19,
+        126.03,
+        32.7
+      ],
+      "chi_square": 80.11686361678191,
+      "p_value": 1.303948480311727e-14,
+      "dof": 7,
+      "cochran_satisfied": true
+    }
   },
   "chi_square_per_rack_all_sim_picks": {
     "racks": [
@@ -109,54 +153,128 @@
       "U"
     ],
     "observed": [
-      10,
-      8,
-      12,
-      5,
-      20,
-      4,
-      6,
-      11,
-      4,
-      6,
-      3
+      132,
+      97,
+      64,
+      167,
+      271,
+      94,
+      227,
+      96,
+      62,
+      77,
+      22
     ],
     "expected": [
-      5.7,
-      3.67,
-      5.58,
-      13.37,
-      29.46,
-      7.7,
-      14.43,
-      6.57,
-      0.72,
-      1.08,
-      0.72
+      83.89,
+      53.98,
+      82.01,
+      196.67,
+      433.24,
+      113.25,
+      212.25,
+      96.57,
+      10.6,
+      15.91,
+      10.64
     ],
-    "chi_square": 78.17059066756464,
-    "p_value": 1.1451830929194276e-12,
+    "chi_square": 631.2974914388182,
+    "p_value": 3.4483985868234887e-129,
+    "cramers_v": 0.2196,
     "dof": 10,
-    "cochran_low_cells": [
-      "B",
-      "I",
-      "J",
-      "U"
-    ],
-    "cochran_warning": "Cochran's rule violated: 4 of 11 cells have expected count < 5 \u2014 [('B', 3.67), ('I', 0.72), ('J', 1.08), ('U', 0.72)]. Chi-square p-value is approximate; consider Fisher's exact or pooling low cells."
+    "cochran_low_cells": [],
+    "cochran_warning": null,
+    "pooled": null
   },
   "t_test_per_material": {
-    "n_materials_paired": 132,
-    "t_statistic": 1.7758479312306679,
-    "p_value": 0.07807970855331771,
-    "mean_log_diff": 0.19588807367346212
+    "n_materials_paired": 770,
+    "t_statistic": -8.519983840462976,
+    "p_value": 8.368677498573448e-17,
+    "mean_log_diff": -0.27939995007180257
+  },
+  "daily_volume_check": {
+    "status": "INFO",
+    "sim_orders_per_day": 267.0,
+    "zwm92_orders_per_active_day": 396.2,
+    "relative_error": -0.326,
+    "note": "Single short-run estimate \u2014 informational only; the replication-CI check is the rigorous volume gate."
+  },
+  "replication_ci_check": {
+    "status": "PASS",
+    "zwm92_orders_per_active_day": 396.2,
+    "per_policy": {
+      "Baseline (Heuristic)": {
+        "n": 20,
+        "throughput_mean": 430.1,
+        "throughput_ci95": [
+          399.0,
+          461.2
+        ],
+        "arrivals_per_day_mean": 430.9,
+        "volume_vs_zwm92_rel_err": 0.0877
+      },
+      "Baseline (Actual SAP)": {
+        "n": 20,
+        "throughput_mean": 430.3,
+        "throughput_ci95": [
+          399.2,
+          461.3
+        ],
+        "arrivals_per_day_mean": 430.9,
+        "volume_vs_zwm92_rel_err": 0.0877
+      },
+      "Usage-based ABC": {
+        "n": 20,
+        "throughput_mean": 430.1,
+        "throughput_ci95": [
+          399.0,
+          461.2
+        ],
+        "arrivals_per_day_mean": 430.9,
+        "volume_vs_zwm92_rel_err": 0.0877
+      },
+      "Double ABC": {
+        "n": 20,
+        "throughput_mean": 430.0,
+        "throughput_ci95": [
+          398.9,
+          461.2
+        ],
+        "arrivals_per_day_mean": 430.9,
+        "volume_vs_zwm92_rel_err": 0.0877
+      },
+      "Travel-distance Optimized": {
+        "n": 20,
+        "throughput_mean": 428.2,
+        "throughput_ci95": [
+          397.8,
+          458.6
+        ],
+        "arrivals_per_day_mean": 430.9,
+        "volume_vs_zwm92_rel_err": 0.0877
+      },
+      "Line-aware Slotting": {
+        "n": 20,
+        "throughput_mean": 430.3,
+        "throughput_ci95": [
+          399.2,
+          461.4
+        ],
+        "arrivals_per_day_mean": 430.9,
+        "volume_vs_zwm92_rel_err": 0.0877
+      }
+    },
+    "headline": "Baseline (Actual SAP): simulated arrivals/day within 8.8% of ZWM92 actual (396)"
   },
   "notes": [
     "Expected rack distribution source: ZWM92 actuals (real per-bin dispatch counts).",
-    "Chi-square (restricted): simulation pick distribution is restricted to materials that have a decoded SAP bin (apples-to-apples vs. expected). H0 = same shape.",
+    "Chi-square (restricted): simulation pick distribution is restricted to materials that have a decoded SAP bin, and (2026-06-10 scope fix) the EXPECTED vector is built from the same decoded-material subset \u2014 each decoded material contributes its real ZWM92 pick count at its ozet rack. H0 = same shape. The pre-fix expected used ALL ZWM92 materials, which inflated expected counts at racks whose decoded materials are dead stock (I/J/U: 97-100% zero-pick over the 4-month log) \u2014 a scope mismatch, not model error.",
+    "KDX fidelity note: 329 materials dispatched from KDX in ZWM92 are missing from the ozet kardex set, but only 1 of them is in the active master (8 pick rows, ~0% of volume) \u2014 negligible for the sim; disclosed for completeness.",
     "Chi-square (all sim picks): biased because the simulation places ~5600 materials without a SAP bin via fallback, shifting the rack distribution away from SAP \u2014 kept for completeness but the restricted test is the headline number.",
     "T-test runs on log(daily picks + 1e-3) over materials common to both sim and expected; H0 = same mean.",
     "ZWM92 (167,784 rows, 2026-01-02 to 2026-05-18, 9 product families) closes the prior validation gap \u2014 we now compare against real per-rack dispatch counts, not a consumption proxy.",
-    "Default src.validate uses a short validation sim sample so the command stays interactive; run python -m src.validate --full-sim for the configured full-horizon statistical validation."
+    "Default src.validate uses a short validation sim sample so the command stays interactive; run python -m src.validate --full-sim for the configured full-horizon statistical validation.",
+    "SCOPE LIMIT (honesty): the chi-square/t-test 'expected' vectors come from the same ZWM92 dataset the driver distributions were fitted on \u2014 these are internal-consistency checks, not holdout validation (no second observation period exists). Independent evidence: F400 video timing (separate source), daily-volume calibration, and face validation of routes/layout.",
+    "daily_volume_check / replication_ci_check (2026-06-09): the batch-arrival driver must reproduce the real daily kit-order volume (~396/day); the replication check puts a 95% CI around simulated throughput across the N>=20 independent-seed runs."
   ]
 }
