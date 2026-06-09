@@ -36,12 +36,16 @@ from scipy import stats
 # KPIs we report on. Each entry: key in the per-rep dict + a direction
 # ("lower" or "higher" is better) for the verdict text.
 METRICS = [
+    # The four advisor acceptance-criteria KPIs first.
+    ("avg_lead_time",          "lower",  "Avg kitting lead time (min/order)"),
+    ("avg_total_wait",         "lower",  "Avg waiting time (op+RT queue, min)"),
+    ("reach_truck_utilization","higher", "RT utilization"),
+    ("throughput_orders_per_day", "higher", "Throughput (kit-orders/day)"),
+    # Supporting metrics.
     ("avg_prep_time",          "lower",  "Avg prep time (min/order)"),
-    ("avg_lead_time",          "lower",  "Avg lead time (min/order)"),
     ("avg_op_queue_wait",      "lower",  "Avg operator-queue wait (min)"),
     ("avg_walk_distance",      "lower",  "Avg walk distance (m/order)"),
     ("total_walk_distance",    "lower",  "Total walk distance (m)"),
-    ("reach_truck_utilization","higher", "RT utilization"),
     ("operator_utilization",   "higher", "Operator utilization"),
     ("orders_completed",       "higher", "Orders completed"),
 ]
@@ -50,7 +54,14 @@ BASELINE_POLICY = "Baseline (Heuristic)"
 
 
 def _by_policy(reps: dict, key: str) -> dict[str, list[float]]:
-    return {pol: [r[key] for r in rs] for pol, rs in reps.items()}
+    # .get() — older replications.json files may predate newly added KPIs.
+    out = {}
+    for pol, rs in reps.items():
+        vals = [r.get(key) for r in rs]
+        vals = [v for v in vals if v is not None]
+        if vals:
+            out[pol] = vals
+    return out
 
 
 def _mean_ci(values: list[float], alpha: float = 0.05) -> tuple[float, float, float, float]:
@@ -90,7 +101,9 @@ def _cv(values: list[float]) -> float:
 
 
 def _anova(groups: list[list[float]]):
-    if any(len(g) < 2 for g in groups):
+    # len(groups) < 2 guard: an empty/singleton group list (e.g. a stale
+    # replications.json lacking a new METRICS key) must not reach f_oneway.
+    if len(groups) < 2 or any(len(g) < 2 for g in groups):
         return None
     f, p = stats.f_oneway(*groups)
     return {"F": float(f), "p_value": float(p), "k": len(groups),
@@ -140,7 +153,44 @@ def _welch_vs_baseline(groups: dict[str, list[float]]):
     return out
 
 
+def _paired_t_vs_baseline(groups: dict[str, list[float]]):
+    """Paired t-test by replication index (CRN design: rep i uses the same
+    seed — and therefore the same arrival trajectory — for every policy, so
+    pairing by rep removes the demand-side variance from the comparison).
+    This is the Python twin of the team's Minitab paired before/after test
+    on kpi_by_replication.csv."""
+    if BASELINE_POLICY not in groups:
+        return None
+    base = groups[BASELINE_POLICY]
+    out = []
+    for pol, vals in groups.items():
+        if pol == BASELINE_POLICY:
+            continue
+        n = min(len(vals), len(base))
+        if n < 2:
+            continue
+        diffs = [vals[i] - base[i] for i in range(n)]
+        if all(d == 0 for d in diffs):
+            continue
+        t, p = stats.ttest_rel(vals[:n], base[:n])
+        mean_d, h, lo, hi = _mean_ci(diffs)
+        out.append({
+            "policy": pol,
+            "vs": BASELINE_POLICY,
+            "n_pairs": n,
+            "mean_diff": mean_d,
+            "diff_ci95_low": lo,
+            "diff_ci95_high": hi,
+            "t": float(t),
+            "p_value": float(p),
+            "significant_at_0.05": bool(p < 0.05),
+        })
+    return out or None
+
+
 def _winner(groups: dict[str, list[float]], direction: str) -> str:
+    if not groups:
+        return "n/a"
     means = {p: statistics.fmean(v) for p, v in groups.items()}
     if direction == "lower":
         return min(means, key=means.get)
@@ -152,6 +202,10 @@ def analyze(reps: dict) -> dict:
               "metrics": {}}
     for key, direction, label in METRICS:
         groups = _by_policy(reps, key)
+        if not groups:
+            # Stale replications.json predating this metric — skip cleanly.
+            print(f"  [analyze] metric '{key}' absent from replications data; skipped")
+            continue
         policies = list(groups.keys())
         glist = [groups[p] for p in policies]
 
@@ -178,6 +232,7 @@ def analyze(reps: dict) -> dict:
             "anova": _anova(glist),
             "tukey_hsd": _tukey(glist, policies),
             "welch_vs_baseline": _welch_vs_baseline(groups),
+            "paired_t_vs_baseline": _paired_t_vs_baseline(groups),
         }
     return report
 
@@ -236,6 +291,15 @@ def write_text_report(report: dict, path: str) -> None:
                     f"   {marker} {w['policy']:30s}  t={_fmt(w['t'])}  "
                     f"p={_fmt(w['p_value'], '.4f')}  d={_fmt(w['cohens_d'])}"
                 )
+        if block.get("paired_t_vs_baseline"):
+            lines.append("\n  Paired t-test vs baseline (paired by replication — CRN seeds):")
+            for w in block["paired_t_vs_baseline"]:
+                marker = "*" if w["significant_at_0.05"] else " "
+                lines.append(
+                    f"   {marker} {w['policy']:30s}  mean_diff={_fmt(w['mean_diff']):>10s}  "
+                    f"95% CI [{_fmt(w['diff_ci95_low'])}, {_fmt(w['diff_ci95_high'])}]  "
+                    f"t={_fmt(w['t'])}  p={_fmt(w['p_value'], '.4f')}  (n={w['n_pairs']})"
+                )
         lines.append("")
     if "paired_by_order" in report:
         lines.append("--- Paired-by-order Wilcoxon tests vs Baseline (Heuristic)")
@@ -259,9 +323,11 @@ def write_text_report(report: dict, path: str) -> None:
                 )
             lines.append("")
     lines.append("Notes:")
-    lines.append("  - ANOVA / Tukey / Welch require N_REPLICATIONS >= 2; with same-seed")
-    lines.append("    single-trajectory runs (advisor's setup) they are not applicable —")
-    lines.append("    use the paired-by-order Wilcoxon block above instead.")
+    lines.append("  - Replications use independent seeds with common random numbers")
+    lines.append("    across policies (seed depends only on the rep index), so the")
+    lines.append("    paired-by-replication t-test is the primary policy comparison.")
+    lines.append("  - ANOVA / Tukey / Welch require N_REPLICATIONS >= 2; the legacy")
+    lines.append("    paired-by-order Wilcoxon block is kept for N=1 sanity runs.")
     lines.append("  - ANOVA tests whether at least one policy mean differs from the rest.")
     lines.append("  - Tukey HSD controls family-wise error across all policy pairs.")
     lines.append("  - Welch t-test does not assume equal variances; pairs each non-")

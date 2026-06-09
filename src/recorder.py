@@ -58,7 +58,8 @@ class TimelineRecorder:
         self._meta = {
             "type": "header",
             "policy": policy_name,
-            "schema_version": "1.0",
+            "schema_version": "1.1",
+            "coord_system": "layout_m",
             "wall_clock_started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "config": {
                 "NUM_REACH_TRUCKS": int(getattr(config, "NUM_REACH_TRUCKS", 0)),
@@ -111,9 +112,11 @@ class TimelineRecorder:
 
     def op_move(self, t: float, order_id: int, op_id: int,
                 from_xy: tuple[float, float], to_xy: tuple[float, float],
-                dist_m: float, path=None) -> None:
+                dist_m: float, path=None, start_t: float | None = None) -> None:
         payload = {"type": "op_move", "order_id": int(order_id),
                    "op_id": int(op_id),
+                   "t_start": round(float(start_t if start_t is not None else t), 4),
+                   "t_end": round(float(t), 4),
                    "from": [round(from_xy[0], 3), round(from_xy[1], 3)],
                    "to":   [round(to_xy[0], 3),   round(to_xy[1], 3)],
                    "dist_m": round(float(dist_m), 3)}
@@ -122,10 +125,26 @@ class TimelineRecorder:
         self._emit(t, payload)
 
     def rt_dispatch(self, t: float, order_id: int, rt_id: int, pos_id: str,
-                    queue_wait_min: float, path=None) -> None:
+                    queue_wait_min: float, path=None,
+                    travel_time_min: float | None = None,
+                    service_time_min: float | None = None,
+                    return_time_min: float | None = None) -> None:
         payload = {"type": "rt_dispatch", "order_id": int(order_id),
                    "rt_id": int(rt_id), "pos_id": str(pos_id),
-                   "queue_wait_min": round(float(queue_wait_min), 4)}
+                   "queue_wait_min": round(float(queue_wait_min), 4),
+                   "t_start": round(float(t), 4)}
+        if travel_time_min is not None:
+            payload["travel_time_min"] = round(float(travel_time_min), 4)
+            payload["t_arrive"] = round(float(t + travel_time_min), 4)
+        if service_time_min is not None:
+            payload["service_time_min"] = round(float(service_time_min), 4)
+        if travel_time_min is not None or service_time_min is not None:
+            payload["t_end"] = round(float(t + (travel_time_min or 0.0) + (service_time_min or 0.0)), 4)
+        if return_time_min is not None:
+            # Depot return leg (truck unavailable until t_home).
+            payload["return_time_min"] = round(float(return_time_min), 4)
+            if "t_end" in payload:
+                payload["t_home"] = round(payload["t_end"] + float(return_time_min), 4)
         if path:
             payload["path"] = [[round(p[0], 3), round(p[1], 3)] for p in path]
         self._emit(t, payload)
@@ -170,10 +189,13 @@ class TimelineRecorder:
         else:
             avg_walk = 0.0
             avg_lead = 0.0
-        rt_busy = getattr(kpi, "_rt_busy", 0.0)
-        op_busy = getattr(kpi, "_op_busy", 0.0)
-        rt_util = (rt_busy / (t * max(1, getattr(kpi, "_n_rt", 7)))) * 100 if t > 0 else 0.0
-        op_util = (op_busy / (t * max(1, getattr(kpi, "_n_op", 8)))) * 100 if t > 0 else 0.0
+        from src import config  # local import keeps recorder standalone
+        rt_busy = getattr(kpi, "_rt_busy_time", 0.0)
+        op_busy = getattr(kpi, "_op_busy_time", 0.0)
+        rt_cap = t * max(1, int(getattr(config, "NUM_REACH_TRUCKS", 7)))
+        op_cap = t * max(1, int(getattr(config, "NUM_OPERATORS", 8)))
+        rt_util = (rt_busy / rt_cap) * 100 if rt_cap > 0 else 0.0
+        op_util = (op_busy / op_cap) * 100 if op_cap > 0 else 0.0
         self._emit(t, {"type": "kpi_snapshot", "orders": int(orders),
                        "avg_walk": round(avg_walk, 3),
                        "avg_lead": round(avg_lead, 4),

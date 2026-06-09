@@ -97,8 +97,10 @@ KPI_KEYS = [
     ("reach_truck_utilization", "RT utilization",     "higher"),
 ]
 
-# Reps per sensitivity run. Lower than the headline N=30 to stay tractable
-# (we run 1 + 2*len(INPUTS) configs = 17 configs).
+# Reps per sensitivity run. Lower than the headline N=20 to stay tractable
+# (we run 1 + 2*len(INPUTS) configs = 17 configs). Seeds are independent
+# per rep (config.SAME_SEED_FOR_ALL_REPS=False), so the 5 reps produce
+# real variance — before 2026-06-09 they were 5 identical same-seed runs.
 N_SENS_REPS = 5
 
 

@@ -58,28 +58,38 @@ def serve(port: int) -> ThreadingHTTPServer:
     return httpd
 
 
-def open_window(url: str, title: str = "SE Manisa Ambar — Sim v2") -> None:
-    """Open a native window via PyWebView; fall back to the default browser.
+def open_window(url: str, title: str = "SE Manisa Ambar — Sim v2",
+                allow_browser_fallback: bool = False) -> None:
+    """Open a native window via PyWebView, forcing the Qt (PyQt6-WebEngine)
+    backend.
 
-    Catches a broad Exception because pywebview's backend selection (gtk / qt /
-    cocoa / cef) can fail at runtime even when the package imports cleanly —
-    e.g. missing system libgtk-3 or PyQt6-WebEngine. In every failure mode we
-    still want the user to land on the dashboard, just in a browser tab.
+    By default this does NOT fall back to the system browser: if the native
+    window cannot start we raise loudly so the problem is fixed rather than
+    silently masked by a Firefox tab. Pass ``allow_browser_fallback=True``
+    (CLI: ``--allow-browser-fallback``) to restore the old soft-fail.
     """
     try:
         import webview  # type: ignore
     except ImportError:
-        print(f"[launcher] pywebview not installed — opening browser at {url}")
-        _browser_fallback(url)
-        return
+        msg = ("pywebview not installed — run: "
+               "pip install pywebview qtpy PyQt6 PyQt6-WebEngine")
+        if allow_browser_fallback:
+            print(f"[launcher] {msg}\n[launcher] Opening browser at {url}")
+            _browser_fallback(url)
+            return
+        raise SystemExit(f"[launcher] {msg}")
     try:
         webview.create_window(title, url, width=1480, height=920,
                               min_size=(1100, 720))
-        webview.start()
+        # Force the Qt backend (PyQt6-WebEngine) — never auto-pick gtk/cef.
+        webview.start(gui="qt")
     except Exception as exc:  # pragma: no cover — backend-specific
-        print(f"[launcher] pywebview backend failed ({type(exc).__name__}: {exc})")
-        print(f"[launcher] Falling back to system browser at {url}")
-        _browser_fallback(url)
+        if allow_browser_fallback:
+            print(f"[launcher] Qt backend failed ({type(exc).__name__}: {exc})")
+            print(f"[launcher] Falling back to system browser at {url}")
+            _browser_fallback(url)
+            return
+        raise
 
 
 def _browser_fallback(url: str) -> None:
@@ -98,6 +108,9 @@ def main() -> int:
                     help="Just serve; do not open a window or browser.")
     ap.add_argument("--page", default="web/sim_v2.html",
                     help="Initial page (relative to repo root).")
+    ap.add_argument("--allow-browser-fallback", action="store_true",
+                    help="If the native Qt window fails, open the system "
+                         "browser instead of erroring out.")
     args = ap.parse_args()
 
     port = _find_free_port(args.port)
@@ -111,7 +124,7 @@ def main() -> int:
             httpd.shutdown()
             return 0
     else:
-        open_window(url)
+        open_window(url, allow_browser_fallback=args.allow_browser_fallback)
     httpd.shutdown()
     return 0
 
