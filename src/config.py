@@ -31,7 +31,7 @@ NUM_MILKRUN_TRAINS = 7
 # (output/timing_study_f400.json, src/timing_study.py). 2,319 micro-events
 # observed across 296.6 min of footage. F400 is the largest line (~48k
 # goods-issues in ZWM92); these constants are extrapolated to all lines
-# until per-line studies exist — see ASSUMPTIONS.md §18.
+# until per-line studies exist — see ASSUMPTIONS.md §19.
 OPERATOR_WALK_SPEED_M_PER_MIN = 50.0       # book value (no video pace data)
 REACH_TRUCK_SPEED_M_PER_MIN = 100.0        # book value
 REACH_TRUCK_LIFT_TIME_PER_LEVEL = 0.25     # book value (no RT lift footage)

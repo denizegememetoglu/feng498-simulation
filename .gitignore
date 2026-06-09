@@ -42,3 +42,7 @@ NEXT_SESSION_PROMPT.md
 # Time-motion video study (large, not for repo)
 /data/F400 Kit Cansu Nehir.xlsx
 /data/F400*.xlsx
+
+# Real warehouse photos — local demo only, never push
+web/photos/
+docs/photos/

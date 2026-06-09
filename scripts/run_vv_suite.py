@@ -302,31 +302,54 @@ def vv5_operational_validity(bundle: Path):
     ax2.set_axis_off()
     if val_p.exists():
         v = json.loads(val_p.read_text())
-        pt = v.get("paired_t_test", {})
+        pt = v.get("t_test_per_material", {}) or {}
         if pt:
-            ax2.text(0.05, 0.85, f"Paired t (avg walk per rack):\n"
+            ax2.text(0.05, 0.85, f"Paired t (log daily picks per material):\n"
                      f"   t = {pt.get('t_statistic', 0):.3f}, "
-                     f"p = {pt.get('p_value', 0):.2e}",
+                     f"p = {pt.get('p_value', 0):.2e}, "
+                     f"n = {pt.get('n_materials_paired', '?')}",
                      fontsize=11, transform=ax2.transAxes)
-        cw = v.get("chi_square_per_rack_restricted", {}).get("cochran_warning")
+        chi = v.get("chi_square_per_rack_restricted", {}) or {}
+        cv = chi.get("cramers_v")
+        pooled = chi.get("pooled") or {}
+        if cv is not None:
+            ax2.text(0.05, 0.62,
+                     f"Restricted chi2 = {chi.get('chi_square', 0):.1f} "
+                     f"(Cramer's V = {cv:.3f} — "
+                     f"{'small' if cv < 0.3 else 'medium'} effect); "
+                     f"pooled (Cochran {'OK' if pooled.get('cochran_satisfied') else 'violated'}): "
+                     f"chi2 = {pooled.get('chi_square', float('nan')):.1f}",
+                     fontsize=10, transform=ax2.transAxes)
+        rc = v.get("replication_ci_check", {}) or {}
+        if rc.get("status"):
+            ax2.text(0.05, 0.40, f"Replication volume calibration: {rc['status']} — "
+                     f"{rc.get('headline', '')}", fontsize=9, transform=ax2.transAxes)
+        cw = chi.get("cochran_warning")
         if cw:
-            ax2.text(0.05, 0.6, "Cochran's rule: " + cw, fontsize=9, color="#f87171",
-                     wrap=True, transform=ax2.transAxes)
+            ax2.text(0.05, 0.18, "Unpooled Cochran note: " + cw[:110], fontsize=8,
+                     color="#f87171", wrap=True, transform=ax2.transAxes)
 
     ax3 = fig.add_subplot(3, 1, 3)
     if stats_p.exists():
-        s = json.loads(stats_p.read_text())
-        wilc = s.get("wilcoxon_paired_by_order", {})
-        if wilc:
-            keys = list(wilc.keys())[:12]
-            pvals = [wilc[k].get("p_holm", wilc[k].get("p_value", 1)) for k in keys]
+        sj = json.loads(stats_p.read_text())
+        metrics = sj.get("metrics", {}) or {}
+        # CRN paired-by-replication t-tests vs the Heuristic control —
+        # the N>=20 successor of the old N=1 Wilcoxon panel.
+        labels, pvals = [], []
+        for key in ("avg_lead_time", "avg_total_wait",
+                    "reach_truck_utilization", "throughput_orders_per_day"):
+            for w in (metrics.get(key, {}) or {}).get("paired_t_vs_baseline") or []:
+                labels.append(f"{key[:14]} · {w['policy'].replace('Baseline ', '')[:18]}")
+                pvals.append(max(w.get("p_value", 1.0), 1e-12))
+        if labels:
             colors = ["#4ade80" if p < 0.05 else "#94a3b8" for p in pvals]
-            ax3.barh(range(len(keys)), pvals, color=colors)
-            ax3.set_yticks(range(len(keys)))
-            ax3.set_yticklabels(keys, fontsize=7)
+            ax3.barh(range(len(labels)), pvals, color=colors)
+            ax3.set_yticks(range(len(labels)))
+            ax3.set_yticklabels(labels, fontsize=6)
+            ax3.set_xscale("log")
             ax3.axvline(0.05, color="#f87171", lw=1, ls="--")
-            ax3.set_title("Holm-corrected paired Wilcoxon (12-test family)")
-            ax3.set_xlabel("p_holm")
+            ax3.set_title("CRN paired-by-replication t-tests vs Heuristic (N=20)")
+            ax3.set_xlabel("p (log scale)")
     fig.tight_layout(rect=[0, 0, 1, 0.96])
     fig.savefig(bundle / "VV5_operational_validity.pdf")
     plt.close(fig)
@@ -359,7 +382,7 @@ def vv7_cross_validation(bundle: Path):
 
 
 def vv8_replication_variance(bundle: Path):
-    """Use replications.json if present; otherwise note N=1 same-seed setup."""
+    """Use replications.json if present; report per-policy variance across the N=20 CRN replications."""
     rep_p = OUTPUT / "replications.json"
     if not rep_p.exists():
         rec = {"status": "warn", "note": "replications.json missing. Run src.main first, preferably with --n-reps 30 for variance analysis."}
@@ -468,13 +491,13 @@ def vv11_assumptions(bundle: Path):
     ax = fig.add_subplot(2, 1, 1)
     ax.set_axis_off()
     bullets = [
-        "Shapiro-Wilk: requires N>1; current N=1 same-seed disables the test.",
+        "Shapiro-Wilk: applicable at N=20 — per-policy KPI distributions across replications.",
         "  → For N=30 branch, walk-distance distributions across replications are checked.",
         "Durbin-Watson: order-by-order autocorrelation of walk_m residuals.",
         "  → Paired-by-order Wilcoxon (used in src/analyze.py) is rank-based and",
         "     robust to autocorrelation in the differences.",
         "Levene: equal-variance test across policies (used in Welch ANOVA fallback).",
-        "  → Collapses under same-seed; documented as a limitation in ASSUMPTIONS.md §23.",
+        "  → N=20 CRN replications (ASSUMPTIONS.md §24.2) — replication-based inference active.",
     ]
     for i, b in enumerate(bullets):
         ax.text(0.05, 0.95 - i * 0.10, b, fontsize=10, transform=ax.transAxes)

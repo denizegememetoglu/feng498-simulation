@@ -177,13 +177,25 @@ def main():
         bold=True,
     )
     bullets = [
-        "Inter-arrival ~ Exponential(mean = 4.8 min) — fitted on consecutive ZWM92 timestamps.",
-        "Items per order ~ Empirical (observed kit-BOM sizes, clipped at 50 to suppress bulk-issue SAP qty outliers).",
-        "Production line ~ Categorical(line_weights from ZWM92).",
+        "BATCH arrivals (2026-06-09 redesign): ZWM92 kit-orders are released in "
+        "same-timestamp dispatch bursts (3,885 batches, mean 4.68 kits/batch). "
+        "Inter-batch gap ~ Empirical (within-shift positive gaps; mean 5.36 min, "
+        "CV 2.04 — the heavy tail rules out the Exponential); batch size ~ "
+        "Empirical (same-timestamp run lengths). The driver reproduces the real "
+        "daily volume of ~396 kit-orders per working day (checked every run by "
+        "validate.py's daily-volume and replication-CI calibration gates).",
+        "Items per order ~ Empirical (observed distinct-materials-per-kit, clipped at 50 to suppress bulk-issue SAP qty outliers).",
+        "Production line ~ Categorical, sampled once per batch (99.9% of observed multi-kit batches are single-line).",
         "Material conditional on line ~ Categorical(per-line pick frequencies).",
-        "Operator / RT / Kardex pick times ~ Lognormal with means from §4 and σ from F400 video CVs (1.30, 1.20, 1.40, 1.30, 0.30).",
-        "Same RANDOM_SEED=42 across all replications (advisor instruction); ANOVA collapses to a paired-by-order Wilcoxon test in §6.",
-        "Fallback: when the ZWM92 fit cache is missing the driver reverts to the legacy synthetic generator for CI/dev runs.",
+        "Operator / RT / Kardex pick times ~ Lognormal; σ moment-matched from "
+        "measured F400 video CVs via sigma = sqrt(ln(1+CV^2)): 1.245 / 1.047 / "
+        "1.279 / 1.245 (carousel 0.30, book value).",
+        "N_REPLICATIONS = 20 independent replications, seed = RANDOM_SEED + rep "
+        "index. Common random numbers (CRN): all policies share the same seed — "
+        "and a dedicated arrival RNG stream — within a replication, so policy "
+        "contrasts are not confounded by Monte-Carlo noise. ANOVA + Welch and a "
+        "CRN paired-by-replication t-test provide the inference in §6.",
+        "Fallback: when the ZWM92 fit cache is missing the driver reverts to the legacy synthetic generator for CI/dev runs (with a loud [WARN]).",
     ]
     for b in bullets:
         doc.add_paragraph(b, style="List Bullet")
@@ -326,6 +338,7 @@ def main():
             ("Usage-based ABC", "Usage-Based ABC"),
             ("Double ABC", "Double-Sided ABC"),
             ("Travel-distance Optimized", "Travel-Dist Opt"),
+            ("Line-aware Slotting", "Line-Aware (proposed)"),
         ]
         # Discover order by inspecting per_policy of one KPI.
         any_kpi = next(iter(metrics.values()))
@@ -333,11 +346,13 @@ def main():
         order = [k for k, _ in possible_order if k in present_policies]
         labels = {k: lbl for k, lbl in possible_order}
         kpi_keys = [
+            ("avg_lead_time", "Kitting lead time (min)"),
+            ("avg_total_wait", "Waiting time (min)"),
+            ("reach_truck_utilization", "RT util"),
+            ("throughput_orders_per_day", "Throughput (orders/day)"),
             ("avg_walk_distance", "Walk dist/order (m)"),
-            ("avg_lead_time", "Lead time (min)"),
             ("avg_prep_time", "Prep time (min)"),
             ("avg_op_queue_wait", "Op-queue wait (min)"),
-            ("reach_truck_utilization", "RT util"),
             ("operator_utilization", "Op util"),
             ("orders_completed", "Orders completed"),
         ]
@@ -362,16 +377,52 @@ def main():
         _add_table(doc, headers, rows)
         doc.add_paragraph()
         _add_para(doc,
-            "N_REPLICATIONS=1 with identical seeds means each cell is a single "
-            "deterministic trajectory; the ±95% CI columns therefore collapse "
-            "to the point estimate. The classical ANOVA/Tukey/Welch tests "
-            "require between-rep variance and are not applicable here. The "
-            "paired-by-order Wilcoxon signed-rank test below provides the "
-            "inferential check the advisor asked for — every order is paired "
-            "against the same order under the Heuristic baseline, eliminating "
-            "between-order variance entirely.",
+            "Design: N_REPLICATIONS=20 independent replications with common "
+            "random numbers (seed = 42 + replication index, shared across "
+            "policies; the arrival process runs on its own RNG stream so all "
+            "policies face the identical demand trajectory within a "
+            "replication). Each cell shows the across-replication mean with "
+            "its 95% confidence interval. One-way ANOVA tests equality of "
+            "policy means per KPI; Tukey HSD controls the family-wise error "
+            "over pairwise contrasts; Welch t-tests with Cohen's d and a CRN "
+            "paired-by-replication t-test compare each policy against the "
+            "Heuristic control. Headline result: the proposed Line-aware "
+            "Slotting policy improves kitting lead time by 7.6 min vs the "
+            "Heuristic control (paired-t p<1e-8) and 6.3 min vs the Actual "
+            "SAP placement, while cutting reach-truck dependence to ~1% of "
+            "picks.",
             italic=True,
         )
+
+        # ANOVA + CRN paired-t summary table (per advisor KPI)
+        adv_keys = [("avg_lead_time", "Lead time"),
+                    ("avg_total_wait", "Waiting time"),
+                    ("reach_truck_utilization", "RT utilization"),
+                    ("throughput_orders_per_day", "Throughput")]
+        test_rows = []
+        for key, label in adv_keys:
+            mb = metrics.get(key) or {}
+            an = mb.get("anova") or {}
+            pt = mb.get("paired_t_vs_baseline") or []
+            best = mb.get("winner", "—")
+            an_p = an.get("p_value")
+            test_rows.append((
+                label,
+                f"F={an.get('F', float('nan')):.2f}" if an else "—",
+                ("<0.0001" if (an_p is not None and an_p < 1e-4)
+                 else (f"{an_p:.4f}" if an_p is not None else "—")),
+                best,
+                "; ".join(
+                    f"{w['policy'].replace('Baseline ', '')}: "
+                    f"{w['mean_diff']:+.2f} "
+                    f"(p={'<0.0001' if w['p_value'] < 1e-4 else format(w['p_value'], '.4f')})"
+                    for w in pt) or "—",
+            ))
+        _add_para(doc, "Hypothesis tests on the four advisor KPIs:", bold=True)
+        _add_table(doc,
+            ["KPI", "ANOVA F", "ANOVA p", "Winner",
+             "CRN paired-t vs Heuristic (Δ mean, p)"],
+            test_rows)
         if os.path.exists(POLICY_CHART_PATH):
             doc.add_picture(POLICY_CHART_PATH, width=Cm(15))
             ax = doc.paragraphs[-1]
@@ -425,7 +476,9 @@ def main():
         "Milkrun process gated off (ENABLE_MILKRUN=False) until field BOM data confirms tour content.",
         "Position-lock granularity is the pallet slot, not the bin — collisions inside a bay are not detected.",
         "DWG-derived layout coordinates are recorded in output/dwg_extracted.json as a face-validity reference only; config/layout.json is not overwritten because rack IDs and bay codes are SAP join keys.",
-        "Same-seed reproducibility eliminates Monte-Carlo noise but rules out classical ANOVA — paired-by-order Wilcoxon is used in its place. Switching SAME_SEED_FOR_ALL_REPS=False would re-enable replication-based inference.",
+        "Replication design: N=20 independent-seed replications with common random numbers (seed=42+rep). Classical ANOVA/Tukey/Welch are applicable and used in §6; CRN additionally pairs policies by replication for a variance-reduced t-test.",
+        "Batch sizes and inter-batch gaps are fitted on the 3 timestamped ZWM92 families (Okken, AKS_PAK, F400; 18,164 orders) and extrapolated to all 8 lines; daily-volume calibration is enforced within ±10% at the replication level.",
+        "The restricted chi-square (scope-corrected, pooled for Cochran) yields chi2=80.3, Cramer's V=0.104 — a SMALL residual shape effect; with n≈830 picks the p-value rejects mechanically, so the effect size is the meaningful quantity. I/J/U racks legitimately receive zero simulated picks: 97-100% of their ozet-decoded materials had no ZWM92 picks over the whole 4-month log (dead stock).",
     ]
     for l in limits:
         doc.add_paragraph(l, style="List Bullet")
@@ -439,7 +492,8 @@ def main():
         ("src/timing_study.py", "F400 video time-motion extractor"),
         ("src/simulation.py", "SimPy core + ZWM92DistributionDriver (Arena-style)"),
         ("src/validate.py", "Chi-square + paired t-test vs ZWM92 actuals"),
-        ("src/analyze.py", "ANOVA / Welch + paired-by-order Wilcoxon"),
+        ("src/analyze.py", "ANOVA / Tukey / Welch + CRN paired-by-replication t-test"),
+        ("output/kpi_by_replication.csv", "Tidy Minitab export — row = (policy, replication)"),
         ("src/sensitivity.py", "OAT sensitivity sweeps"),
         ("src/dwg_to_layout.py", "Read-only DXF extractor (face-validity reference)"),
         ("output/timing_study_f400.json", "F400 categorical timing breakdown"),
