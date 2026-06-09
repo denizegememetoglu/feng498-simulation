@@ -1,0 +1,128 @@
+[
+  {
+    "severity": "BLOCKER",
+    "what": "window.SIM_V2 not defined — module export failed",
+    "where": "line ~3263 in sim_v2.html",
+    "fix": "Check that \"window.SIM_V2 = {...}\" is inside the module script and that the module loaded without error"
+  },
+  {
+    "severity": "BLOCKER",
+    "what": "window.SIM_V2.player is undefined",
+    "where": "TimelinePlayer export in sim_v2.html",
+    "fix": "Verify window.SIM_V2.player reference is set correctly"
+  },
+  {
+    "severity": "BLOCKER",
+    "what": "Initial policy (Baseline Actual SAP) not loaded after 12s. player.loaded=None",
+    "where": "TimelinePlayer.load() auto-start",
+    "fix": "Check timeline JSONL fetch + parse; may be a timing issue"
+  },
+  {
+    "severity": "BLOCKER",
+    "what": "Timeline for policy [baseline_actual_sap] did not load within 15s",
+    "where": "TimelinePlayer.load(\"baseline_actual_sap\")",
+    "fix": "Verify web/timeline/sim_timeline_baseline_actual_sap.jsonl exists and is valid"
+  },
+  {
+    "severity": "BLOCKER",
+    "what": "Timeline for policy [baseline_heuristic] did not load within 15s",
+    "where": "TimelinePlayer.load(\"baseline_heuristic\")",
+    "fix": "Verify web/timeline/sim_timeline_baseline_heuristic.jsonl exists and is valid"
+  },
+  {
+    "severity": "BLOCKER",
+    "what": "Timeline for policy [usage_based_abc] did not load within 15s",
+    "where": "TimelinePlayer.load(\"usage_based_abc\")",
+    "fix": "Verify web/timeline/sim_timeline_usage_based_abc.jsonl exists and is valid"
+  },
+  {
+    "severity": "BLOCKER",
+    "what": "Timeline for policy [double_abc] did not load within 15s",
+    "where": "TimelinePlayer.load(\"double_abc\")",
+    "fix": "Verify web/timeline/sim_timeline_double_abc.jsonl exists and is valid"
+  },
+  {
+    "severity": "BLOCKER",
+    "what": "Timeline for policy [travel_distance_optimized] did not load within 15s",
+    "where": "TimelinePlayer.load(\"travel_distance_optimized\")",
+    "fix": "Verify web/timeline/sim_timeline_travel_distance_optimized.jsonl exists and is valid"
+  },
+  {
+    "severity": "BLOCKER",
+    "what": "Timeline for policy [line_aware_slotting] did not load within 15s",
+    "where": "TimelinePlayer.load(\"line_aware_slotting\")",
+    "fix": "Verify web/timeline/sim_timeline_line_aware_slotting.jsonl exists and is valid"
+  },
+  {
+    "severity": "HIGH",
+    "what": "Sidebar did not open when #analytics-btn was clicked",
+    "where": "toggleSidebar()",
+    "fix": "Check toggleSidebar JS function / sidebar element"
+  },
+  {
+    "severity": "MEDIUM",
+    "what": "Tab [validation] panel did not become active after click",
+    "where": "switchTab() / [data-tab=\"validation\"]",
+    "fix": "Check tab switching logic"
+  },
+  {
+    "severity": "MEDIUM",
+    "what": "Tab [sensitivity] panel did not become active after click",
+    "where": "switchTab() / [data-tab=\"sensitivity\"]",
+    "fix": "Check tab switching logic"
+  },
+  {
+    "severity": "MEDIUM",
+    "what": "Tab [heatmap] panel did not become active after click",
+    "where": "switchTab() / [data-tab=\"heatmap\"]",
+    "fix": "Check tab switching logic"
+  },
+  {
+    "severity": "MEDIUM",
+    "what": "Tab [driver] panel did not become active after click",
+    "where": "switchTab() / [data-tab=\"driver\"]",
+    "fix": "Check tab switching logic"
+  },
+  {
+    "severity": "MEDIUM",
+    "what": "Tab [timing] panel did not become active after click",
+    "where": "switchTab() / [data-tab=\"timing\"]",
+    "fix": "Check tab switching logic"
+  },
+  {
+    "severity": "MEDIUM",
+    "what": "Tab [data] panel did not become active after click",
+    "where": "switchTab() / [data-tab=\"data\"]",
+    "fix": "Check tab switching logic"
+  },
+  {
+    "severity": "MEDIUM",
+    "what": "Tab [defense] panel did not become active after click",
+    "where": "switchTab() / [data-tab=\"defense\"]",
+    "fix": "Check tab switching logic"
+  },
+  {
+    "severity": "MEDIUM",
+    "what": "Heatmap chart canvas has no rendered content (all-transparent / blank)",
+    "where": "renderHeatmapChart() — chart-heat canvas",
+    "fix": "Verify baseline_actual_sap_picks_per_rack.csv fetches OK from ./data/; check parseCSV() output"
+  },
+  {
+    "severity": "MEDIUM",
+    "what": "Defense tab #x-cost-rows is empty (Cost/ROI not rendered)",
+    "where": "renderCostROI()",
+    "fix": "DASH.policy may not be populated when renderDefense() runs"
+  },
+  {
+    "severity": "HIGH",
+    "what": "Console ERROR: Failed to load resource: the server responded with a status of 404 (File not found)",
+    "where": "http://127.0.0.1:8123/favicon.ico",
+    "fix": "Investigate JS error in browser devtools"
+  },
+  {
+    "severity": "HIGH",
+    "what": "Console ERROR: UNCAUGHT: Uncaught",
+    "where": "http://127.0.0.1:8123/web/vendor/three/build/three.module.js",
+    "fix": "Investigate JS error in browser devtools"
+  }
+]

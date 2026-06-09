@@ -54,15 +54,16 @@ def build():
 
     # Source / sampling block
     _box(ax, 0.3, 11.5, 9.4, 1.3,
-         "ZWM92DistributionDriver.next_order()\n"
+         "ZWM92DistributionDriver.next_batch()\n"
          "  line ~ Categorical(line_weights)   ·   "
          "items per order ~ Empirical(BOM sizes)\n"
          "  material ~ Categorical(per-line weights)   ·   "
-         "IAT ~ Exponential(mean=4.8 min)",
+         "inter-batch gap ~ Empirical(5.36 min)\n"
+         "batch size ~ Empirical(4.68 kits)",
          fc="#FCE7E5", ec="#A12017", bold=True)
 
     _arrow(ax, 5, 11.5, 5, 11.0)
-    _box(ax, 3.5, 10.3, 3.0, 0.6, "env.timeout(IAT)", fc="#F0F0F0")
+    _box(ax, 3.5, 10.3, 3.0, 0.6, "env.timeout(inter-batch gap)", fc="#F0F0F0")
     _arrow(ax, 5, 10.3, 5, 9.9)
 
     # Per-item loop start
@@ -128,7 +129,7 @@ def build():
          fc="#E8F0FE", ec="#1F4E79")
     _arrow(ax, 5.0, 1.2, 5.0, 0.7)
     _box(ax, 3.2, 0.0, 3.6, 0.65,
-         "next order ↺ (until duration over)",
+         "next batch ↺ (until duration over)",
          fc="#E0E0E0", ec="#444", fs=9, bold=True)
 
     # Right-side legend

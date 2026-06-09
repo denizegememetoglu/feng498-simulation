@@ -1,0 +1,37 @@
+{
+  "git_sha": "dfad4a605681c2f131d7f69c3f7575e40309c245",
+  "git_dirty": true,
+  "python": "3.14.5",
+  "platform": "Linux-7.0.10-arch1-1-x86_64-with-glibc2.43",
+  "wall_clock_utc": "2026-06-09T20:08:59.808980+00:00",
+  "files": {
+    "config/layout.json": {
+      "sha256": "7792e2f3664e37a9360bd781ffffc107b0bc744d7040f7238e1444201bd730f3",
+      "size_bytes": 18833
+    },
+    "config/rack_mapping_dwg_to_sap.json": {
+      "sha256": "6d78d3ca68e2056b67834255a23d9723aae8b04a9e825fd548e6367005608aaf",
+      "size_bytes": 10127
+    },
+    "output/zwm92_summary.json": {
+      "sha256": "7f188e64ac0e00408ad17581698705ed853bdbde63768f0b78bb12c2bf240cde",
+      "size_bytes": 138018
+    },
+    "output/zwm92_orders.json": {
+      "sha256": "cf5c9f7fdbd388df56fe007ee0e322ee10471a438ca95a9b18873a265bd0b94e",
+      "size_bytes": 18470113
+    },
+    "output/timing_study_f400.json": {
+      "sha256": "3013af5894d1443c0ed44e43cf4ea66ea0f752f73eb1994add78a93a8cb31f17",
+      "size_bytes": 4809
+    },
+    "output/viewer_layout_v1.json": {
+      "sha256": "997fe1676cab50efdd6041b4d5376a39dd82dee362cc05fe27f05fef7685d8ae",
+      "size_bytes": 15172
+    },
+    "output/preprocess_stats.json": {
+      "sha256": "be71b3997daa5eba8422c00ddc4ca95b0a9c8fafff94a4d4240c4aa39e2808a2",
+      "size_bytes": 579
+    }
+  }
+}

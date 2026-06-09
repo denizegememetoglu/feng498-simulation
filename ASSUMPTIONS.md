@@ -701,6 +701,23 @@ reject":
    materials are missing from the özet kardex set, but only 1 is in
    the active master (8 pick rows ≈ 0% volume). Disclosed, not coded.
 
+### 24.7a Scope limitation — picking only, no replenishment (jury-critical)
+
+The model simulates ORDER PICKING exclusively. Putaway and forward-slot
+replenishment are out of scope: pallets never deplete, so no policy pays
+a refill cost. This matters most for the proposed Line-aware policy,
+which concentrates high-frequency materials at low (no-reach-truck)
+levels — in reality those forward slots would need periodic
+replenishment, and replenishment is reach-truck work the model does not
+see. Defense framing: (a) the scope is IDENTICAL for all six policies,
+so the comparison is internally fair; (b) the queueing mechanism that
+sinks distance-only slotting (operator blocked on RT during picks) is
+unaffected by replenishment scheduling, which can be shifted off-peak;
+(c) the reported "RT util 1.1%" for Line-aware is therefore a
+PICKING-ONLY figure, not total RT workload. Quantifying the
+replenishment trade-off needs slot-capacity + depletion modelling —
+listed as future work.
+
 ### 24.8 Naming honesty
 
 `TRACE_DRIVEN=True` is historical naming: the driver SAMPLES fitted

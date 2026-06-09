@@ -1,0 +1,74 @@
+[
+  {
+    "severity": "BLOCKER",
+    "what": "Initial page render is blank (no 3D content visible)",
+    "where": "Three.js renderer / scene init",
+    "fix": "Check WebGL context creation, renderer.domElement appended to body"
+  },
+  {
+    "severity": "BLOCKER",
+    "what": "window.player is not defined after page load (module-scoped variable not exposed to window)",
+    "where": "TimelinePlayer instantiation in <script type=\"module\">",
+    "fix": "Add \"window.player = player;\" after \"const player = new TimelinePlayer();\" to expose for JS eval"
+  },
+  {
+    "severity": "BLOCKER",
+    "what": "Timeline for policy [baseline_actual_sap] failed to load (player.loaded=false after 12s)",
+    "where": "TimelinePlayer.load(\"baseline_actual_sap\")",
+    "fix": "Check that web/timeline/sim_timeline_baseline_actual_sap.jsonl exists and is valid JSONL"
+  },
+  {
+    "severity": "BLOCKER",
+    "what": "Timeline for policy [baseline_heuristic] failed to load (player.loaded=false after 12s)",
+    "where": "TimelinePlayer.load(\"baseline_heuristic\")",
+    "fix": "Check that web/timeline/sim_timeline_baseline_heuristic.jsonl exists and is valid JSONL"
+  },
+  {
+    "severity": "BLOCKER",
+    "what": "Timeline for policy [usage_based_abc] failed to load (player.loaded=false after 12s)",
+    "where": "TimelinePlayer.load(\"usage_based_abc\")",
+    "fix": "Check that web/timeline/sim_timeline_usage_based_abc.jsonl exists and is valid JSONL"
+  },
+  {
+    "severity": "BLOCKER",
+    "what": "Timeline for policy [double_abc] failed to load (player.loaded=false after 12s)",
+    "where": "TimelinePlayer.load(\"double_abc\")",
+    "fix": "Check that web/timeline/sim_timeline_double_abc.jsonl exists and is valid JSONL"
+  },
+  {
+    "severity": "BLOCKER",
+    "what": "Timeline for policy [travel_distance_optimized] failed to load (player.loaded=false after 12s)",
+    "where": "TimelinePlayer.load(\"travel_distance_optimized\")",
+    "fix": "Check that web/timeline/sim_timeline_travel_distance_optimized.jsonl exists and is valid JSONL"
+  },
+  {
+    "severity": "BLOCKER",
+    "what": "Timeline for policy [line_aware_slotting] failed to load (player.loaded=false after 12s)",
+    "where": "TimelinePlayer.load(\"line_aware_slotting\")",
+    "fix": "Check that web/timeline/sim_timeline_line_aware_slotting.jsonl exists and is valid JSONL"
+  },
+  {
+    "severity": "MEDIUM",
+    "what": "Heatmap chart did not render (DASH.charts[\"heat\"] missing after 2s)",
+    "where": "renderHeatmapChart() — heatmap tab",
+    "fix": "Check that ./data/baseline_actual_sap_picks_per_rack.csv is served"
+  },
+  {
+    "severity": "LOW",
+    "what": "Console WARNING (x2): [.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glClear: Framebuffer is incomplete: Attachment has zero size.",
+    "where": "line 0 / http://127.0.0.1:8123/web/sim_v2.html / ctx=page_load",
+    "fix": "Investigate if expected or load issue"
+  },
+  {
+    "severity": "LOW",
+    "what": "Console WARNING (x254): [.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "where": "line 0 / http://127.0.0.1:8123/web/sim_v2.html / ctx=page_load",
+    "fix": "Investigate if expected or load issue"
+  },
+  {
+    "severity": "LOW",
+    "what": "Console WARNING: WebGL: too many errors, no more errors will be reported to the console for this context.",
+    "where": "line 0 / http://127.0.0.1:8123/web/sim_v2.html / ctx=page_load",
+    "fix": "Investigate if expected or load issue"
+  }
+]

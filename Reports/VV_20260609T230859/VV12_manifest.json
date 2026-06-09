@@ -1,0 +1,92 @@
+{
+  "schema_version": "1.0",
+  "framework": "Sargent V&V (1979, 2013)",
+  "git_sha": "dfad4a605681c2f131d7f69c3f7575e40309c245",
+  "git_dirty": true,
+  "python": "3.14.5",
+  "platform": "Linux-7.0.10-arch1-1-x86_64-with-glibc2.43",
+  "wall_clock_started_utc": "2026-06-09T20:08:59.803097+00:00",
+  "wall_clock_finished_utc": "2026-06-09T20:09:21.639628+00:00",
+  "step_durations_s": {
+    "VV1_data_integrity": 0.031,
+    "VV2_face_validity": 1.124,
+    "VV3_conceptual_validity": 0.736,
+    "VV4_data_validity": 0.337,
+    "VV5_operational_validity": 0.332,
+    "VV6_audit_mode": 0.0,
+    "VV7_cross_validation": 0.0,
+    "VV8_replication_variance": 0.002,
+    "VV9_sensitivity_full": 0.222,
+    "VV10_tests": 17.968,
+    "VV11_assumptions": 1.079
+  },
+  "step_status": {
+    "VV1_data_integrity": "ok",
+    "VV2_face_validity": "ok",
+    "VV3_conceptual_validity": "ok",
+    "VV4_data_validity": "ok",
+    "VV5_operational_validity": "ok",
+    "VV6_audit_mode": "ok",
+    "VV7_cross_validation": "warn: cross-validation is deferred",
+    "VV8_replication_variance": "ok",
+    "VV9_sensitivity_full": "ok",
+    "VV10_tests": "ok",
+    "VV11_assumptions": "ok",
+    "VV12_manifest": "ok"
+  },
+  "status_counts": {
+    "ok": 11,
+    "warn": 1,
+    "fail": 0
+  },
+  "files": {
+    "VV10_pytest_log.txt": {
+      "sha256": "efeac30d74f3a0ac636a8e7d4f41ca2e39f7b2f2709fe0ab4e720e3b24983613",
+      "size_bytes": 115
+    },
+    "VV10_tests.xml": {
+      "sha256": "f00f5d964c57d83fee8a81adb53b41faa9af3acaa4930083432f12c690507a8f",
+      "size_bytes": 1267
+    },
+    "VV11_assumptions.pdf": {
+      "sha256": "5069c205de2178180083e0fd714dddcd5243ae5ab7d1e59153054d5f6b6986cc",
+      "size_bytes": 34602
+    },
+    "VV1_data_integrity.json": {
+      "sha256": "e2983a2d7ea570a0f57603281430615d68c69decb783de1a1f10ac74d835f6af",
+      "size_bytes": 1312
+    },
+    "VV2_face_validity.pdf": {
+      "sha256": "4991bb8fa065a5a4d9233a1458cee53de67b325220e89515ca73539c26c8052c",
+      "size_bytes": 32083
+    },
+    "VV3_conceptual_validity.pdf": {
+      "sha256": "f4b4574c116bb7afff1f0976dc333c22c4dbee20c567febee9d28311c93a8fcd",
+      "size_bytes": 87593
+    },
+    "VV4_data_validity.pdf": {
+      "sha256": "755ce98dfc7454429fe088f4e9db22982b50fb862c9087f929af791610c0c017",
+      "size_bytes": 34308
+    },
+    "VV5_operational_validity.pdf": {
+      "sha256": "3dbc61f0928701a30572636de0269ee86d3bf6039e3a7583ff29ea15b231156f",
+      "size_bytes": 28230
+    },
+    "VV6_audit_mode.txt": {
+      "sha256": "a020e4526ca7803d05d39ef7de152218a052363da9ec4694c9a6596b0483ce0a",
+      "size_bytes": 490
+    },
+    "VV7_cross_validation.json": {
+      "sha256": "fcadc31adf3f021301c63df120bdab69a5beed20b9a124af9b00f258aabc4ed4",
+      "size_bytes": 240
+    },
+    "VV8_replication_variance.json": {
+      "sha256": "63edd37536438480124590df9458983809f8046391d8153d91e3b65c8b72900b",
+      "size_bytes": 1396
+    },
+    "VV9_sensitivity_full.pdf": {
+      "sha256": "ce36ac1fe2442d392077d002f3ffff6f59607ecbcc0b1c14357ab77394ba94f2",
+      "size_bytes": 29888
+    }
+  }
+}

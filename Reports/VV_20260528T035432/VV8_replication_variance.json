@@ -1,0 +1,52 @@
+{
+  "Baseline (Heuristic)": {
+    "status": "warn",
+    "n": 1,
+    "walk_mean": 92.0923325415677,
+    "walk_min": 92.0923325415677,
+    "walk_max": 92.0923325415677,
+    "lead_mean": 3.9481124871149507,
+    "lead_min": 3.9481124871149507,
+    "lead_max": 3.9481124871149507
+  },
+  "Baseline (Actual SAP)": {
+    "status": "warn",
+    "n": 1,
+    "walk_mean": 86.22050765864331,
+    "walk_min": 86.22050765864331,
+    "walk_max": 86.22050765864331,
+    "lead_mean": 3.8178363465809997,
+    "lead_min": 3.8178363465809997,
+    "lead_max": 3.8178363465809997
+  },
+  "Usage-based ABC": {
+    "status": "warn",
+    "n": 1,
+    "walk_mean": 90.25005673758866,
+    "walk_min": 90.25005673758866,
+    "walk_max": 90.25005673758866,
+    "lead_mean": 3.832558733125838,
+    "lead_min": 3.832558733125838,
+    "lead_max": 3.832558733125838
+  },
+  "Double ABC": {
+    "status": "warn",
+    "n": 1,
+    "walk_mean": 103.92805882352941,
+    "walk_min": 103.92805882352941,
+    "walk_max": 103.92805882352941,
+    "lead_mean": 4.7644376923845435,
+    "lead_min": 4.7644376923845435,
+    "lead_max": 4.7644376923845435
+  },
+  "Travel-distance Optimized": {
+    "status": "warn",
+    "n": 1,
+    "walk_mean": 74.19069509594883,
+    "walk_min": 74.19069509594883,
+    "walk_max": 74.19069509594883,
+    "lead_mean": 4.687152686962853,
+    "lead_min": 4.687152686962853,
+    "lead_max": 4.687152686962853
+  }
+}

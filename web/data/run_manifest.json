@@ -1,11 +1,11 @@
 {
   "schema_version": "1.0",
-  "run_id": "20260609T212540Z",
+  "run_id": "20260609T224429Z",
   "status": "complete",
-  "started_at_utc": "2026-06-09T21:25:40.393045+00:00",
-  "updated_at_utc": "2026-06-09T21:30:47.541703+00:00",
+  "started_at_utc": "2026-06-09T22:44:29.781027+00:00",
+  "updated_at_utc": "2026-06-09T22:50:06.861506+00:00",
   "git": {
-    "sha": "dfad4a605681c2f131d7f69c3f7575e40309c245",
+    "sha": "2e2d54ee7aa32d2abc747a3bfe98c8d2cf4d5e85",
     "dirty": true
   },
   "parameters": {
@@ -45,7 +45,7 @@
     "data/Malzeme Girişleri_010126-170326.xlsx": "3e8defa6f58debc0953958626583ecce0d71c0381dde7036bdaa5804ed886f26",
     "config/layout.json": "7792e2f3664e37a9360bd781ffffc107b0bc744d7040f7238e1444201bd730f3",
     "config/rack_mapping_dwg_to_sap.json": "6d78d3ca68e2056b67834255a23d9723aae8b04a9e825fd548e6367005608aaf",
-    "output/zwm92_summary.json": "7f188e64ac0e00408ad17581698705ed853bdbde63768f0b78bb12c2bf240cde",
+    "output/zwm92_summary.json": "e288ae702935c78ef12a515abd2d567788bbc126585cee02d955cf6b266b5765",
     "output/zwm92_orders.json": "cf5c9f7fdbd388df56fe007ee0e322ee10471a438ca95a9b18873a265bd0b94e",
     "output/preprocess_stats.json": "be71b3997daa5eba8422c00ddc4ca95b0a9c8fafff94a4d4240c4aa39e2808a2",
     "output/bin_validation_errors.csv": "2a3ff80c422b1b9bcbd0a140790bc87ccacb00ce6740d351cc666fe677698bbf"

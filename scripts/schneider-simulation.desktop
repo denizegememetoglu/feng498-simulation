@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Name=Simulation
+GenericName=Schneider Warehouse Simulation
+Comment=FENG 498 - Schneider Electric Manisa warehouse 3D simulation viewer
+Exec=%REPO%/run-sim.sh
+Path=%REPO%
+Icon=%REPO%/scripts/schneider-simulation-icon.png
+Terminal=false
+Categories=Science;Engineering;Simulation;
+Keywords=simulation;warehouse;feng498;schneider;sim;
+StartupNotify=true
+
+# Install (replace %REPO% with the absolute repo path):
+#   sed "s|%REPO%|$PWD|" scripts/schneider-simulation.desktop \
+#     > ~/.local/share/applications/schneider-simulation.desktop

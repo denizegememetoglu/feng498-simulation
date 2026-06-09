@@ -253,10 +253,17 @@ def cache_zwm92_views(directory: str = "data/zwm92", output_dir: str = "output")
                           for o in orders if o.get("distinct_materials")]
 
     # C3 helper: per-material dispatch count → TravelDistancePolicy sort key.
+    # 2026-06-10 fix: per-material PICK frequency must count DISTINCT kit
+    # lines (one pick event per material per kit), not qty-expanded units —
+    # the simulation executes one pick per distinct material. The qty-
+    # expanded counter is kept alongside for transparency/disclosure.
     mat_counts: Counter = Counter()
+    mat_counts_qty: Counter = Counter()
     for o in orders:
-        for mid in o["items"]:
+        for mid in o.get("distinct_materials") or dict.fromkeys(o["items"]):
             mat_counts[mid] += 1
+        for mid in o["items"]:
+            mat_counts_qty[mid] += 1
 
     summary = {
         "total_rows": int(len(df)),
@@ -285,6 +292,7 @@ def cache_zwm92_views(directory: str = "data/zwm92", output_dir: str = "output")
         "n_distinct_per_kit_mean": ((sum(n_distinct_per_kit) / len(n_distinct_per_kit))
                                      if n_distinct_per_kit else None),
         "picks_by_material": dict(mat_counts),
+        "picks_by_material_qty": dict(mat_counts_qty),
     }
 
     with open(f"{output_dir}/zwm92_summary.json", "w") as f:
@@ -422,7 +430,11 @@ def fit_distributions(orders_path: str = "output/zwm92_orders.json",
     for o in orders:
         line = (o.get("line") or "UNKNOWN")
         line_counts[line] += 1
-        for mid in o["items"]:
+        # 2026-06-10 fix: weights over DISTINCT kit lines (one pick event
+        # per material per kit) — pairing them with the distinct-based
+        # n_items empirical keeps the sampled kit composition faithful to
+        # real kits. Qty-expanded weights overweighted bulk materials.
+        for mid in o.get("distinct_materials") or dict.fromkeys(o["items"]):
             mat_counts[mid] += 1
             per_line_mat.setdefault(line, Counter())[mid] += 1
 

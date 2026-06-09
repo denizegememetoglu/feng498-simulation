@@ -1,0 +1,1871 @@
+[
+  {
+    "level": "INFO",
+    "msg": "Loaded viewer_layout_v1 from ./viewer_layout_v1.json",
+    "line": 642,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "init"
+  },
+  {
+    "level": "INFO",
+    "msg": "Loaded simulation layout from ./layout.json",
+    "line": 653,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "init"
+  },
+  {
+    "level": "INFO",
+    "msg": "sim_v2 ready. Entities: 8 op, 7 rt, 7 milk, 4 kardex, 8 kit. Layout: 16 racks.",
+    "line": 3275,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glClear: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glClear: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "[.WebGL-0x559391367250] GL_INVALID_FRAMEBUFFER_OPERATION: glDrawElements: Framebuffer is incomplete: Attachment has zero size.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "WARNING",
+    "msg": "WebGL: too many errors, no more errors will be reported to the console for this context.",
+    "line": 0,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "INFO",
+    "msg": "Timeline loaded from ./timeline/sim_timeline_baseline_actual_sap.jsonl",
+    "line": 2086,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "page_load"
+  },
+  {
+    "level": "INFO",
+    "msg": "Timeline loaded from ./timeline/sim_timeline_baseline_actual_sap.jsonl",
+    "line": 2086,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "policy_baseline_actual_sap"
+  },
+  {
+    "level": "INFO",
+    "msg": "Timeline loaded from ./timeline/sim_timeline_baseline_heuristic.jsonl",
+    "line": 2086,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "policy_baseline_heuristic"
+  },
+  {
+    "level": "INFO",
+    "msg": "Timeline loaded from ./timeline/sim_timeline_usage_based_abc.jsonl",
+    "line": 2086,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "policy_usage_based_abc"
+  },
+  {
+    "level": "INFO",
+    "msg": "Timeline loaded from ./timeline/sim_timeline_double_abc.jsonl",
+    "line": 2086,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "policy_double_abc"
+  },
+  {
+    "level": "INFO",
+    "msg": "Timeline loaded from ./timeline/sim_timeline_travel_distance_optimized.jsonl",
+    "line": 2086,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "policy_travel_distance_optimized"
+  },
+  {
+    "level": "INFO",
+    "msg": "Timeline loaded from ./timeline/sim_timeline_line_aware_slotting.jsonl",
+    "line": 2086,
+    "src": "http://127.0.0.1:8123/web/sim_v2.html",
+    "context": "policy_line_aware_slotting"
+  }
+]

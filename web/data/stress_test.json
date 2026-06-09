@@ -1,0 +1,83 @@
+{
+  "iat_override_min": 2.68,
+  "sim_days": 3,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "results": {
+    "Baseline (Actual SAP)": {
+      "reps": [
+        {
+          "avg_lead_time": 28.846522500057535,
+          "avg_total_wait": 24.634501681238476,
+          "reach_truck_utilization": 0.39643007259877194,
+          "throughput_orders_per_day": 672.6956521739131,
+          "orders_started": 2113,
+          "orders_completed": 1934
+        },
+        {
+          "avg_lead_time": 47.39936787230783,
+          "avg_total_wait": 43.23866724252958,
+          "reach_truck_utilization": 0.5015208044577677,
+          "throughput_orders_per_day": 885.2173913043479,
+          "orders_started": 2820,
+          "orders_completed": 2545
+        },
+        {
+          "avg_lead_time": 26.137047108531384,
+          "avg_total_wait": 21.929898669950504,
+          "reach_truck_utilization": 0.3884265726474801,
+          "throughput_orders_per_day": 676.1739130434783,
+          "orders_started": 2107,
+          "orders_completed": 1944
+        }
+      ],
+      "mean": {
+        "avg_lead_time": 34.12764582696558,
+        "avg_total_wait": 29.934355864572854,
+        "reach_truck_utilization": 0.4287924832346732,
+        "throughput_orders_per_day": 744.695652173913,
+        "orders_started": 2346.6666666666665,
+        "orders_completed": 2141.0
+      }
+    },
+    "Line-aware Slotting": {
+      "reps": [
+        {
+          "avg_lead_time": 10.889263699764745,
+          "avg_total_wait": 8.09772303767003,
+          "reach_truck_utilization": 0.021768479671629638,
+          "throughput_orders_per_day": 681.0434782608696,
+          "orders_started": 2113,
+          "orders_completed": 1958
+        },
+        {
+          "avg_lead_time": 18.691509437609746,
+          "avg_total_wait": 15.799883986413164,
+          "reach_truck_utilization": 0.03208460150396723,
+          "throughput_orders_per_day": 909.5652173913044,
+          "orders_started": 2820,
+          "orders_completed": 2615
+        },
+        {
+          "avg_lead_time": 10.781777389224665,
+          "avg_total_wait": 7.912810532102476,
+          "reach_truck_utilization": 0.018322863266932016,
+          "throughput_orders_per_day": 676.1739130434783,
+          "orders_started": 2107,
+          "orders_completed": 1944
+        }
+      ],
+      "mean": {
+        "avg_lead_time": 13.454183508866386,
+        "avg_total_wait": 10.603472518728557,
+        "reach_truck_utilization": 0.02405864814750963,
+        "throughput_orders_per_day": 755.5942028985506,
+        "orders_started": 2346.6666666666665,
+        "orders_completed": 2172.3333333333335
+      }
+    }
+  }
+}
