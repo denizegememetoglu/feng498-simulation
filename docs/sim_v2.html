@@ -680,15 +680,34 @@ for (const r of LAYOUT.racks) {
 // ────────────────────────────────────────────────────────────────────────────
 //  RENDERER · SCENE · CAMERA · LIGHTING
 // ────────────────────────────────────────────────────────────────────────────
-const renderer = new THREE.WebGLRenderer({antialias: true, powerPreference: 'high-performance'});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.92;
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-document.body.appendChild(renderer.domElement);
+// WebGL guard (2026-06-10): on a machine without a usable GL context
+// (broken drivers, remote desktop, headless), the THREE renderer
+// constructor THROWS and would previously kill the whole module —
+// blank page, no message. The dashboards are pure DOM/Chart.js and do
+// not need WebGL, so degrade gracefully: show a banner, skip the 3D
+// scene, keep every analytics panel alive.
+let renderer = null;
+try {
+  renderer = new THREE.WebGLRenderer({antialias: true, powerPreference: 'high-performance'});
+} catch (err) {
+  console.error('WebGL unavailable — 3D disabled, dashboards still active:', err);
+  const banner = document.createElement('div');
+  banner.style.cssText = 'position:absolute;top:0;left:0;right:0;z-index:60;' +
+    'background:#7f1d1d;color:#fee2e2;font:12px sans-serif;padding:8px 14px;text-align:center';
+  banner.textContent = 'WebGL unavailable on this machine — 3D scene disabled. ' +
+    'All analytics panels (A key) remain fully functional.';
+  document.body.appendChild(banner);
+}
+if (renderer) {
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.92;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  document.body.appendChild(renderer.domElement);
+}
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xdde3eb);
@@ -698,18 +717,20 @@ scene.fog = new THREE.Fog(0xdde3eb, 220, 520);
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 500);
 camera.position.set(24, 24, 36);
 
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.09;
-controls.target.set(0, 2.25, 0);
-controls.maxPolarAngle = Math.PI * 0.495;
+const controls = renderer ? new OrbitControls(camera, renderer.domElement) : null;
+if (controls) {
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.09;
+  controls.target.set(0, 2.25, 0);
+  controls.maxPolarAngle = Math.PI * 0.495;
+}
 
 // Post-processing: subtle bloom for the warning sprites + yellow placards
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
+const composer = renderer ? new EffectComposer(renderer) : null;
+if (composer) composer.addPass(new RenderPass(scene, camera));
 const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.30, 0.7, 0.85);
-composer.addPass(bloom);
-composer.addPass(new OutputPass());
+if (composer) composer.addPass(bloom);
+if (composer) composer.addPass(new OutputPass());
 
 // Lighting
 scene.add(new THREE.AmbientLight(0xffffff, 0.55));
@@ -1926,6 +1947,7 @@ function tweenCamera(preset, ms = 600) {
   const p = VIEW_PRESETS[preset];
   if (!p) return;
   const startPos = camera.position.clone();
+  if (!controls) return;
   const startTarget = controls.target.clone();
   const endPos = new THREE.Vector3(...p.pos);
   const endTarget = new THREE.Vector3(...p.target);
@@ -1942,14 +1964,14 @@ function updateTween() {
   if (t >= 1) {
     camera.position.copy(tween.endPos);
     controls.target.copy(tween.endTarget);
-    controls.update();
+    if (controls) controls.update();
     tween = null;
     return;
   }
   const e = easeInOutCubic(t);
   camera.position.lerpVectors(tween.startPos, tween.endPos, e);
   controls.target.lerpVectors(tween.startTarget, tween.endTarget, e);
-  controls.update();
+  if (controls) controls.update();
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -1971,7 +1993,7 @@ function setFollow(id) {
 function updateFollow() {
   if (!followTarget || tween) return;
   const p = followTarget.position;
-  controls.target.lerp(new THREE.Vector3(p.x, 1.0, p.z), 0.08);
+  if (controls) controls.target.lerp(new THREE.Vector3(p.x, 1.0, p.z), 0.08);
   const offset = new THREE.Vector3(-6, 5, 8);
   const desired = new THREE.Vector3(p.x + offset.x, offset.y, p.z + offset.z);
   camera.position.lerp(desired, 0.04);
@@ -2498,8 +2520,8 @@ player.load(POLICIES[0].key, POLICIES[0].label).then(() => { if (player.loaded) 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  composer.setSize(window.innerWidth, window.innerHeight);
+  if (renderer) renderer.setSize(window.innerWidth, window.innerHeight);
+  if (composer) composer.setSize(window.innerWidth, window.innerHeight);
 });
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -2534,8 +2556,8 @@ function animate() {
     );
   }
 
-  controls.update();
-  composer.render();
+  if (controls) controls.update();
+  if (composer) composer.render();
 
   // FPS HUD
   frameCount++;
@@ -2544,7 +2566,7 @@ function animate() {
     const fps = frameCount * 1000 / (now - lastFpsT);
     document.getElementById('fps-val').textContent = fps.toFixed(0);
     document.getElementById('fps-ms').textContent = (1000 / fps).toFixed(1);
-    document.getElementById('fps-draws').textContent = renderer.info.render.calls;
+    document.getElementById('fps-draws').textContent = renderer ? renderer.info.render.calls : 0;
     lastFpsT = now; frameCount = 0;
   }
 
@@ -3201,6 +3223,7 @@ document.getElementById('btn-apply-heatmap').addEventListener('click', () => {
 
 // Screenshot (F4)
 document.getElementById('btn-screenshot').addEventListener('click', () => {
+  if (!renderer) { showToast('3D disabled — no WebGL'); return; }
   renderer.domElement.toBlob(blob => {
     if (!blob) return;
     const a = document.createElement('a');
