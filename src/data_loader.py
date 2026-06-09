@@ -1,3 +1,4 @@
+import csv
 import json
 import os
 import re
@@ -233,12 +234,16 @@ def preprocess(filepath=None, layout_path: str = None, write_stats: bool = True)
     storage_bins = load_storage_bins(filepath)
     mrp_to_line = load_mrpc(filepath)
 
-    # Resolve layout for cross-validation (which (rack, bay) actually exist).
+    # Resolve layout for cross-validation (which exact SAP rack/bay/position
+    # coordinates actually exist). SAP bins do not encode level, so level-0
+    # existence is the canary used by Warehouse.sap_position_id().
     from src.warehouse import Warehouse
     wh = Warehouse(layout_path)
     valid_rack_bays: set[tuple[str, int]] = set()
+    valid_rack_bay_positions: set[tuple[str, int, int]] = set()
     for pid, p in wh.positions.items():
         valid_rack_bays.add((p.rack_id, p.bay_code))
+        valid_rack_bay_positions.add((p.rack_id, p.bay_code, p.position))
 
     # Decoded bins is now a list per material (multi-bin support). A material
     # may have a mix of rack bins and Kardex codes — we keep the rack tuples
@@ -248,8 +253,10 @@ def preprocess(filepath=None, layout_path: str = None, write_stats: bool = True)
     kardex_materials: set[str] = set()
     bins_unknown_rack = 0
     bins_unmapped_position = 0
+    bins_invalid_position = 0
     bins_malformed = 0
     bins_kardex = 0
+    bin_validation_errors: list[dict] = []
 
     for mat_id, bin_codes in storage_bins.items():
         for bin_code in bin_codes:
@@ -264,6 +271,25 @@ def preprocess(filepath=None, layout_path: str = None, write_stats: bool = True)
             rack, bay, pos = decoded
             if (rack, bay) not in valid_rack_bays:
                 bins_unmapped_position += 1
+                bin_validation_errors.append({
+                    "material_id": mat_id,
+                    "storage_bin": bin_code,
+                    "rack": rack,
+                    "bay": bay,
+                    "position": pos,
+                    "reason": "unknown_rack_or_bay",
+                })
+                continue
+            if (rack, bay, pos) not in valid_rack_bay_positions:
+                bins_invalid_position += 1
+                bin_validation_errors.append({
+                    "material_id": mat_id,
+                    "storage_bin": bin_code,
+                    "rack": rack,
+                    "bay": bay,
+                    "position": pos,
+                    "reason": "invalid_position_in_bay",
+                })
                 continue
             decoded_bins.setdefault(mat_id, []).append(decoded)
 
@@ -288,6 +314,8 @@ def preprocess(filepath=None, layout_path: str = None, write_stats: bool = True)
         "bins_malformed": bins_malformed,
         "bins_unknown_rack": bins_unknown_rack,
         "bins_unmapped_position": bins_unmapped_position,
+        "bins_invalid_position": bins_invalid_position,
+        "bin_validation_errors": len(bin_validation_errors),
         "bin_duplicates": LAST_LOAD_META.get("bin_duplicates", 0),
         "bin_conflicts": LAST_LOAD_META.get("bin_conflicts", 0),
         "multi_bin_materials": LAST_LOAD_META.get("multi_bin_materials", 0),
@@ -302,6 +330,14 @@ def preprocess(filepath=None, layout_path: str = None, write_stats: bool = True)
         os.makedirs("output", exist_ok=True)
         with open("output/preprocess_stats.json", "w") as f:
             json.dump(stats, f, indent=2, ensure_ascii=False)
+        if bin_validation_errors:
+            with open("output/bin_validation_errors.csv", "w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(
+                    f,
+                    fieldnames=["material_id", "storage_bin", "rack", "bay", "position", "reason"],
+                )
+                writer.writeheader()
+                writer.writerows(bin_validation_errors)
 
     return {
         "materials": materials,
@@ -309,6 +345,7 @@ def preprocess(filepath=None, layout_path: str = None, write_stats: bool = True)
         "sap_master": sap_master,
         "storage_bins": storage_bins,
         "decoded_bins": decoded_bins,
+        "bin_validation_errors": bin_validation_errors,
         "kardex_materials": kardex_materials,
         "mrp_to_line": mrp_to_line,
         "material_to_line": material_to_line,

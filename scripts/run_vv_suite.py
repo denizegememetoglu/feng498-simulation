@@ -31,7 +31,7 @@ import sys
 import time
 import traceback
 import zipfile
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -87,7 +87,7 @@ def vv1_data_integrity(bundle: Path) -> dict:
         "git_dirty": _git_dirty(),
         "python": sys.version.split()[0],
         "platform": platform.platform(),
-        "wall_clock_utc": datetime.utcnow().isoformat() + "Z",
+        "wall_clock_utc": datetime.now(timezone.utc).isoformat(),
         "files": {},
     }
     for label, p in inputs.items():
@@ -349,29 +349,34 @@ def vv6_audit_mode(bundle: Path):
 
 def vv7_cross_validation(bundle: Path):
     rec = {
-        "status": "deferred",
+        "status": "warn",
         "intent": "ZWM92 last-month hold-out cross-validation.",
         "method": "Train slotting policies on rows < 2026-04-18, score on remainder.",
         "note": "Requires --cross-val flag in src.main.py (planned). See plan M6.",
     }
     (bundle / "VV7_cross_validation.json").write_text(json.dumps(rec, indent=2))
+    return "warn: cross-validation is deferred"
 
 
 def vv8_replication_variance(bundle: Path):
     """Use replications.json if present; otherwise note N=1 same-seed setup."""
     rep_p = OUTPUT / "replications.json"
     if not rep_p.exists():
-        rec = {"status": "single-seed", "note": "N_REPLICATIONS=1 with SAME_SEED_FOR_ALL_REPS=True (advisor decision May 26). For N=30 different-seed branch run with config.SAME_SEED_FOR_ALL_REPS=False, N_REPLICATIONS=30."}
+        rec = {"status": "warn", "note": "replications.json missing. Run src.main first, preferably with --n-reps 30 for variance analysis."}
         (bundle / "VV8_replication_variance.json").write_text(json.dumps(rec, indent=2))
-        return
+        return "warn: replications.json missing"
     reps = json.loads(rep_p.read_text())
     summary = {}
+    warn = False
     for policy, runs in reps.items():
         if not runs:
             continue
         walks = [r.get("avg_walk_distance", 0) for r in runs]
         leads = [r.get("avg_lead_time", 0) for r in runs]
+        if len(runs) < 2:
+            warn = True
         summary[policy] = {
+            "status": "warn" if len(runs) < 2 else "ok",
             "n": len(runs),
             "walk_mean": sum(walks) / len(walks),
             "walk_min": min(walks), "walk_max": max(walks),
@@ -379,6 +384,8 @@ def vv8_replication_variance(bundle: Path):
             "lead_min": min(leads), "lead_max": max(leads),
         }
     (bundle / "VV8_replication_variance.json").write_text(json.dumps(summary, indent=2))
+    if warn:
+        return "warn: fewer than 2 replications for at least one policy"
 
 
 def vv9_sensitivity_full(bundle: Path):
@@ -425,7 +432,7 @@ def vv9_sensitivity_full(bundle: Path):
 
 
 def vv10_tests(bundle: Path):
-    """Run pytest with JUnit XML output. Skip gracefully if pytest missing."""
+    """Run pytest with JUnit XML output. Missing pytest is a visible warning."""
     try:
         out = subprocess.run(
             [sys.executable, "-m", "pytest", "--junitxml",
@@ -434,12 +441,17 @@ def vv10_tests(bundle: Path):
         )
         log = bundle / "VV10_pytest_log.txt"
         log.write_text(out.stdout + "\n--- stderr ---\n" + out.stderr)
+        if out.returncode != 0 and "No module named pytest" in out.stderr:
+            (bundle / "VV10_tests.xml").write_text(
+                '<?xml version="1.0"?><testsuites><testsuite name="pytest_missing" tests="0"/></testsuites>'
+            )
+            return "warn: pytest is not installed"
         return out.returncode
     except (FileNotFoundError, subprocess.TimeoutExpired):
         (bundle / "VV10_tests.xml").write_text(
             '<?xml version="1.0"?><testsuites><testsuite name="placeholder" tests="0"/></testsuites>'
         )
-        return -1
+        return "warn: pytest command unavailable or timed out"
 
 
 def vv11_assumptions(bundle: Path):
@@ -498,6 +510,13 @@ def vv12_manifest(bundle: Path, run_record: dict):
     for p in sorted(bundle.iterdir()):
         if p.is_file() and not p.name.startswith("VV12_"):
             bundle_files[p.name] = {"sha256": _sha256(p), "size_bytes": p.stat().st_size}
+    statuses = run_record.get("status", {})
+    status_counts = {
+        "ok": sum(1 for v in statuses.values() if v == "ok"),
+        "warn": sum(1 for v in statuses.values() if str(v).startswith("warn")),
+        "fail": sum(1 for v in statuses.values()
+                    if v != "ok" and not str(v).startswith("warn")),
+    }
     manifest = {
         "schema_version": "1.0",
         "framework": "Sargent V&V (1979, 2013)",
@@ -506,9 +525,10 @@ def vv12_manifest(bundle: Path, run_record: dict):
         "python": sys.version.split()[0],
         "platform": platform.platform(),
         "wall_clock_started_utc": run_record.get("started"),
-        "wall_clock_finished_utc": datetime.utcnow().isoformat() + "Z",
+        "wall_clock_finished_utc": datetime.now(timezone.utc).isoformat(),
         "step_durations_s": run_record.get("durations", {}),
         "step_status": run_record.get("status", {}),
+        "status_counts": status_counts,
         "files": bundle_files,
     }
     (bundle / "VV12_manifest.json").write_text(json.dumps(manifest, indent=2))
@@ -531,6 +551,30 @@ STEPS = [
 ]
 
 
+def _step_status(result) -> str:
+    if result is None:
+        return "ok"
+    if isinstance(result, int):
+        return "ok" if result == 0 else f"fail: return code {result}"
+    if isinstance(result, str):
+        low = result.lower()
+        if low == "ok" or low.startswith("ok"):
+            return "ok"
+        if low == "warn" or low.startswith("warn"):
+            return result
+        if low == "fail" or low.startswith("fail"):
+            return result
+        return f"warn: {result}"
+    if isinstance(result, dict):
+        status = str(result.get("status", "ok")).lower()
+        if status in {"ok", "pass"}:
+            return "ok"
+        if status in {"warn", "warning", "deferred", "single-seed"}:
+            return f"warn: {status}"
+        return f"fail: {status}"
+    return "ok"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-prefix", default="VV",
@@ -542,7 +586,7 @@ def main():
     bundle.mkdir(parents=True, exist_ok=True)
 
     run_record = {
-        "started": datetime.utcnow().isoformat() + "Z",
+        "started": datetime.now(timezone.utc).isoformat(),
         "durations": {},
         "status": {},
     }
@@ -552,11 +596,13 @@ def main():
         try:
             sig = fn.__code__.co_varnames[:fn.__code__.co_argcount]
             if len(sig) == 1:
-                fn(bundle)
+                result = fn(bundle)
             else:
-                fn(bundle)
-            run_record["status"][name] = "ok"
-            print(f"  ✓ {name}  ({time.time() - t0:.2f}s)")
+                result = fn(bundle)
+            status = _step_status(result)
+            run_record["status"][name] = status
+            mark = "✓" if status == "ok" else "!" if status.startswith("warn") else "✗"
+            print(f"  {mark} {name}  [{status}] ({time.time() - t0:.2f}s)")
         except Exception as e:
             traceback.print_exc()
             run_record["status"][name] = f"error: {e}"
@@ -564,8 +610,8 @@ def main():
             print(f"  ✗ {name}  ({type(e).__name__}: {e})")
         run_record["durations"][name] = round(time.time() - t0, 3)
 
-    vv12_manifest(bundle, run_record)
     run_record["status"]["VV12_manifest"] = "ok"
+    vv12_manifest(bundle, run_record)
 
     # Zip the bundle
     zip_path = REPORTS / f"{args.out_prefix}_{ts}.zip"
@@ -576,8 +622,10 @@ def main():
 
     # Quick summary
     ok = sum(1 for v in run_record["status"].values() if v == "ok")
-    fail = sum(1 for v in run_record["status"].values() if v != "ok")
-    print(f"[V&V suite] {ok} ok / {fail} failed / {len(STEPS) + 1} total")
+    warn = sum(1 for v in run_record["status"].values() if str(v).startswith("warn"))
+    fail = sum(1 for v in run_record["status"].values()
+               if v != "ok" and not str(v).startswith("warn"))
+    print(f"[V&V suite] {ok} ok / {warn} warning / {fail} failed / {len(STEPS) + 1} total")
 
 
 if __name__ == "__main__":

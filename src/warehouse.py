@@ -108,6 +108,10 @@ class Warehouse:
     config.ASSUME_KIT_ACCESS_WHEN_TBD controls the placeholder behaviour.
     """
 
+    # Class-level cache pool, keyed by routing-geometry fingerprint.
+    # See __init__ — instances with identical geometry share route caches.
+    _SHARED_ROUTE_CACHES: dict[tuple, tuple[dict, dict, dict]] = {}
+
     def __init__(self, layout_path: str = None):
         self.positions: dict[str, PalletPosition] = {}
         self.material_locations: dict[str, list[str]] = {}
@@ -120,11 +124,32 @@ class Warehouse:
         self.non_blocking_storage: list[RectObstacle] = []
         self._safe_x_lines: list[float] = []
         self._safe_y_lines: list[float] = []
-        self._route_cache: dict[tuple, RouteResult] = {}
-        self._access_point_cache: dict[tuple, tuple[float, float]] = {}
-        self._route_to_position_cache: dict[tuple, RouteResult] = {}
         self._build_layout()
         self._build_route_model()
+        # Route caches are SHARED across Warehouse instances with identical
+        # routing geometry (2026-06-09 perf fix). main.py builds a fresh
+        # Warehouse per replication; per-instance caches re-warmed from zero
+        # on every rep, dominating the multi-rep runtime. Routing depends
+        # only on (obstacles, safe lines, clearance), so instances with the
+        # same geometry key can reuse one cache safely.
+        geom_key = (
+            tuple((o.x0, o.y0, o.x1, o.y1) for o in self.route_obstacles),
+            tuple(self._safe_x_lines),
+            tuple(self._safe_y_lines),
+            float(getattr(config, "ROUTE_CLEARANCE_M", 0.6)),
+            bool(getattr(config, "ASSUME_KIT_ACCESS_WHEN_TBD", False)),
+            # Access-point selection reads corridor sides, which are not
+            # visible in the obstacle set — include them in the key.
+            tuple(sorted(
+                (r["id"], i, s.get("kit_corridor_side", ""), s.get("rt_aisle_side", ""))
+                for r in self.layout["racks"]
+                for i, s in enumerate(r["segments"])
+            )),
+        )
+        shared = Warehouse._SHARED_ROUTE_CACHES.setdefault(
+            geom_key, ({}, {}, {}))
+        self._route_cache, self._access_point_cache, \
+            self._route_to_position_cache = shared
 
     def _build_layout(self):
         for rack in self.layout["racks"]:
@@ -177,6 +202,19 @@ class Warehouse:
         per site report (May 4) the lower 3 levels are operator-reachable."""
         pid = f"{rack_id}-{bay_code:02d}-{position:02d}-L0"
         return pid if pid in self.positions else None
+
+    def sap_position_ids(self, rack_id: str, bay_code: int, position: int) -> list[str]:
+        """Return all modeled levels for a SAP rack/bay/position coordinate.
+
+        SAP storage-bin strings encode rack, bay, and horizontal position but
+        not rack level. For actual-placement replay, keep rack/bay/position
+        exact and assign duplicate materials to the first free level instead
+        of incorrectly falling back after level 0 is occupied.
+        """
+        prefix = f"{rack_id}-{bay_code:02d}-{position:02d}-L"
+        ids = [pid for pid in self.positions if pid.startswith(prefix)]
+        ids.sort(key=lambda pid: self.positions[pid].level)
+        return ids
 
     def travel_distance(self, pos_a, pos_b):
         ax, ay = self._get_coords(pos_a)
@@ -556,15 +594,25 @@ class Warehouse:
         if self._point_inside_any_obstacle(start) or self._point_inside_any_obstacle(end):
             raise ValueError(f"Route endpoint inside rack/blocked zone: {start} -> {end}")
 
-        candidates = self._route_candidates(start, end)
         best: RouteResult | None = None
-        for path in candidates:
-            intersections = self.route_intersections(path)
-            if intersections:
-                continue
-            dist = self._path_length(path)
-            if best is None or dist < best.distance:
-                best = RouteResult(dist, tuple(path), ())
+        # Manhattan lower bound: every rectilinear path is at least
+        # |dx|+|dy| long, which is exactly the length of the two L-bend
+        # candidates. If either L-bend is obstruction-free it is globally
+        # optimal — skip generating the ~600 detour candidates entirely
+        # (2026-06-09 perf fix; the common aisle-to-aisle hop is an L).
+        for path in (self._clean_path([start, (end[0], start[1]), end]),
+                     self._clean_path([start, (start[0], end[1]), end])):
+            if not self.route_intersections(path):
+                best = RouteResult(self._path_length(path), tuple(path), ())
+                break
+        if best is None:
+            # Candidates are sorted by length, so the FIRST obstruction-free
+            # path is the shortest feasible one — stop there.
+            for path in self._route_candidates(start, end):
+                if self.route_intersections(path):
+                    continue
+                best = RouteResult(self._path_length(path), tuple(path), ())
+                break
         if best is None:
             direct = self._clean_path([start, (start[0], end[1]), end])
             intersections = tuple(self.route_intersections(direct))

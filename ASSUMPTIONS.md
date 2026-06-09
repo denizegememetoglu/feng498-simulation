@@ -241,12 +241,22 @@ elevation, physically detached from the main U1-U13 run. Updated model
     yet wired into a kit-aware slotting policy — would be a natural next step
     for a "co-locate kit-mates" heuristic.
 
-## 15. Routing
+## 15. Routing (updated 2026-06-09 — corridor-aware rectilinear)
 
-- Operator picks: Manhattan distance + nearest-neighbor ordering inside an order.
-- Reach-truck dispatch: nearest available RT to the pick location.
-- **TODO May 4:** observe how operators actually route between picks — do they cluster
-  by aisle, by zone, by line? The current model assumes pure NN, which may be wrong.
+- Travel paths are **obstacle-avoiding rectilinear routes**
+  (`Warehouse.route_between_points`): rack bodies are blockers, candidate
+  paths snap to a grid of corridor "safe lines" (rack-edge ± clearance),
+  and the shortest obstruction-free path wins. The Manhattan L-bend is a
+  proven lower bound, so a clear L-path is returned immediately.
+- Operator picks: greedy nearest-neighbor over ROUTED distances inside an
+  order; multi-bin materials pick the routed-nearest bin at decision time.
+- Reach trucks: depot → access-point routed travel, level-dependent lift,
+  stochastic pick/place, and (2026-06-09) an explicit **return-to-depot
+  leg** during which the truck remains busy/unavailable.
+- Rack-face access points respect `kit_corridor_side` / `rt_aisle_side`;
+  "TBD" sides conservatively allow both faces and emit a route-model WARN.
+- Not modelled: one-way corridor flow direction; congestion between
+  agents in the same aisle.
 
 ## 16. Timing parameters (`src/config.py`)
 
@@ -379,7 +389,11 @@ capped at `MAX_TRACE_IAT_MIN = 60 min` so overnight / weekend gaps
 didn't waste sim time. Same per-line kitting and material-master join
 filter as the fitted driver.
 
-## 21. Arena-style fitted distributions + same-seed runs (May 26 — current)
+> **SUPERSEDED NOTE (2026-06-09):** §21's same-seed N=1 design and the
+> single-order Exponential arrival model are superseded by §24. The
+> distribution-fitting approach itself (Arena-style) is unchanged.
+
+## 21. Arena-style fitted distributions + same-seed runs (May 26 — superseded by §24)
 
 Advisor's instruction was that the simulation should mirror Arena's
 discrete-event paradigm: don't replay a single recorded trajectory,
@@ -505,12 +519,12 @@ The 2026-05-26 audit refactored several silent assumptions into
 explicit, documented limitations. These remain in the model and are
 disclosed in the V&V report's `Limitations` section:
 
-1. **Kardex single-station collapse (M6):** `config/layout.json`
-   does not yet expose per-station Kardex coordinates, so all four
-   Kardex units share a single (x, y) point and a single SimPy
-   `Resource` of capacity 4. Per-station queue dynamics are
-   underestimated. Fix is layout-side and is deferred to the layout-
-   geometry session.
+1. **Kardex single-station collapse (M6) — RESOLVED 2026-06-09:**
+   `config/layout.json` now carries an additive `kardex_stations` array
+   (4 points spread along the Kardex zone); the operator walks to the
+   routed-nearest unit. The shared capacity-4 `Resource` queue remains
+   (one queue feeding 4 units), which matches the site's single pick-up
+   window assumption.
 2. **Zero-pick orders (H6):** counted separately from
    `orders_completed`. These are a model artefact (some order's
    materials have no decoded SAP bin and aren't Kardex-routed); the
@@ -530,11 +544,168 @@ disclosed in the V&V report's `Limitations` section:
    model, but the SAP "duplicate the inventory across bins" policy
    means the operator might in practice pick from a different bin on
    a different order. Not modelled.
-6. **Travel-distance metric is 2D Euclidean:** real aisle-constrained
-   Manhattan distance + one-way corridors are not modelled. C3 fixed
-   the sort key but the distance metric stays optimistic.
+6. **Travel-distance metric — RESOLVED (was "2D Euclidean"):** travel
+   now uses obstacle-avoiding rectilinear routing along corridor safe
+   lines (see §15). Remaining gap: one-way corridor flow directions and
+   aisle congestion are still not modelled.
 7. **Battery / charging for reach trucks:** not modelled. Over an 8-h
    shift each RT could realistically need 1–2 charge cycles.
+
+---
+
+## 24. 2026-06-09 fix pass — batch arrivals, replications, KPI completeness
+
+Driven by the advisor's written acceptance criteria (≥20 replications,
+4 KPIs, Minitab-ready export, hypothesis tests) and an internal audit.
+
+### 24.1 Batch arrivals (replaces §21's single-order Exponential)
+
+ZWM92 kit-orders are dispatched in bursts: among the 18,164 timestamped
+orders (Okken, AKS_PAK, F400 — the other family exports lack the
+time-of-day column), 3,885 same-timestamp batches exist with mean 4.68
+kits/batch (median 2, max 79) and 99.9% of multi-kit batches are
+single-line. The previously fitted Exp(5.36 min) IAT is therefore the
+**inter-batch** gap; using it per order under-loaded the system ~4.5×
+(sim ~87 orders/day vs real 40,804 / 103 active days ≈ 396/day),
+which made waiting times identically zero and RT utilization ~4%.
+
+New driver model (`ZWM92DistributionDriver.next_batch`):
+
+| Random quantity | Distribution | Source |
+|---|---|---|
+| Inter-batch gap | Empirical (3,604 within-shift gaps; mean 5.36 min, CV 2.04) | timestamped subset |
+| Batch size      | Empirical (3,885 runs; mean 4.68)                           | timestamped subset |
+| Line            | Categorical, sampled ONCE per batch                          | all 40,804 orders  |
+| Items per kit   | Empirical distinct-per-kit (unchanged, §21 H5)               | all orders         |
+
+Empirical gaps are kept (CV 2.04 ≫ 1 rules out the Exponential).
+Calibration identity: 480 / 5.36 × 4.68 ≈ 419 orders/day vs target 396
+(+5.7%, inside the ±10% acceptance band) — `validate.py`
+`daily_volume_check` enforces this every run. Limitation: batch sizes
+are extrapolated from 3 families to all 8 lines, and batch size is
+sampled independently of line (the marginal per-order line mix is
+preserved exactly; the line↔size correlation is not).
+
+### 24.2 Replication design (replaces §21's same-seed N=1)
+
+`N_REPLICATIONS=20`, `SAME_SEED_FOR_ALL_REPS=False`, seed = 42 + rep.
+The seed depends only on the rep index → **common random numbers**
+across policies. Two independent RNG streams per run (`arrival_rng` =
+seed, `service_rng` = seed + 1,000,003) keep the demand trajectory
+IDENTICAL across policies within a replication — previously one shared
+stream let a policy's extra service draws shift every later arrival,
+silently breaking CRN (Heuristic saw 434 orders, SAP 467 at the same
+seed). The model is **terminating**: each run is SIM_DAYS independent
+480-min working days (matching ZWM92's 07:00–16:00 single-shift
+dispatch profile), so no steady-state warm-up analysis is needed;
+WARMUP/COOLDOWN (30 min each) trim edge effects.
+
+Outputs: `output/kpi_by_replication.csv` (tidy, row = policy ×
+replication, the Minitab import), `replications.json`,
+`policy_stats.json` with per-policy mean ± 95% CI, ANOVA, Tukey HSD,
+Welch, and a CRN **paired-by-replication t-test** vs the Heuristic
+baseline (the Python twin of the team's Minitab test).
+
+### 24.3 Timing σ correction
+
+The lognormal log-σ values are now moment-matched from the measured
+F400 CVs via σ = √ln(1+CV²): operator 1.245 (pooled rf_scan +
+manual_pick, CV 1.93, n=900), RT 1.047 (CV 1.41), manual-penalty 1.279
+(CV 2.03), Kardex 1.245 (mirrors operator). The previous values
+(1.30/1.20/1.40) were set ad hoc and implied 1.3–1.9× the measured
+CVs. Means are still preserved via μ = ln(m) − σ²/2.
+
+### 24.4 RT return leg + resource semantics
+
+After delivering a pallet the reach truck drives back to the depot as a
+detached SimPy process that holds the RT resource until arrival — the
+operator is blocked only until delivery, but a returning truck cannot
+serve the next request. Previously the return leg did not exist (the
+truck teleported), structurally under-counting RT busy time.
+
+### 24.5 Per-line kitting + Kardex stations (additive layout keys)
+
+`config/layout.json` gained ADDITIVE keys only (rack geometry
+byte-identical, pallet canary 3203): `production_lines` kitting points
+for F400 / SM6-36 / PREMSET / MCSET (76% of ZWM92 picks), derived from
+the CAD kitting-cell labels via a codex→layout affine fit and snapped
+to corridor safe lines; OKKEN/PIX/DMK/SEPAM still fall back to the
+central kitting centroid (their CAD labels could not be confidently
+matched — site visit). `kardex_stations` spreads the 4 carousels along
+the Kardex zone; the operator walks to the routed-nearest unit.
+
+### 24.6 KPI completeness + accounting
+
+- `throughput_orders_per_hr` / `throughput_orders_per_day` (orders
+  completed in the active window / window length).
+- `avg_total_wait` = operator-queue + RT-queue wait (the advisor's
+  "waiting time"); `avg_rt_queue_wait` is the explicit RT-only name.
+- `kardex_utilization`; `orders_started` (arrivals; minus completions =
+  cut-off in-flight orders, a survivorship telemetry under load).
+- `summary()` is idempotent (the old util_overflow list accumulated on
+  every recorder snapshot call).
+- Utilization numerator AND denominator span the full run window while
+  order KPIs use the active window — kept (2.5% effect) and disclosed.
+
+### 24.7 Validation upgrades
+
+- χ² low-expected cells are POOLED (standard Cochran remedy); both
+  unpooled and pooled results are reported, the pooled one is headline.
+- `daily_volume_check`: sim arrivals/day within ±10% of ZWM92's 396.
+- `replication_ci_check`: 95% CI of throughput across the ≥20 reps,
+  with arrivals/day compared to the ZWM92 actual.
+- Honesty note added to the report: the χ²/t-test "expected" vectors
+  derive from the SAME ZWM92 dataset the driver was fitted on — these
+  are internal-consistency checks, not holdout validation. Independent
+  evidence: F400 video timing, daily-volume calibration, face validity.
+- "Baseline (Actual SAP)" fidelity is disclosed: 750 materials at true
+  SAP rack bins, 2,872 Kardex-routed (policy-invariant), 2,319 via
+  heuristic fallback — i.e. the baseline is a SAP+FMR hybrid, and the
+  report must present it as such.
+
+### 24.8a Forensics round (2026-06-10) — verified findings & decisions
+
+Adversarially-verified multi-agent forensics (3 finders + 3 independent
+re-derivers) on "why don't improvements improve / why does validation
+reject":
+
+1. **Restricted χ² scope fix.** The old restricted test compared sim
+   picks of the 750 decoded materials against the rack distribution of
+   ALL 4,036 ZWM92 materials. Scope-correcting the expected vector
+   (decoded materials' own ZWM92 pick counts at their özet racks) drops
+   χ² 174 → ~80, V 0.145 → ~0.10. The I/J/U "zero-cell" anomaly is
+   explained: 97-100% of their decoded materials are DEAD STOCK (zero
+   picks over the 4-month log), so the properly-scoped expectation
+   there is ≈0. Implemented in `_expected_picks_by_rack_scoped`.
+2. **Observed-bin placement idea REJECTED.** ZWM92 dispatch addresses
+   are shared zone codes (≈1,375 unique slots for ≈3,914 materials,
+   ~63% of slots multi-material) — not unique pallet positions; using
+   them as placement source makes the per-rack shape WORSE.
+3. **No multi-bin fairness gap.** Every policy assigns exactly 1
+   position per material in the current data (decoded_bins carries one
+   tuple per material); the SAP baseline has no structural slot-count
+   advantage.
+4. **Congestion mechanism (verified).** Cross-policy correlation of RT
+   utilization with lead time is r≈0.998; operator-queue wait is 73-80%
+   of lead time. Distance-only slotting (TravelDistance) optimizes
+   routed distance to the CENTRAL kitting centroid while 77% of demand
+   originates at per-line corridor points (+10.7 m weighted penalty),
+   and `get_available_positions` ignores levels, so high-frequency
+   materials land on RT-served positions: the operator then holds both
+   the order and an RT, queueing cascades, lead time doubles. This is
+   the thesis's central negative finding about naive slotting
+   "improvements" — and the design rationale for the proposed
+   `LineAwareSlottingPolicy` (line-origin distance + no-RT level
+   preference + natural per-corridor load spreading).
+5. **KDX fidelity gap is negligible for the sim.** 329 ZWM92-KDX
+   materials are missing from the özet kardex set, but only 1 is in
+   the active master (8 pick rows ≈ 0% volume). Disclosed, not coded.
+
+### 24.8 Naming honesty
+
+`TRACE_DRIVEN=True` is historical naming: the driver SAMPLES fitted
+distributions (Arena-style); it does not replay the trace. The thesis
+text must say "distribution-driven (ZWM92-fitted)".
 
 ---
 

@@ -41,13 +41,15 @@ OPERATOR_PICK_TIME = 0.113
 
 # Stochastic timing: when STOCHASTIC_PICK_TIMES is True, every operator and
 # RT pick samples its duration from Lognormal(mean=constant, sigma=...).
-# The sigma values come from the F400 video category stats (stdev_s / mean_s
-# converted to log-scale via the lognormal moment-matching formula).
+# sigma is the log-scale std from moment matching, sigma = sqrt(ln(1+CV^2)),
+# with CV = stdev_s/mean_s measured per F400 video category
+# (output/timing_study_f400.json). 2026-06-09 fix: previous values (1.30 /
+# 1.20 / 1.40) were set ad hoc and implied CVs ~1.3-1.9x the measured ones.
 STOCHASTIC_PICK_TIMES = True
-OPERATOR_PICK_TIME_SIGMA = 1.30       # F400 rf_scan+manual_pick CV ≈ 1.7
-REACH_TRUCK_PICK_TIME_SIGMA = 1.20    # F400 rt_pick CV ≈ 1.37
-MANUAL_PICK_PENALTY_SIGMA = 1.40      # F400 walk_corridor CV ≈ 1.92
-KARDEX_PICK_TIME_SIGMA = 1.30
+OPERATOR_PICK_TIME_SIGMA = 1.245      # pooled rf_scan+manual_pick: CV=1.93 (n=900)
+REACH_TRUCK_PICK_TIME_SIGMA = 1.047   # rt_pick: CV=1.41 (n=69)
+MANUAL_PICK_PENALTY_SIGMA = 1.279     # walk_corridor: CV=2.03 (n=157)
+KARDEX_PICK_TIME_SIGMA = 1.245        # mirrors operator pick (no Kardex video)
 KARDEX_CAROUSEL_SIGMA = 0.30          # book value — no carousel video
 
 # Reach trucks live in a depot near the receiving area; from there they travel
@@ -118,23 +120,39 @@ COOLDOWN_MIN = 30.0
 # the break list is inert (see ASSUMPTIONS §23).
 SHIFT_MODE = "continuous"  # "continuous" | "daily"
 
-# Replications + seeding.
-# Advisor decision (May 26): use a single fixed seed for every replication
-# so the run is fully reproducible. With same seed and Arena-style fitted
-# distributions, every rep produces an identical trajectory — so N=1 is
-# sufficient. Validation comes from chi-square / paired t-test against
-# ZWM92 actuals (src/validate.py), not from replication variance.
-# Flip SAME_SEED_FOR_ALL_REPS to False to revert to the prior
-# (seed = RANDOM_SEED + rep_index) Sargent-replication setup.
-N_REPLICATIONS = 1
+# Replications + seeding (2026-06-09 redesign per advisor acceptance
+# criteria: >= 20 independent replications with real between-rep variance).
+# Each replication uses seed = RANDOM_SEED + rep_index. Because the seed
+# depends only on the rep index, every policy sees the SAME seed at the
+# same rep — common random numbers (CRN) across policies, which pairs the
+# comparison and reduces variance. The arrival stream is additionally
+# isolated on its own RNG stream (see WarehouseSimulation.arrival_rng) so
+# all policies face an identical demand trajectory within a replication.
+# The model is terminating: each run is SIM_DAYS independent working days
+# (480-min single-shift days, matching the ZWM92 07:00-16:00 dispatch
+# profile); WARMUP_MIN/COOLDOWN_MIN trim edge effects, so no steady-state
+# warm-up analysis is required (Law, Simulation Modeling & Analysis, ch.9).
+N_REPLICATIONS = 20
 RANDOM_SEED = 42
-SAME_SEED_FOR_ALL_REPS = True
+SAME_SEED_FOR_ALL_REPS = False
 
-# Trace-driven mode: replay real ZWM92 dispatch orders instead of generating
-# synthetic ones. The synthetic OrderGenerator is kept as a fallback that
-# kicks in automatically if the cache is missing.
+# ZWM92 distribution-driven mode (NOTE: the name TRACE_DRIVEN is historical —
+# the driver does NOT replay the raw trace; it samples Arena-style fitted
+# distributions from the ZWM92 cache so each replication is an independent
+# realisation of the same arrival process). The synthetic OrderGenerator is
+# kept as a fallback that kicks in (with a loud [WARN]) if the cache is missing.
 TRACE_DRIVEN = True
 ZWM92_ORDERS_CACHE = "output/zwm92_orders.json"
+
+# Batch arrivals (2026-06-09): ZWM92 shows kit-orders are dispatched in
+# bursts — 3,885 same-timestamp batches across the 18,164 timestamped
+# orders (mean 4.68 kits/batch, median 2). The driver therefore samples
+# inter-BATCH gaps (empirical, within-shift) and a batch SIZE (empirical),
+# emitting the whole batch at one arrival instant. This reproduces the
+# real daily volume (~396 kit-orders per active day) instead of the
+# ~4.5x under-loaded one-order-per-gap model used before. Disable to
+# revert to single-order Exponential arrivals (for sensitivity only).
+BATCH_ARRIVALS = True
 # Cap inter-arrival times at this value (minutes) so overnight / weekend
 # gaps in the ZWM92 trace don't waste sim time. 60 min ≈ one shift-pause.
 # Set to None to use raw timestamps.

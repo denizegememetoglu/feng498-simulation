@@ -47,8 +47,10 @@ EXPECTED_LEVELS = {
 }
 LOAD_DATA_TARGETS = {
     "materials_with_bin": 3804,
-    "materials_with_decoded_bin": 781,
-    "decoded_bin_slots_total": 833,  # decoded BIN count (CLAUDE.md: "833 decoded")
+}
+LOAD_DATA_MINIMUMS = {
+    "materials_with_decoded_bin": 700,
+    "decoded_bin_slots_total": 750,
 }
 EXPECTED_WAREHOUSE_POSITIONS = 3137  # Warehouse._build_layout output (CLAUDE.md)
 ZWM92_TARGETS = {
@@ -154,6 +156,15 @@ def q3_sap_join() -> dict:
         got = stats.get(k)
         if got != exp:
             issues.append(f"{k}: {got} ≠ {exp}")
+    for k, minimum in LOAD_DATA_MINIMUMS.items():
+        got = stats.get(k, 0)
+        if got < minimum:
+            issues.append(f"{k}: {got} < minimum {minimum}")
+    if stats.get("bin_validation_errors", 0) > 0:
+        warns.append(
+            f"{stats['bin_validation_errors']} SAP bins failed exact rack/bay/position validation; "
+            "see output/bin_validation_errors.csv"
+        )
     # Cross-check Warehouse modelled positions count (separately from preprocess bins)
     try:
         from src.warehouse import Warehouse
@@ -166,8 +177,15 @@ def q3_sap_join() -> dict:
         n_pos = None
     status = "FAIL" if issues else ("WARN" if warns else "PASS")
     return {"id": "Q3", "title": "SAP join coverage (preprocess + warehouse positions)",
-            "status": status, "got": {k: stats.get(k) for k in LOAD_DATA_TARGETS},
-            "expected": LOAD_DATA_TARGETS, "warehouse_positions": n_pos,
+            "status": status, "got": {
+                **{k: stats.get(k) for k in LOAD_DATA_TARGETS},
+                **{k: stats.get(k) for k in LOAD_DATA_MINIMUMS},
+                "bins_invalid_position": stats.get("bins_invalid_position", 0),
+                "bin_validation_errors": stats.get("bin_validation_errors", 0),
+            },
+            "expected_exact": LOAD_DATA_TARGETS,
+            "expected_minimum": LOAD_DATA_MINIMUMS,
+            "warehouse_positions": n_pos,
             "expected_warehouse_positions": EXPECTED_WAREHOUSE_POSITIONS,
             "issues": issues, "warns": warns}
 

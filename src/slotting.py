@@ -173,9 +173,20 @@ class RealBaselinePolicy(SlottingPolicy):
             decoded_list = self.decoded_bins.get(mid) or []
             placed_any = False
             for (rack, bay, pos) in decoded_list:
-                pid = warehouse.sap_position_id(rack, bay, pos)
-                if pid is not None and warehouse.positions[pid].material_id is None:
-                    warehouse.assign_material(mid, pid)
+                if hasattr(warehouse, "sap_position_ids"):
+                    candidate_ids = warehouse.sap_position_ids(rack, bay, pos)
+                else:
+                    pid = warehouse.sap_position_id(rack, bay, pos)
+                    candidate_ids = [pid] if pid is not None else []
+                free_pid = next(
+                    (
+                        pid for pid in candidate_ids
+                        if warehouse.positions[pid].material_id is None
+                    ),
+                    None,
+                )
+                if free_pid is not None:
+                    warehouse.assign_material(mid, free_pid)
                     self.sap_slots_assigned += 1
                     placed_any = True
             if placed_any:
@@ -245,10 +256,106 @@ class TravelDistancePolicy(SlottingPolicy):
                 warehouse.assign_material(mat["material_id"], target)
 
 
+class LineAwareSlottingPolicy(SlottingPolicy):
+    """Proposed improvement (2026-06-09): congestion- and line-aware slotting.
+
+    Why the existing 'improvement' policies lose under realistic load:
+      * TravelDistancePolicy sorts ALL levels by distance to the CENTRAL
+        kitting centroid, so the most-picked materials land on
+        RT-required levels near that point — every pick then queues a
+        reach truck (measured: RT util 43.7% vs baseline 20.9%, lead
+        time 2x) and orders don't even START at the central point any
+        more (per-line kitting points cover 76% of pick volume).
+
+    Rules (greedy over materials sorted by real ZWM92 pick frequency):
+      1. origin(material) = its production line's kitting point from
+         layout.json `production_lines` (fallback: central centroid);
+      2. picked materials take the nearest FREE position by ROUTED
+         distance from that origin among positions that do NOT need a
+         reach truck (kit-corridor level < FAST_MOVER_MAX_LEVEL, or a
+         manual-pick level), spreading load across the per-line
+         corridors by construction;
+      3. when a line's no-RT space runs out, fall back to the nearest
+         RT-served position from the same origin;
+      4. zero-pick materials go to upper/reserve levels last, keeping
+         prime positions for live SKUs.
+    """
+
+    def __init__(self, picks_by_material: dict[str, int] | None = None,
+                 material_to_line: dict[str, str] | None = None,
+                 kardex_materials=None):
+        super().__init__(kardex_materials=kardex_materials)
+        self.picks_by_material = picks_by_material or {}
+        self.material_to_line = material_to_line or {}
+
+    def _line_origins(self, warehouse) -> dict[str, tuple[float, float]]:
+        origins = {}
+        for entry in warehouse.layout.get("production_lines", []):
+            kp = entry.get("kitting_point")
+            if kp and len(kp) == 2:
+                origins[entry["name"]] = (float(kp[0]), float(kp[1]))
+        return origins
+
+    def assign(self, materials, warehouse):
+        materials = self.rack_materials(materials)
+        warehouse.clear_assignments()
+
+        origins = self._line_origins(warehouse)
+        central = (warehouse.kitting_x, warehouse.kitting_y)
+
+        # Pre-sort every position once per origin (routed distance). The
+        # shared route cache makes this cheap after the first replication.
+        all_pids = list(warehouse.positions.keys())
+
+        def sorted_pools(origin):
+            scored = []
+            for pid in all_pids:
+                try:
+                    d = warehouse.route_to_position(origin, pid).distance
+                except ValueError:
+                    continue
+                scored.append((d, pid))
+            scored.sort()
+            no_rt = [pid for _d, pid in scored
+                     if not warehouse.needs_reach_truck(pid)]
+            rt = [pid for _d, pid in scored
+                  if warehouse.needs_reach_truck(pid)]
+            return no_rt, rt
+
+        pools = {None: sorted_pools(central)}
+        for line, origin in origins.items():
+            pools[line] = sorted_pools(origin)
+
+        freq = self.picks_by_material
+        picked = [m for m in materials if freq.get(m["material_id"], 0) > 0]
+        unpicked = [m for m in materials if freq.get(m["material_id"], 0) <= 0]
+        picked.sort(key=lambda m: freq[m["material_id"]], reverse=True)
+
+        for mat in picked:
+            mid = mat["material_id"]
+            line = self.material_to_line.get(mid)
+            no_rt, rt = pools.get(line if line in pools else None,
+                                  pools[None])
+            target = self.pop_free(no_rt, warehouse) or self.pop_free(rt, warehouse)
+            if target is not None:
+                warehouse.assign_material(mid, target)
+
+        # Reserve stock: upper levels first so prime slots stay free for
+        # any remaining picked materials in future replications.
+        upper_pool = warehouse.get_upper_level_positions()
+        remaining_pool = warehouse.get_available_positions()
+        for mat in unpicked:
+            target = (self.pop_free(upper_pool, warehouse)
+                      or self.pop_free(remaining_pool, warehouse))
+            if target is not None:
+                warehouse.assign_material(mat["material_id"], target)
+
+
 ALL_POLICIES = {
     "Baseline (Heuristic)": HeuristicBaselinePolicy,
     "Baseline (Actual SAP)": RealBaselinePolicy,
     "Usage-based ABC": UsageBasedABCPolicy,
     "Double ABC": DoubleABCPolicy,
     "Travel-distance Optimized": TravelDistancePolicy,
+    "Line-aware Slotting": LineAwareSlottingPolicy,
 }

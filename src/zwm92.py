@@ -226,6 +226,19 @@ def cache_zwm92_views(directory: str = "data/zwm92", output_dir: str = "output")
     iats_within = [o["inter_arrival_min"] for o in orders[1:]
                    if 0 < o["inter_arrival_min"] <= 60.0]
     iat_within_shift_mean = (sum(iats_within) / len(iats_within)) if iats_within else None
+    # Batch structure (2026-06-09): consecutive same-timestamp orders form a
+    # dispatch batch. Only timestamped orders carry IAT info; volume uses all.
+    _ts = [o for o in orders if pd.notna(o["arrival_dt"])]
+    _batches: list[int] = []
+    _cur = 1
+    for _a, _b in zip(_ts, _ts[1:]):
+        if (_b["arrival_dt"] - _a["arrival_dt"]).total_seconds() <= 0:
+            _cur += 1
+        else:
+            _batches.append(_cur)
+            _cur = 1
+    _batches.append(_cur)
+    _active_days = len({o["arrival_dt"].date() for o in _ts}) or 1
     if df["pick_datetime"].notna().any() and len(orders) > 1:
         span_min = (df["pick_datetime"].max() - df["pick_datetime"].min()).total_seconds() / 60.0
         iat_calendar_mean = span_min / (len(orders) - 1)
@@ -261,6 +274,12 @@ def cache_zwm92_views(directory: str = "data/zwm92", output_dir: str = "output")
         "iat_within_shift_mean": iat_within_shift_mean,
         "iat_within_shift_n": len(iats_within),
         "iat_calendar_mean": iat_calendar_mean,
+        "timestamped_orders": len(_ts),
+        "n_batches": len(_batches),
+        "batch_size_mean": (sum(_batches) / len(_batches)) if _batches else None,
+        "batch_size_max": max(_batches) if _batches else None,
+        "active_days": _active_days,
+        "orders_per_active_day": len(orders) / _active_days,
         "n_picks_per_kit_mean": ((sum(n_picks_per_kit) / len(n_picks_per_kit))
                                   if n_picks_per_kit else None),
         "n_distinct_per_kit_mean": ((sum(n_distinct_per_kit) / len(n_distinct_per_kit))
@@ -342,11 +361,47 @@ def fit_distributions(orders_path: str = "output/zwm92_orders.json",
         return _CACHED_FITS[cache_key]
     orders = load_orders_cached(orders_path)
 
-    # 1) Inter-arrival: filter out long overnight/weekend gaps, then fit a
-    # single-rate Exponential (Arena's standard for arrival processes).
-    iats = [o["inter_arrival_min"] for o in orders[1:]
-            if 0 < o["inter_arrival_min"] <= iat_cap_min]
+    # 1) Arrival process — batch structure (2026-06-09 fix). Kit-orders are
+    # dispatched in bursts: consecutive orders sharing one timestamp form a
+    # batch. Only timestamped orders carry IAT information (Mcset/Premset/
+    # SM6/DMK/Sepam exports lack the time-of-day column), so the batch and
+    # gap fits use that subset; the VOLUME calibration uses all orders.
+    ts_orders = [o for o in orders if pd.notna(o["arrival_dt"])]
+    batch_sizes: list[int] = []
+    iats: list[float] = []
+    cur = 1
+    for prev, nxt in zip(ts_orders, ts_orders[1:]):
+        gap = (nxt["arrival_dt"] - prev["arrival_dt"]).total_seconds() / 60.0
+        if gap <= 0:
+            cur += 1
+            continue
+        batch_sizes.append(cur)
+        cur = 1
+        if gap <= iat_cap_min:  # drop overnight / weekend gaps
+            iats.append(gap)
+    batch_sizes.append(cur)
     iat_mean = sum(iats) / len(iats) if iats else 5.0
+    if len(iats) > 1:
+        _m = iat_mean
+        iat_std = (sum((x - _m) ** 2 for x in iats) / (len(iats) - 1)) ** 0.5
+    else:
+        iat_std = 0.0
+    iat_cv = (iat_std / iat_mean) if iat_mean else 0.0
+    batch_mean = (sum(batch_sizes) / len(batch_sizes)) if batch_sizes else 1.0
+    # Daily-volume calibration target: ALL built orders over the active
+    # day count. ASSUMPTION (documented, ASSUMPTIONS §24.1): all families
+    # share the warehouse's single operating calendar, and the timestamped
+    # subset reveals it — 103 active days = 87 weekdays + 16 Saturdays over
+    # the 2026-01-02..05-18 span (97 weekdays total), i.e. the facility's
+    # actual working days. The untimestamped family exports (Mcset, Premset,
+    # SM6, DMK, Sepam) carry no date-times, so their own day count cannot be
+    # observed; a single-facility warehouse dispatching all families on the
+    # same days makes the shared-calendar reading the natural one. With
+    # empirical gaps + empirical batch sizes the sim produces
+    # SHIFT/iat_mean * batch_mean orders/day; validate.py checks this lands
+    # within ±10% of orders_per_active_day.
+    active_days = len({o["arrival_dt"].date() for o in ts_orders}) or 1
+    orders_per_active_day = len(orders) / active_days
 
     # 2) Items per order: keep the empirical distribution rather than fit a
     # parametric — kit sizes are bursty, mode at 1-2, heavy right tail.
@@ -390,7 +445,14 @@ def fit_distributions(orders_path: str = "output/zwm92_orders.json",
 
     fit = {
         "iat_mean_min": iat_mean,
+        "iat_std_min": iat_std,
+        "iat_cv": iat_cv,
         "iat_cap_min": iat_cap_min,
+        "iat_samples": iats,
+        "batch_size_empirical": batch_sizes,
+        "batch_size_mean": batch_mean,
+        "active_days": active_days,
+        "orders_per_active_day": orders_per_active_day,
         "n_items_empirical": n_items_emp,
         "n_picks_empirical": n_picks_emp,
         "n_distinct_empirical": n_distinct_emp,
@@ -402,8 +464,14 @@ def fit_distributions(orders_path: str = "output/zwm92_orders.json",
         "per_line_material_weights": per_line_w,
         "summary": {
             "n_orders": len(orders),
+            "n_timestamped_orders": len(ts_orders),
             "n_iat_samples": len(iats),
             "iat_mean_min": iat_mean,
+            "iat_cv": iat_cv,
+            "n_batches": len(batch_sizes),
+            "batch_size_mean": batch_mean,
+            "active_days": active_days,
+            "orders_per_active_day": orders_per_active_day,
             "n_materials_in_pool": len(material_ids),
             "n_lines": len(line_names),
             "items_per_order_mean": (sum(n_items_emp) / len(n_items_emp)) if n_items_emp else 0,

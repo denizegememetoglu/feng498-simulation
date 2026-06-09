@@ -38,6 +38,36 @@
     "depth_m": 4,
     "_source": "approximate, ASSUMPTIONS.md §9"
   },
+  "production_lines": [
+    {
+      "name": "F400",
+      "kitting_point": [23.692, 21.91],
+      "_source": "CAD '(F400)' KITTING cell label (output/dwg_codex_geometry.json) mapped via codex->layout affine fit over rack centroids, x snapped to the kit-corridor safe line between racks F and G. Additive key 2026-06-09; rack geometry untouched."
+    },
+    {
+      "name": "SM6-36",
+      "kitting_point": [31.72, 21.08],
+      "_source": "CAD '(SM6-Premset)' KITTING cell label, same transform; shared zone with PREMSET."
+    },
+    {
+      "name": "PREMSET",
+      "kitting_point": [31.72, 21.08],
+      "_source": "CAD '(SM6-Premset)' KITTING cell label, same transform; shared zone with SM6-36."
+    },
+    {
+      "name": "MCSET",
+      "kitting_point": [44.503, 24.0],
+      "_source": "CAD '(MCset-Aksesuar)' KITTING cell label, same transform."
+    }
+  ],
+  "_production_lines_note": "Only lines with an unambiguous CAD kitting-cell label are mapped (76% of ZWM92 picks). OKKEN/PIX/DMK/SEPAM fall back to the central kitting centroid - the CAD labels '(GMH)', '(RI-P7 SD-POLE)', '(Blokset-Fason)' could not be confidently matched to ZWM92 line names; site visit to resolve.",
+  "kardex_stations": [
+    {"x": 2.0, "y": 5.75},
+    {"x": 2.0, "y": 9.25},
+    {"x": 2.0, "y": 12.75},
+    {"x": 2.0, "y": 16.25}
+  ],
+  "_kardex_stations_note": "Four KDX carousels spread evenly along the kardex zone (x 0-4, y 4-18); per-unit coords were previously collapsed to the zone centroid. Additive key 2026-06-09.",
   "fast_mover_max_level": 3,
   "rt_aisle_width_m": 3.0,
   "kit_corridor_width_m": 2.0,

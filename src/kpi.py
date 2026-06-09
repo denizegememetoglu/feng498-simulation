@@ -27,9 +27,14 @@ class KPICollector:
         self.milkrun_departures: list[float] = []
         self._rt_busy_time = 0.0
         self._op_busy_time = 0.0
+        self._kardex_busy_time = 0.0
         self._sim_duration = 0.0
         self._warmup = 0.0
         self._cooldown = 0.0
+        # Arrivals counted at generation time. orders_started - orders_total
+        # = orders still in flight when the run was cut off at `duration`
+        # (survivorship telemetry — those orders never reach record_order).
+        self.orders_started = 0
         # Validation telemetry: pick counts by rack and by material across the
         # whole run (irrespective of warmup window — full data is what we need
         # for chi-square vs. SAP). Use `_active_orders` for windowed averages.
@@ -71,6 +76,9 @@ class KPICollector:
     def add_op_busy(self, duration):
         self._op_busy_time += duration
 
+    def add_kardex_busy(self, duration):
+        self._kardex_busy_time += duration
+
     def set_sim_duration(self, duration, warmup=0.0, cooldown=0.0):
         self._sim_duration = duration
         self._warmup = warmup
@@ -99,35 +107,65 @@ class KPICollector:
         distances = np.array([o.walk_distance for o in active])
 
         # Utilization compares cumulative busy time to cumulative resource
-        # capacity across the entire simulation (busy time is recorded for
-        # every order, not just those in the active window).
+        # capacity across the entire simulation. Both numerator and
+        # denominator span the FULL run (incl. warmup/cooldown, 2.5% of the
+        # window) while the order KPIs use the active window only — a known,
+        # documented mismatch kept because splitting busy spans across the
+        # window edges adds complexity for a <2.5% effect (ASSUMPTIONS §24).
         total_window = max(self._sim_duration, 1.0)
         rt_capacity = num_reach_trucks * total_window
         op_capacity = num_operators * total_window
+        kdx_capacity = config.NUM_KARDEX_UNITS * total_window
         rt_util_raw = self._rt_busy_time / rt_capacity if rt_capacity > 0 else 0.0
         op_util_raw = self._op_busy_time / op_capacity if op_capacity > 0 else 0.0
+        kdx_util_raw = (self._kardex_busy_time / kdx_capacity
+                        if kdx_capacity > 0 else 0.0)
+        # Compute overflow flags locally — summary() must stay idempotent
+        # (the recorder calls it periodically; the old append-to-self list
+        # double-counted overflows on every call).
+        overflow = []
         if rt_util_raw > 1.0:
-            self.util_overflow.append(("reach_truck", rt_util_raw))
+            overflow.append(("reach_truck", rt_util_raw))
         if op_util_raw > 1.0:
-            self.util_overflow.append(("operator", op_util_raw))
+            overflow.append(("operator", op_util_raw))
+        self.util_overflow = overflow
+
+        # Throughput over the active KPI window. One sim day == one 480-min
+        # shift, so orders/day is the per-shift throughput the advisor asked
+        # for; orders/hr is the rate form for Minitab.
+        active_window_min = max(total_window - self._warmup - self._cooldown, 1.0)
+        throughput_per_hr = len(active) / (active_window_min / 60.0)
+
+        total_waits = op_waits + rt_waits
 
         return {
+            "orders_started": int(self.orders_started),
             "orders_completed": len(active),
             "orders_total": len(self.orders),
             "orders_with_no_locations": int(self.orders_with_no_locations),
+            "throughput_orders_per_hr": float(throughput_per_hr),
+            "throughput_orders_per_day": float(
+                throughput_per_hr * config.SHIFT_DURATION_MIN / 60.0),
             "avg_prep_time": float(prep_times.mean()),
             "median_prep_time": float(np.median(prep_times)),
             "p95_prep_time": float(np.percentile(prep_times, 95)),
             "avg_lead_time": float(leads.mean()),
             "p95_lead_time": float(np.percentile(leads, 95)),
             "avg_op_queue_wait": float(op_waits.mean()),
+            # avg_wait_time kept as the RT-queue wait for backward compat;
+            # avg_rt_queue_wait is the explicit name, avg_total_wait is the
+            # advisor's "waiting time" KPI (all queueing per order).
             "avg_wait_time": float(rt_waits.mean()),
+            "avg_rt_queue_wait": float(rt_waits.mean()),
+            "avg_total_wait": float(total_waits.mean()),
+            "p95_total_wait": float(np.percentile(total_waits, 95)),
             "total_wait_time": float(rt_waits.sum()),
             "avg_walk_distance": float(distances.mean()),
             "total_walk_distance": float(distances.sum()),
             "reach_truck_utilization": rt_util_raw,
             "operator_utilization": op_util_raw,
-            "util_overflow": list(self.util_overflow),
+            "kardex_utilization": kdx_util_raw,
+            "util_overflow": list(overflow),
         }
 
     def to_csv(self, filepath):

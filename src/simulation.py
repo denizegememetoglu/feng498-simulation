@@ -125,16 +125,21 @@ class ZWM92DistributionDriver:
     once at construction time (`src.zwm92.fit_distributions`) and writes
     the parameters to output/zwm92_fit.json for documentation.
 
-    Sampling per order:
-      - line       ~ Categorical(line_weights)
-      - n_items    ~ Empirical(n_items_per_order)
-      - items      ~ Categorical(per_line_material_weights[line])
-      - inter_arr  ~ Exponential(iat_mean_min)
+    Sampling (2026-06-09 batch-arrival redesign — ZWM92 kit-orders arrive
+    in same-timestamp dispatch bursts, mean 4.68 kits/batch):
+      - inter_batch ~ Empirical(within-shift positive gaps; mean 5.36 min,
+                      CV 2.04 — empirical kept because CV >> 1 rules out
+                      the Exponential)
+      - batch_size  ~ Empirical(same-timestamp run lengths)
+      - per order in the batch:
+          line     ~ Categorical(line_weights)
+          n_items  ~ Empirical(n_items_per_order)
+          items    ~ Categorical(per_line_material_weights[line])
 
     Materials not in the active master are filtered after sampling.
 
-    Falls back to the synthetic OrderGenerator silently if the ZWM92 fit
-    cache is missing — keeps CI/dev runs working without SAP exports.
+    Falls back to the synthetic OrderGenerator if the ZWM92 fit cache is
+    missing (prints a [WARN] — results are then synthetic, not ZWM92-driven).
     """
 
     def __init__(self, materials, material_to_line, rng,
@@ -145,6 +150,9 @@ class ZWM92DistributionDriver:
         self.fit_summary: dict | None = None
 
         if not os.path.exists(orders_cache):
+            print(f"[WARN] ZWM92 cache not found at {orders_cache} — "
+                  f"falling back to the SYNTHETIC OrderGenerator. Results "
+                  f"are NOT ZWM92-driven; run `python -m src.zwm92` first.")
             self._fallback = OrderGenerator(materials, material_to_line, rng)
             return
 
@@ -172,46 +180,84 @@ class ZWM92DistributionDriver:
             self._line_mids[line] = mids
             self._line_w[line] = wsa
         if not self._lines:
+            print("[WARN] ZWM92 per-line material pools are empty after "
+                  "filtering against the active master — falling back to "
+                  "the SYNTHETIC OrderGenerator.")
             self._fallback = OrderGenerator(materials, material_to_line, rng)
             return
 
         line_p = np.array(self._line_p, dtype=float)
         line_p /= line_p.sum()
         self._line_p_norm = line_p
+        fitted_mean = float(fit["iat_mean_min"]) or 1.0
         override = getattr(config, "IAT_MEAN_MIN_OVERRIDE", None)
         if override is not None and override > 0:
             # Sensitivity sweep handle — override the cached fit so the
             # arrival rate can be perturbed without regenerating ZWM92.
             self._iat_mean = float(override)
         else:
-            self._iat_mean = float(fit["iat_mean_min"]) or 1.0
+            self._iat_mean = fitted_mean
+        # Empirical inter-batch gap pool; rescaled when the sensitivity
+        # override shifts the mean (shape preserved, rate perturbed).
+        iat_samples = fit.get("iat_samples") or []
+        self._iat_pool = (np.array(iat_samples, dtype=float)
+                          * (self._iat_mean / fitted_mean)
+                          if iat_samples else None)
+        batch_pool = fit.get("batch_size_empirical") or []
+        self._batch_pool = (np.array(batch_pool, dtype=int)
+                            if batch_pool else np.array([1]))
         self._n_items_pool = np.array(fit["n_items_empirical"], dtype=int)
 
     @property
     def is_distribution_driven(self) -> bool:
         return self._fallback is None
 
-    def next_order(self):
-        if self._fallback is not None:
-            return self._fallback.next_order()
+    def _sample_iat(self) -> float:
+        """Inter-batch gap: empirical pool when fitted, Exp fallback."""
+        if self._iat_pool is not None and len(self._iat_pool):
+            return float(self._rng.choice(self._iat_pool))
+        return float(self._rng.exponential(self._iat_mean))
+
+    def _build_order(self, line: str) -> dict:
         self._order_counter += 1
-        # Sample line, then item count, then items conditional on line.
-        line_idx = self._rng.choice(len(self._lines), p=self._line_p_norm)
-        line = self._lines[line_idx]
         n_items = int(self._rng.choice(self._n_items_pool))
         n_items = max(1, min(n_items, len(self._line_mids[line])))
         idx = self._rng.choice(len(self._line_mids[line]),
                                size=n_items,
                                replace=False,
                                p=self._line_w[line])
-        items = self._line_mids[line][idx].tolist()
-        iat = float(self._rng.exponential(self._iat_mean))
         return {
             "id": self._order_counter,
-            "items": items,
+            "items": self._line_mids[line][idx].tolist(),
             "line": line,
-            "inter_arrival_time": iat,
+            "inter_arrival_time": 0.0,
         }
+
+    def next_order(self):
+        if self._fallback is not None:
+            return self._fallback.next_order()
+        line_idx = self._rng.choice(len(self._lines), p=self._line_p_norm)
+        order = self._build_order(self._lines[line_idx])
+        order["inter_arrival_time"] = self._sample_iat()
+        return order
+
+    def next_batch(self):
+        """One arrival event = one dispatch batch.
+
+        Returns (inter_arrival_min, [orders]) — the gap precedes the batch.
+        The production LINE is sampled once per batch: 99.9% of observed
+        multi-kit ZWM92 batches are single-line (a batch is one production
+        order's kit release). Items are sampled per kit within that line.
+        """
+        if self._fallback is not None:
+            o = self._fallback.next_order()
+            return o["inter_arrival_time"], [o]
+        iat = self._sample_iat()
+        size = int(self._rng.choice(self._batch_pool))
+        line_idx = self._rng.choice(len(self._lines), p=self._line_p_norm)
+        line = self._lines[line_idx]
+        orders = [self._build_order(line) for _ in range(max(1, size))]
+        return iat, orders
 
 
 # Back-compat alias — older imports still find the class even though
@@ -273,7 +319,16 @@ class WarehouseSimulation:
         self.material_to_line = material_to_line or {}
         self.kardex_materials = kardex_materials or set()
         seed = seed if seed is not None else config.RANDOM_SEED
-        self.rng = np.random.default_rng(seed)
+        # Two independent RNG streams (2026-06-09 CRN fix). A single shared
+        # stream entangles arrivals with service-time draws: a policy that
+        # makes one extra lognormal draw shifts every subsequent IAT, so
+        # different policies saw different demand even at the same seed.
+        # Separate streams keep the arrival trajectory identical across
+        # policies (true common random numbers); the offset is arbitrary
+        # but fixed so runs stay reproducible.
+        self.arrival_rng = np.random.default_rng(seed)
+        self.service_rng = np.random.default_rng(seed + 1_000_003)
+        self.rng = self.service_rng  # back-compat alias
         self.kpi = KPICollector()
         # Opt-in JSONL recorder for sim_v2.html playback (M3 — AD-2 schema).
         # None ⇒ zero overhead, normal CI runs unchanged.
@@ -284,12 +339,13 @@ class WarehouseSimulation:
         self._rt_round_robin = 0
         if getattr(config, "TRACE_DRIVEN", True):
             self.order_gen = ZWM92DistributionDriver(
-                materials, self.material_to_line, self.rng,
+                materials, self.material_to_line, self.arrival_rng,
                 orders_cache=getattr(config, "ZWM92_ORDERS_CACHE",
                                      "output/zwm92_orders.json"),
             )
         else:
-            self.order_gen = OrderGenerator(materials, self.material_to_line, self.rng)
+            self.order_gen = OrderGenerator(materials, self.material_to_line,
+                                            self.arrival_rng)
         self.env = simpy.Environment()
         self.reach_trucks = simpy.Resource(self.env, capacity=config.NUM_REACH_TRUCKS)
         self.operators = simpy.Resource(self.env, capacity=config.NUM_OPERATORS)
@@ -341,8 +397,17 @@ class WarehouseSimulation:
         return self._distance(current_xy[0], current_xy[1], pos.x, pos.y)
 
     def _closest_kardex(self, current_xy):
-        return min(self._kardex_stations,
-                   key=lambda s: self._distance(current_xy[0], current_xy[1], s[0], s[1]))
+        if len(self._kardex_stations) == 1:
+            return self._kardex_stations[0]
+        # Nearest by ROUTED distance, not raw Manhattan — with multiple
+        # stations the closest as-the-crow-flies unit can be behind a rack.
+        def routed(s):
+            try:
+                return self.warehouse.route_between_points(
+                    current_xy, s, mode="operator").distance
+            except ValueError:
+                return float("inf")
+        return min(self._kardex_stations, key=routed)
 
     def run(self, duration=None):
         if duration is None:
@@ -357,20 +422,28 @@ class WarehouseSimulation:
         self.kpi.set_sim_duration(duration, config.WARMUP_MIN, config.COOLDOWN_MIN)
 
     def _generate_orders(self, duration):
+        use_batches = (getattr(config, "BATCH_ARRIVALS", True)
+                       and hasattr(self.order_gen, "next_batch"))
         while self.env.now < duration:
             wait = _next_active_minute(self.env.now)
             if wait > 0:
                 yield self.env.timeout(wait)
                 continue
-            order = self.order_gen.next_order()
-            if order is None:
-                # Trace exhausted — stop generating but let in-flight orders finish.
-                break
-            order["arrival_time"] = self.env.now
-            self.env.process(self._process_order(order))
+            if use_batches:
+                iat, orders = self.order_gen.next_batch()
+            else:
+                order = self.order_gen.next_order()
+                if order is None:
+                    # Trace exhausted — stop generating but let in-flight orders finish.
+                    break
+                iat, orders = order["inter_arrival_time"], [order]
+            for order in orders:
+                order["arrival_time"] = self.env.now
+                self.kpi.orders_started += 1
+                self.env.process(self._process_order(order))
             if self.recorder is not None:
                 self.recorder.maybe_kpi_snapshot(self.env.now, self.kpi)
-            yield self.env.timeout(order["inter_arrival_time"])
+            yield self.env.timeout(iat)
 
     def _process_order(self, order):
         arrival = order["arrival_time"]
@@ -418,10 +491,12 @@ class WarehouseSimulation:
                 route = self.warehouse.route_to_position(current_xy, pos_id, mode="operator")
                 target_xy = route.path[-1]
                 dist = route.distance
+                move_start = self.env.now
                 yield self.env.timeout(dist / config.OPERATOR_WALK_SPEED_M_PER_MIN)
                 if self.recorder is not None and dist > 0.01:
                     self.recorder.op_move(self.env.now, order["id"], op_id,
-                                          current_xy, target_xy, dist, route.path)
+                                          current_xy, target_xy, dist, route.path,
+                                          start_t=move_start)
                 total_walk += dist
 
                 pos_lock_ctx = (self._position_lock(pos_id).request()
@@ -432,46 +507,56 @@ class WarehouseSimulation:
                 try:
                     if self.warehouse.needs_reach_truck(pos_id):
                         wait_start = self.env.now
-                        with self.reach_trucks.request() as rt_req:
-                            yield rt_req
-                            rt_wait = self.env.now - wait_start
-                            total_rt_wait += rt_wait
-                            self._rt_round_robin = (self._rt_round_robin + 1) % max(1, config.NUM_REACH_TRUCKS)
-                            rt_id = self._rt_round_robin + 1
-                            rt_route = self.warehouse.route_to_position(
-                                (config.REACH_TRUCK_DEPOT_X, config.REACH_TRUCK_DEPOT_Y),
-                                pos_id,
-                                mode="reach_truck",
-                            )
-                            if self.recorder is not None:
-                                self.recorder.rt_dispatch(self.env.now, order["id"],
-                                                          rt_id, pos_id, rt_wait,
-                                                          rt_route.path)
-                            travel = rt_route.distance / config.REACH_TRUCK_SPEED_M_PER_MIN
-                            # Lift time is a level-dependent constant; only
-                            # the pick/place portion is stochastic.
-                            base_pp = config.REACH_TRUCK_PICK_PLACE_TIME
-                            pp = _sample_pick_time(
-                                self.rng, base_pp,
-                                getattr(config, "REACH_TRUCK_PICK_TIME_SIGMA", 0.0))
-                            lift = self.warehouse.reach_truck_time(pos_id) \
-                                   - base_pp + pp
-                            rt_busy = travel + lift
-                            yield self.env.timeout(rt_busy)
-                            self.kpi.add_rt_busy(rt_busy)
+                        rt_req = self.reach_trucks.request()
+                        yield rt_req
+                        rt_wait = self.env.now - wait_start
+                        total_rt_wait += rt_wait
+                        self._rt_round_robin = (self._rt_round_robin + 1) % max(1, config.NUM_REACH_TRUCKS)
+                        rt_id = self._rt_round_robin + 1
+                        rt_route = self.warehouse.route_to_position(
+                            (config.REACH_TRUCK_DEPOT_X, config.REACH_TRUCK_DEPOT_Y),
+                            pos_id,
+                            mode="reach_truck",
+                        )
+                        travel = rt_route.distance / config.REACH_TRUCK_SPEED_M_PER_MIN
+                        # Lift time is a level-dependent constant; only
+                        # the pick/place portion is stochastic.
+                        base_pp = config.REACH_TRUCK_PICK_PLACE_TIME
+                        pp = _sample_pick_time(
+                            self.service_rng, base_pp,
+                            getattr(config, "REACH_TRUCK_PICK_TIME_SIGMA", 0.0))
+                        lift = self.warehouse.reach_truck_time(pos_id) \
+                               - base_pp + pp
+                        rt_busy = travel + lift
+                        if self.recorder is not None:
+                            self.recorder.rt_dispatch(self.env.now, order["id"],
+                                                      rt_id, pos_id, rt_wait,
+                                                      rt_route.path,
+                                                      travel_time_min=travel,
+                                                      service_time_min=lift,
+                                                      return_time_min=travel)
+                        # Operator is blocked only until the pallet is
+                        # delivered; the RT then drives back to the depot
+                        # on its own (resource stays held — a truck that
+                        # is returning cannot serve the next request).
+                        # 2026-06-09 fix: the return leg used to be
+                        # missing entirely (truck teleported home).
+                        yield self.env.timeout(rt_busy)
+                        self.kpi.add_rt_busy(rt_busy)
+                        self.env.process(self._rt_return(rt_req, travel))
                     elif self.warehouse.can_pick_directly(pos_id):
                         yield self.env.timeout(_sample_pick_time(
-                            self.rng, config.OPERATOR_PICK_TIME,
+                            self.service_rng, config.OPERATOR_PICK_TIME,
                             getattr(config, "OPERATOR_PICK_TIME_SIGMA", 0.0)))
                     else:
                         base = self.warehouse.manual_pick_time(pos_id)
                         op = config.OPERATOR_PICK_TIME
                         penalty = base - op  # the configured penalty share
                         op_s = _sample_pick_time(
-                            self.rng, op,
+                            self.service_rng, op,
                             getattr(config, "OPERATOR_PICK_TIME_SIGMA", 0.0))
                         pen_s = _sample_pick_time(
-                            self.rng, penalty,
+                            self.service_rng, penalty,
                             getattr(config, "MANUAL_PICK_PENALTY_SIGMA", 0.0))
                         yield self.env.timeout(op_s + pen_s)
                 finally:
@@ -492,35 +577,41 @@ class WarehouseSimulation:
                 kx, ky = self._closest_kardex(current_xy)
                 route = self.warehouse.route_between_points(current_xy, (kx, ky), mode="operator")
                 dist = route.distance
+                move_start = self.env.now
                 yield self.env.timeout(dist / config.OPERATOR_WALK_SPEED_M_PER_MIN)
                 if self.recorder is not None and dist > 0.01:
                     self.recorder.op_move(self.env.now, order["id"], op_id,
-                                          current_xy, (kx, ky), dist, route.path)
+                                          current_xy, (kx, ky), dist, route.path,
+                                          start_t=move_start)
                 total_walk += dist
                 with self.kardex.request() as kdx_req:
                     yield kdx_req
+                    kdx_hold_start = self.env.now
                     # Single carousel rotation to surface the requested tray;
                     # picks then happen back-to-back at the same station.
                     yield self.env.timeout(_sample_pick_time(
-                        self.rng, config.KARDEX_CAROUSEL_TIME,
+                        self.service_rng, config.KARDEX_CAROUSEL_TIME,
                         getattr(config, "KARDEX_CAROUSEL_SIGMA", 0.0)))
                     for mat_id in kardex_picks:
                         yield self.env.timeout(_sample_pick_time(
-                            self.rng, config.KARDEX_PICK_TIME,
+                            self.service_rng, config.KARDEX_PICK_TIME,
                             getattr(config, "KARDEX_PICK_TIME_SIGMA", 0.0)))
                         self.kpi.record_pick(rack_id="KDX", material_id=mat_id)
                         if self.recorder is not None:
                             self.recorder.kardex_pick(self.env.now, order["id"],
                                                       op_id, (kx, ky), mat_id)
+                    self.kpi.add_kardex_busy(self.env.now - kdx_hold_start)
                 current_xy = (kx, ky)
 
             # Walk back to the line's kitting point
             return_route = self.warehouse.route_between_points(current_xy, start_xy, mode="operator")
             return_dist = return_route.distance
+            move_start = self.env.now
             yield self.env.timeout(return_dist / config.OPERATOR_WALK_SPEED_M_PER_MIN)
             if self.recorder is not None and return_dist > 0.01:
                 self.recorder.op_move(self.env.now, order["id"], op_id,
-                                      current_xy, start_xy, return_dist, return_route.path)
+                                      current_xy, start_xy, return_dist, return_route.path,
+                                      start_t=move_start)
             total_walk += return_dist
 
             op_end = self.env.now
@@ -593,6 +684,14 @@ class WarehouseSimulation:
             route.append((mid, best_pos))
             cur_x, cur_y = best_route.path[-1]
         return route
+
+    def _rt_return(self, rt_req, return_travel_min: float):
+        """Drive the reach truck back to the depot, then free it. Runs as a
+        detached process so the operator doesn't wait for the return leg,
+        but the truck stays unavailable (and busy) until it's home."""
+        yield self.env.timeout(return_travel_min)
+        self.kpi.add_rt_busy(return_travel_min)
+        self.reach_trucks.release(rt_req)
 
     def _milkrun_cycle(self, duration):
         while self.env.now < duration:
