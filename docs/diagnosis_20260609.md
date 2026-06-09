@@ -221,8 +221,8 @@ ile doğrulandı:
    kuyruk kaskadı → lead 2x. **Tez bulgusu**: saf mesafe optimizasyonu
    congestion'ı ihmal eder; önerilen `LineAwareSlottingPolicy`
    (hat-origin + RT'siz seviye önceliği + koridor-bazlı doğal yük
-   dağıtımı) bu mekanizmayı düzeltir (ön test: lead 4.06 vs 5.92,
-   RT util %0.4 — final N=20 sonuçları pipeline'da).
+   dağıtımı) bu mekanizmayı düzeltir (SÜPERSEDE — final N=20 sonuç: lead 8.24 vs SAP 14.59 (−%43, paired-t p=1.8e-9),
+   RT util %1.1, tüm 4 danışman KPI'sında kazanan).
 3. **Reddedilen fikirler (doğrulama sayesinde):** (a) ZWM92 observed-bin
    yerleştirme — adresler paylaşımlı bölge kodu (%63 slot çakışması),
    yerleştirme kaynağı olamaz; (b) multi-bin adillik düzeltmesi —

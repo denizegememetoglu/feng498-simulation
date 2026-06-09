@@ -72,7 +72,7 @@ for now and flagged for May 20.
 | J  | **5-section polyline** | **18** | J1–J18 | mixed | **8** | 3 | **381** | ✅ J.pdf — [J1] [J2-J12] [J13 KÜÇÜK RF] [J14] [J15-J18] |
 | U  | **split** | 13+1 | U1–U13 + U14 KÜÇÜK RF | 1.73 m / 2.0 m | **7** | 2 | **263** | ✅ U.pdf — U14 detached small rack at west end |
 
-**Total: 3 110 modelled positions** (3 203 raw PDF-stamp capacity; difference
+**Total: 3 137 modelled positions (2026-06 state; was 3 110 pre-§18-fix)** (3 203 raw PDF-stamp capacity; difference
 is feeder-bay reductions and the B7 physical gap).
 
 The 0–87 "missing positions" per a–g rack come from ÖN/ARKA passage cutouts
@@ -410,14 +410,14 @@ Implementation (`src/zwm92.py:fit_distributions`,
 
 | Random quantity      | Distribution                  | Source data                  |
 |----------------------|-------------------------------|------------------------------|
-| Inter-arrival (min)  | Exponential(mean=4.8)         | mean of consecutive ZWM92 IATs |
+| Inter-arrival (min)  | ~~Exponential(mean=4.8)~~ → §24.1 batch-empirical | superseded 2026-06-09 |
 | Items per order      | Empirical (clipped at 50)     | observed kit BOM sizes        |
 | Production line      | Categorical(weights)          | line frequency in ZWM92       |
 | Material per line    | Categorical(weights)          | per-line pick frequencies     |
-| Operator pick time   | Lognormal(μ from §19, σ=1.30) | F400 video pick CV ≈ 1.7      |
-| RT pick/place time   | Lognormal(σ=1.20)             | F400 video rt_pick CV ≈ 1.37  |
-| Manual-pick penalty  | Lognormal(σ=1.40)             | F400 walk_corridor CV ≈ 1.92  |
-| Kardex pick + rotate | Lognormal(σ=1.30 / 0.30)      | mirrors operator + book val   |
+| Operator pick time   | Lognormal(μ from §19, ~~σ=1.30~~ → 1.245, §24.3) | F400 pooled CV=1.93 |
+| RT pick/place time   | Lognormal(~~σ=1.20~~ → 1.047, §24.3) | F400 rt_pick CV=1.41 |
+| Manual-pick penalty  | Lognormal(~~σ=1.40~~ → 1.279, §24.3) | F400 walk_corridor CV=2.03 |
+| Kardex pick + rotate | Lognormal(~~σ=1.30~~ → 1.245 / 0.30, §24.3) | mirrors operator + book val |
 
 Means of the timing log-normals are preserved (μ = log(mean) −
 0.5·σ²) so the expected pick time still matches the §19 deterministic

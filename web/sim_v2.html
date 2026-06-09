@@ -463,6 +463,7 @@ body.theme-light .val { color: #0f172a; }
 <div id="toolbar">
   <button id="btn-screenshot" title="Save PNG snapshot of current view">Screenshot</button>
   <button id="btn-theme" title="Toggle light/dark theme">Light</button>
+  <button id="btn-photos" title="Real warehouse photos (local only)" style="display:none">Photos</button>
   <button id="btn-help" title="Help / About">Help</button>
 </div>
 
@@ -556,6 +557,15 @@ body.theme-light .val { color: #0f172a; }
   </div>
 </div>
 
+<div id="photo-modal" style="position:absolute;inset:0;background:rgba(0,0,0,0.65);z-index:50;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)">
+  <div class="glass" style="max-width:86%;max-height:86%;overflow:auto;padding:14px;border-radius:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <strong style="font-size:12px">Gerçek depo fotoğrafları — model ↔ saha karşılaştırması (yerel, repo dışı)</strong>
+      <button id="btn-photos-close" style="background:var(--accent);color:#0b1220;border:none;padding:6px 14px;border-radius:8px;font:inherit;font-size:11px;font-weight:700;cursor:pointer">Close</button>
+    </div>
+    <div id="photo-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px"></div>
+  </div>
+</div>
 <div id="help-modal" style="position:absolute;inset:0;background:rgba(0,0,0,0.55);z-index:50;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)">
   <div class="glass" style="max-width:540px;padding:24px;border-radius:16px">
     <h2 style="margin-bottom:10px">SE Manisa Ambar — Sim v2</h2>
@@ -1038,7 +1048,7 @@ function addPallets(row, rowIndex, positions, fixed, depth, axis, levels) {
     const bayCenter = (bayStart + bayEnd) / 2;
     if (bayLength < 0.65) continue;
     for (let li = 0; li < levels.length - 1; li += 2) {
-      if ((bay + li + rowIndex) % 4 !== 0) continue;
+      if ((bay + li + rowIndex) % 3 === 0) continue;  // ~67% fill — matches site photos
       const h = levels[li] + 0.18;
       const palletScale = axis === 'x'
         ? new THREE.Vector3(Math.min(bayLength * 0.34, 0.82), palletHeight, Math.max(depth * 0.34, 0.34))
@@ -1698,25 +1708,49 @@ let _wrGeo = null;
 function worldRouterGeo() {
   if (_wrGeo) return _wrGeo;
   const C = 0.45;  // agent clearance off rack faces (m)
+  const rectOf = (x0, y0, x1, y1) => {
+    const a = cadToWorld(Math.min(x0, x1), Math.min(y0, y1));
+    const c = cadToWorld(Math.max(x0, x1), Math.max(y0, y1));
+    return {x0: Math.min(a.x, c.x), z0: Math.min(a.z, c.z),
+            x1: Math.max(a.x, c.x), z1: Math.max(a.z, c.z)};
+  };
   const obs = [];
   for (const r of LAYOUT.racks) {
     if (r.skip) continue;
-    const a = cadToWorld(Math.min(r.x0, r.x1), Math.min(r.y0, r.y1));
-    const c = cadToWorld(Math.max(r.x0, r.x1), Math.max(r.y0, r.y1));
-    obs.push({x0: Math.min(a.x, c.x), z0: Math.min(a.z, c.z),
-              x1: Math.max(a.x, c.x), z1: Math.max(a.z, c.z)});
+    obs.push(rectOf(r.x0, r.y0, r.x1, r.y1));
   }
-  const xs = new Set(), zs = new Set();
-  for (const o of obs) {
-    xs.add(o.x0 - C); xs.add(o.x1 + C);
-    zs.add(o.z0 - C); zs.add(o.z1 + C);
-  }
-  _wrGeo = {obs, xs: [...xs].sort((a, b) => a - b),
-            zs: [...zs].sort((a, b) => a - b), C};
+  // Floor frame: thin blockers just outside the slab so no agent ever
+  // walks off the rendered floor.
+  const B = LAYOUT._bounds, T = 500;
+  const frame = [
+    rectOf(B.min_x - T, B.min_y - T, B.max_x + T, B.min_y),
+    rectOf(B.min_x - T, B.max_y, B.max_x + T, B.max_y + T),
+    rectOf(B.min_x - T, B.min_y, B.min_x, B.max_y),
+    rectOf(B.max_x, B.min_y, B.max_x + T, B.max_y),
+  ];
+  // West work-cell strip (between the U leg and the rack-row west ends):
+  // KITTING/PUTAWAY/GMH floor cells per the CAD — REACH TRUCKS do not
+  // transit here (site reality); operators may (they kit in these cells).
+  const westStrip = rectOf(1845, 509, 2255, 4067);
+  const lineSets = (list) => {
+    const xs = new Set(), zs = new Set();
+    for (const o of list) {
+      xs.add(o.x0 - C); xs.add(o.x1 + C);
+      zs.add(o.z0 - C); zs.add(o.z1 + C);
+    }
+    return {xs: [...xs].sort((a, b) => a - b), zs: [...zs].sort((a, b) => a - b)};
+  };
+  const opObs = obs.concat(frame);
+  const rtObs = obs.concat(frame, [westStrip]);
+  _wrGeo = {
+    obs: opObs, ...lineSets(opObs), C,
+    rt: {obs: rtObs, ...lineSets(rtObs), C},
+    rackOnly: {obs, ...lineSets(obs), C},
+  };
   return _wrGeo;
 }
 
-function snapOutWorld(p) {
+function snapOutWorld(p, set) {
   // Push the point out of any rack box. Adjacent boxes whose gap is below
   // the agent clearance (e.g. the 0.30 m H/I back-to-back slot) form a
   // CLUSTER — escaping a single box would land inside its neighbour and
@@ -1724,7 +1758,8 @@ function snapOutWorld(p) {
   // whole connected cluster of G-inflated boxes containing the point.
   // G < C keeps legitimate access points (standing exactly C off a face)
   // untouched.
-  const {obs, C} = worldRouterGeo();
+  const geo = worldRouterGeo();
+  const {obs, C} = set || geo;
   const G = C - 0.03;
   let x = p.x, z = p.z;
   for (let pass = 0; pass < 3; pass++) {
@@ -1795,9 +1830,8 @@ function _wrLen(pts) {
   return d;
 }
 
-function worldRoute(aIn, bIn) {
-  const {obs, xs, zs} = worldRouterGeo();
-  const a = snapOutWorld(aIn), b = snapOutWorld(bIn);
+function _wrRouteWith(set, a, b) {
+  const {obs, xs, zs} = set;
   const P = (x, z) => ({x, z});
   // Manhattan lower bound: a clean L-bend is optimal.
   for (const pts of [[a, P(b.x, a.z), b], [a, P(a.x, b.z), b]]) {
@@ -1821,7 +1855,24 @@ function worldRoute(aIn, bIn) {
       return pts;
     }
   }
-  return [a, b];  // should not happen (measured: 0 failures on real timelines)
+  return null;
+}
+
+function worldRoute(aIn, bIn, kind = 'op') {
+  const geo = worldRouterGeo();
+  // RT routes additionally avoid the west KITTING/PUTAWAY work-cell strip
+  // (no reach-truck transit there in reality). Graceful degradation: if a
+  // destination is only reachable through a stricter set's blocker, fall
+  // back to the next set — racks themselves are NEVER crossed (last set
+  // still contains every rack box).
+  const sets = kind === 'rt' ? [geo.rt, geo, geo.rackOnly] : [geo, geo.rackOnly];
+  for (const set of sets) {
+    const a = snapOutWorld(aIn, set), b = snapOutWorld(bIn, set);
+    const pts = _wrRouteWith(set, a, b);
+    if (pts) return pts;
+  }
+  const a = snapOutWorld(aIn, geo.rackOnly), b = snapOutWorld(bIn, geo.rackOnly);
+  return [a, b];  // unreachable in measurement; racks-only set always routed
 }
 
 function highlightPick(letter, bay, level, position) {
@@ -2235,7 +2286,7 @@ class TimelinePlayer {
     for (const rt of ENTITIES.rts) {
       const id = j + 1;
       const tr = this.rtTracks.get(id);
-      const p = this._trackPos(tr, t);
+      const p = this._trackPos(tr, t, 'rt');
       if (p) {
         rt.userData.baseX = p.x; rt.userData.baseZ = p.z;
         rt.position.x = p.x; rt.position.z = p.z;
@@ -2244,8 +2295,9 @@ class TimelinePlayer {
     }
   }
 
-  _trackPos(tr, t) {
+  _trackPos(tr, t, kind = 'op') {
     if (!tr || !tr.segments.length) return null;
+    const snapSet = kind === 'rt' ? worldRouterGeo().rt : worldRouterGeo();
     const segs = tr.segments;
     // Binary search for segment with t1 >= t (latest segment that may apply)
     let lo = 0, hi = segs.length - 1;
@@ -2259,12 +2311,12 @@ class TimelinePlayer {
       // Past last segment → snap to its end (pushed out of any rack box)
       const last = segs[segs.length - 1];
       const p = timelinePointToWorld(last.to, last.coordSystem);
-      return p ? snapOutWorld(p) : null;
+      return p ? snapOutWorld(p, snapSet) : null;
     }
     if (t < s.t0) {
       // Before this segment's start → snap to its 'from' (or previous 'to')
       const p = timelinePointToWorld(s.from || s.to, s.coordSystem);
-      return p ? snapOutWorld(p) : null;
+      return p ? snapOutWorld(p, snapSet) : null;
     }
     // Interpolation within segment. The drive path is computed ONCE per
     // segment by the world-space router (worldRoute) against the rendered
@@ -2275,7 +2327,7 @@ class TimelinePlayer {
       const a = timelinePointToWorld(s.from || s.to, s.coordSystem);
       const b = timelinePointToWorld(s.to, s.coordSystem);
       if (a && b) {
-        const pts = worldRoute(a, b);
+        const pts = worldRoute(a, b, kind);
         const cum = [0];
         let total = 0;
         for (let i = 1; i < pts.length; i++) {
@@ -2650,7 +2702,9 @@ function renderCompare() {
     const cls = (dW + dL * 5) > 0 ? 'bad' : 'good';
     return `<div class="row"><span class="k">${n}</span><span class="v ${cls}">${dW >= 0 ? '+' : ''}${dW.toFixed(1)}m / ${dL >= 0 ? '+' : ''}${dL.toFixed(2)}min</span></div>`;
   }).join('');
-  document.getElementById('compare-delta').innerHTML = rows + renderHypothesisTable();
+  document.getElementById('compare-delta').innerHTML =
+    `<div class="ttl" style="font-size:9px;letter-spacing:.6px;color:var(--text-dim);text-transform:uppercase">Δ vs Baseline (Actual SAP) — walk / lead</div>` +
+    rows + renderHypothesisTable();
 }
 
 // Hypothesis-test table: CRN paired-by-replication t-tests vs the
@@ -2700,6 +2754,7 @@ function renderValidation() {
   const r = DASH.validation.chi_square_per_rack_restricted;
   const pt = DASH.validation.t_test_per_material || {};
   const dv = DASH.validation.daily_volume_check || {};
+  const rc = DASH.validation.replication_ci_check || {};
   document.getElementById('val-summary').textContent =
     `χ²=${r.chi_square.toFixed(2)} (dof=${r.dof}), p=${r.p_value.toExponential(2)}. ` +
     `Expected source: ${DASH.validation.expected_source}.`;
@@ -2724,7 +2779,8 @@ function renderValidation() {
     ${r.cramers_v != null ? `<div class="row"><span class="k">Cramér's V (effect size)</span><span class="v ${r.cramers_v < 0.3 ? 'good' : 'bad'}">${r.cramers_v.toFixed(3)} (${r.cramers_v < 0.1 ? 'negligible' : r.cramers_v < 0.3 ? 'small' : r.cramers_v < 0.5 ? 'medium' : 'large'})</span></div>` : ''}
     ${pooled ? `<div class="row"><span class="k">χ² pooled (Cochran ${pooled.cochran_satisfied ? 'OK' : 'viol.'})</span><span class="v ${pooled.p_value < 0.05 ? 'bad' : 'good'}">χ²=${pooled.chi_square.toFixed(2)}, p=${pooled.p_value.toExponential(2)}</span></div>` : ''}
     ${pt.t_statistic !== undefined ? `<div class="row"><span class="k">Paired-t (log picks/mat)</span><span class="v">t=${pt.t_statistic.toFixed(2)}, p=${(pt.p_value||0).toExponential(2)} (n=${pt.n_materials_paired||'?'})</span></div>` : ''}
-    ${dv.sim_orders_per_day !== undefined ? `<div class="row"><span class="k">Daily volume vs ZWM92</span><span class="v ${dv.status === 'PASS' ? 'good' : 'bad'}">${dv.sim_orders_per_day}/day vs ${dv.zwm92_orders_per_active_day} (${dv.relative_error >= 0 ? '+' : ''}${(dv.relative_error*100).toFixed(1)}%)</span></div>` : ''}
+    ${rc.status === 'PASS' || rc.status === 'WARN' ? `<div class="row"><span class="k">Volume calibration (N=20 CI)</span><span class="v ${rc.status === 'PASS' ? 'good' : 'bad'}">${rc.status} — arrivals/day within ${rc.per_policy && rc.per_policy['Baseline (Actual SAP)'] ? Math.abs(rc.per_policy['Baseline (Actual SAP)'].volume_vs_zwm92_rel_err*100).toFixed(1) : '?'}% of ZWM92</span></div>` : ''}
+    ${dv.sim_orders_per_day !== undefined ? `<div class="row"><span class="k">Daily volume (short-run, info)</span><span class="v">${dv.sim_orders_per_day}/day vs ${dv.zwm92_orders_per_active_day} (${dv.relative_error >= 0 ? '+' : ''}${(dv.relative_error*100).toFixed(1)}%)</span></div>` : ''}
   `;
   document.getElementById('cochran-note').innerHTML =
     r.cochran_low_cells && r.cochran_low_cells.length
@@ -2946,7 +3002,7 @@ function renderPareto() {
       datasets: [{
         label: 'Policy',
         data: pts.map(p => ({x: p.x, y: p.y, label: p.label})),
-        backgroundColor: ['#38bdf8', '#fbbf24', '#4ade80', '#f87171', '#a78bfa'],
+        backgroundColor: ['#38bdf8', '#fbbf24', '#4ade80', '#f87171', '#a78bfa', '#22d3ee'],
         pointRadius: 8, pointHoverRadius: 11
       }]
     },
@@ -3000,43 +3056,50 @@ function renderBottleneck() {
 }
 
 async function renderReslot() {
-  // Top-20 re-slotting candidates: materials whose pick volume differs most
-  // between the Actual-SAP placement and the Travel-Distance-optimized one.
+  // Re-slotting action plan: join the Actual-SAP and Line-aware ASSIGNMENT
+  // tables (per-material slot placements — deterministic per policy) and
+  // list the top movers by real ZWM92 pick volume whose slot changes.
+  // (Pick-count joins are useless here: CRN gives every policy the same
+  // demand, so per-material pick counts barely differ — the actionable
+  // information is WHERE the material sits, not how often it is picked.)
   const out = document.getElementById('x-reslot-list');
-  const [sapCsv, tdCsv] = await Promise.all([
-    fetchCSV(['./data/baseline_actual_sap_picks_per_material.csv',
-              '../output/baseline_actual_sap_picks_per_material.csv']),
-    // Proposed side = Line-aware Slotting (the congestion-aware policy);
-    // falls back to Travel-distance for older data sets.
-    fetchCSV(['./data/line-aware_slotting_picks_per_material.csv',
-              '../output/line-aware_slotting_picks_per_material.csv',
-              './data/travel-distance_optimized_picks_per_material.csv',
-              '../output/travel-distance_optimized_picks_per_material.csv']),
+  const [sapCsv, laCsv] = await Promise.all([
+    fetchCSV(['./data/baseline_actual_sap_assignments.csv',
+              '../output/baseline_actual_sap_assignments.csv']),
+    fetchCSV(['./data/line-aware_slotting_assignments.csv',
+              '../output/line-aware_slotting_assignments.csv']),
   ]);
-  if (!sapCsv || !tdCsv) {
-    out.innerHTML = '<p style="color:var(--text-dim);font-size:10px">Re-slotting plan derived from sim picks-per-material. See <code>output/*_picks_per_material.csv</code> for the full table.</p>';
+  if (!sapCsv || !laCsv) {
+    out.innerHTML = '<p style="color:var(--text-dim);font-size:10px">Assignment tables not found — run <code>python scripts/export_assignments.py</code>.</p>';
     return;
   }
-  const sap = Object.fromEntries(parseCSV(sapCsv).map(r => [r.material_id, r.pick_count]));
-  const td = Object.fromEntries(parseCSV(tdCsv).map(r => [r.material_id, r.pick_count]));
-  const ids = new Set([...Object.keys(sap), ...Object.keys(td)]);
-  const items = [...ids].map(id => {
-    const a = sap[id] || 0, b = td[id] || 0;
-    return {id, sap: a, td: b, delta: b - a, vol: Math.max(a, b)};
-  }).filter(x => x.vol >= 3)
-    .sort((x, y) => Math.abs(y.delta) - Math.abs(x.delta) || y.vol - x.vol)
-    .slice(0, 20);
-  if (!items.length) {
-    out.innerHTML = '<p style="color:var(--text-dim);font-size:10px">No high-volume divergence between SAP and Travel-Distance placements in this run.</p>';
+  const sap = Object.fromEntries(parseCSV(sapCsv).map(r => [r.material_id, r]));
+  const la = Object.fromEntries(parseCSV(laCsv).map(r => [r.material_id, r]));
+  const items = [];
+  for (const [id, srow] of Object.entries(sap)) {
+    const l = la[id];
+    if (!l) continue;
+    const picks = Number(l.zwm92_picks) || 0;
+    if (picks < 10) continue;
+    if (srow.position_id === l.position_id) continue;
+    items.push({id, picks, from: srow.position_id, to: l.position_id,
+                rtBefore: Number(srow.needs_rt), rtAfter: Number(l.needs_rt)});
+  }
+  items.sort((a, b) => b.picks - a.picks);
+  const top = items.slice(0, 20);
+  if (!top.length) {
+    out.innerHTML = '<p style="color:var(--text-dim);font-size:10px">No placement divergence between SAP and the proposed policy.</p>';
     return;
   }
-  const rows = items.map(x =>
-    `<tr><td style="font-family:monospace">${x.id}</td><td class="r">${x.sap}</td><td class="r">${x.td}</td>` +
-    `<td class="r ${x.delta > 0 ? 'good' : 'bad'}">${x.delta >= 0 ? '+' : ''}${x.delta}</td></tr>`).join('');
+  const rows = top.map(x =>
+    `<tr><td style="font-family:monospace">${x.id}</td><td class="r">${x.picks.toLocaleString()}</td>` +
+    `<td style="font-family:monospace">${x.from}</td><td style="font-family:monospace">${x.to}</td>` +
+    `<td>${x.rtBefore && !x.rtAfter ? '<span class="badge ok">RT→direct</span>' : (!x.rtBefore && x.rtAfter ? '<span class="badge bad">direct→RT</span>' : '')}</td></tr>`).join('');
   out.innerHTML = `
-    <p style="color:var(--text-dim);font-size:10px;margin:4px 0">Top-${items.length} materials by |pick-volume divergence| between the
-    Actual-SAP placement and the proposed (Line-aware Slotting) run — the shortlist a re-slotting project would tackle first.</p>
-    <table><thead><tr><th>Material</th><th class="r">SAP picks</th><th class="r">Proposed</th><th class="r">Δ</th></tr></thead>
+    <p style="color:var(--text-dim);font-size:10px;margin:4px 0">Top-${top.length} re-slotting moves (of ${items.length.toLocaleString()} total)
+    by real ZWM92 pick volume: current SAP slot → proposed Line-aware slot. "RT→direct" = the move
+    eliminates the reach-truck dependency for that material's picks.</p>
+    <table><thead><tr><th>Material</th><th class="r">Picks/4mo</th><th>Current</th><th>Proposed</th><th></th></tr></thead>
     <tbody>${rows}</tbody></table>`;
 }
 
@@ -3064,7 +3127,7 @@ document.getElementById('btn-run-sim')?.addEventListener('click', () => {
 });
 document.getElementById('btn-reslot-csv')?.addEventListener('click', () => {
   // Pull existing picks_per_material CSV instead of recomputing client-side.
-  window.open('./data/baseline_actual_sap_picks_per_rack.csv', '_blank');
+  window.open('./data/line-aware_slotting_assignments.csv', '_blank');
 });
 
 // CSV download (F12) — generic across panels
@@ -3146,6 +3209,26 @@ document.getElementById('btn-theme').addEventListener('click', e => {
 const helpModal = document.getElementById('help-modal');
 document.getElementById('btn-help').addEventListener('click', () => helpModal.style.display = 'flex');
 document.getElementById('btn-help-close').addEventListener('click', () => helpModal.style.display = 'none');
+// Real warehouse photo dock (local-only: web/photos/ is gitignored; the
+// button appears only when at least one photo actually loads).
+(function initPhotoDock() {
+  const grid = document.getElementById('photo-grid');
+  const btn = document.getElementById('btn-photos');
+  const modal = document.getElementById('photo-modal');
+  let found = 0;
+  for (let i = 1; i <= 12; i++) {
+    const img = new Image();
+    img.src = `./photos/photo${i}.jpg`;
+    img.style.cssText = 'width:100%;border-radius:10px;display:block';
+    img.onload = () => {
+      grid.appendChild(img);
+      if (++found === 1) btn.style.display = '';
+    };
+  }
+  btn.addEventListener('click', () => modal.style.display = 'flex');
+  document.getElementById('btn-photos-close').addEventListener('click', () => modal.style.display = 'none');
+  modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
+})();
 helpModal.addEventListener('click', e => { if (e.target === helpModal) helpModal.style.display = 'none'; });
 
 // 'A' key toggles sidebar
