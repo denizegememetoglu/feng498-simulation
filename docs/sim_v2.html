@@ -603,12 +603,12 @@ body.theme-light .val { color: #0f172a; }
 
 <div id="toast" class="glass"><span id="toast-msg">—</span></div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="./vendor/chart/chart.umd.min.js"></script>
 <script type="importmap">
 {
   "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    "three": "./vendor/three/build/three.module.js",
+    "three/addons/": "./vendor/three/examples/jsm/"
   }
 }
 </script>
@@ -635,6 +635,18 @@ async function loadGeometry() {
   throw new Error('Could not fetch viewer_layout_v1.json from any candidate URL');
 }
 const LAYOUT = await loadGeometry();
+async function loadSimLayout() {
+  const urls = ['./layout.json', '../config/layout.json'];
+  for (const url of urls) {
+    try {
+      const r = await fetch(url);
+      if (r.ok) { console.log('Loaded simulation layout from', url); return await r.json(); }
+    } catch (_) {}
+  }
+  console.warn('Simulation layout unavailable; timeline uses coarse CAD fallback');
+  return null;
+}
+const SIM_LAYOUT = await loadSimLayout();
 
 const UNIT = 0.01;
 const RACK_HEIGHT_M = (LAYOUT._rack_height_cm || 700) / 100;
@@ -790,6 +802,7 @@ const matNet = new THREE.MeshStandardMaterial({
   map: makeNetTexture(), transparent: true, opacity: 0.42,
   roughness: 0.8, side: THREE.DoubleSide, alphaTest: 0.05
 });
+
 
 function makeLetterTexture(letter, bg = '#ffcc00', fg = '#000') {
   const c = document.createElement('canvas'); c.width = 256; c.height = 256;
@@ -1548,21 +1561,267 @@ const activeHighlights = [];
 function findRackBayCenter(letter, bay) {
   const rows = (RACKS_BY_LETTER.get(letter) || []).filter(r => !r.skip);
   if (!rows.length) return null;
+  const simRack = SIM_LAYOUT?.racks?.find(r => r.id === letter);
+  if (simRack?.segments?.length) {
+    for (let si = 0; si < simRack.segments.length; si++) {
+      const seg = simRack.segments[si];
+      const start = seg.bay_code_start || 1;
+      if (bay < start || bay >= start + seg.bays) continue;
+      const row = rows[Math.min(si, rows.length - 1)];
+      const local = bay - start + 1;
+      const p = rackRowLocalBayCenter(row, local);
+      if (p) return p;
+    }
+  }
   let acc = 0;
   for (const row of rows) {
     if (bay - acc <= row.bays && bay - acc > 0) {
       const local = bay - acc; // 1-indexed bay within row
-      const posVals = uniqueSorted(row.posts);
-      if (local >= posVals.length) return null;
-      const v0 = posVals[local - 1], v1 = posVals[local];
-      const center = (v0 + v1) / 2;
-      const otherC = row.dir === 'x' ? (row.y0 + row.y1) / 2 : (row.x0 + row.x1) / 2;
-      if (row.dir === 'x') return cadToWorld(center, otherC);
-      else return cadToWorld(otherC, center);
+      return rackRowLocalBayCenter(row, local);
     }
     acc += row.bays;
   }
   return null;
+}
+
+function rackRowLocalBayCenter(row, local) {
+  const posVals = uniqueSorted(row.posts);
+  if (local < 1 || local >= posVals.length) return null;
+  const v0 = posVals[local - 1], v1 = posVals[local];
+  const center = (v0 + v1) / 2;
+  const otherC = row.dir === 'x' ? (row.y0 + row.y1) / 2 : (row.x0 + row.x1) / 2;
+  if (row.dir === 'x') return cadToWorld(center, otherC);
+  return cadToWorld(otherC, center);
+}
+
+let layoutAffine = null;
+function simSegmentBayCenter(seg, bayCode) {
+  const start = seg.bay_code_start || 1;
+  const local = bayCode - start;
+  const t = (local + 0.5) / Math.max(1, seg.bays);
+  return [
+    seg.start[0] + (seg.end[0] - seg.start[0]) * t,
+    seg.start[1] + (seg.end[1] - seg.start[1]) * t,
+  ];
+}
+
+function solve3(a, b) {
+  const m = a.map((row, i) => row.concat([b[i]]));
+  for (let col = 0; col < 3; col++) {
+    let pivot = col;
+    for (let r = col + 1; r < 3; r++) {
+      if (Math.abs(m[r][col]) > Math.abs(m[pivot][col])) pivot = r;
+    }
+    if (Math.abs(m[pivot][col]) < 1e-9) return null;
+    [m[col], m[pivot]] = [m[pivot], m[col]];
+    const div = m[col][col];
+    for (let c = col; c < 4; c++) m[col][c] /= div;
+    for (let r = 0; r < 3; r++) {
+      if (r === col) continue;
+      const f = m[r][col];
+      for (let c = col; c < 4; c++) m[r][c] -= f * m[col][c];
+    }
+  }
+  return [m[0][3], m[1][3], m[2][3]];
+}
+
+function fitLayoutAffine() {
+  if (layoutAffine !== null) return layoutAffine;
+  if (!SIM_LAYOUT?.racks?.length) { layoutAffine = false; return null; }
+  const rowsByLetter = RACKS_BY_LETTER;
+  const anchors = [];
+  for (const rack of SIM_LAYOUT.racks) {
+    // U and J are excluded from the fit: their layout.json orientation does
+    // not map through the axis-swap (known open topology question), and
+    // their anchors poison the affine — measured mean anchor residual is
+    // 8.1 m WITH them vs 1.5 m without (2026-06-09 analysis). Their meshes
+    // still render; only the layout→world fit ignores them.
+    if (rack.id === 'U' || rack.id === 'J') continue;
+    const rows = (rowsByLetter.get(rack.id) || []).filter(r => !r.skip);
+    if (!rows.length) continue;
+    for (let si = 0; si < rack.segments.length; si++) {
+      const seg = rack.segments[si];
+      const row = rows[Math.min(si, rows.length - 1)];
+      const start = seg.bay_code_start || 1;
+      for (let bay = start; bay < start + seg.bays; bay++) {
+        const local = bay - start + 1;
+        const world = rackRowLocalBayCenter(row, local);
+        if (!world) continue;
+        const [lx, ly] = simSegmentBayCenter(seg, bay);
+        anchors.push({lx, ly, wx: world.x, wz: world.z});
+      }
+    }
+  }
+  if (anchors.length < 3) { layoutAffine = false; return null; }
+  const xtx = [[0,0,0],[0,0,0],[0,0,0]];
+  const xtyX = [0,0,0], xtyZ = [0,0,0];
+  for (const p of anchors) {
+    const v = [p.lx, p.ly, 1];
+    for (let r = 0; r < 3; r++) {
+      xtyX[r] += v[r] * p.wx;
+      xtyZ[r] += v[r] * p.wz;
+      for (let c = 0; c < 3; c++) xtx[r][c] += v[r] * v[c];
+    }
+  }
+  const cx = solve3(xtx, xtyX);
+  const cz = solve3(xtx, xtyZ);
+  layoutAffine = (cx && cz) ? {cx, cz} : false;
+  return layoutAffine || null;
+}
+
+function layoutMToWorld(xy) {
+  if (!xy || xy.length < 2) return null;
+  const fit = fitLayoutAffine();
+  if (!fit) return new THREE.Vector3(xy[0], 0, -xy[1]);
+  const x = fit.cx[0] * xy[0] + fit.cx[1] * xy[1] + fit.cx[2];
+  const z = fit.cz[0] * xy[0] + fit.cz[1] * xy[1] + fit.cz[2];
+  return new THREE.Vector3(x, 0, z);
+}
+
+function timelinePointToWorld(xy, coordSystem = 'layout_m') {
+  if (coordSystem === 'world_xz') return new THREE.Vector3(xy[0], 0, xy[1]);
+  if (coordSystem === 'cad_cm') return cadCmToWorld(xy);
+  return layoutMToWorld(xy);
+}
+
+// ── World-space visual router (2026-06-10) ─────────────────────────────────
+// ZERO-TOLERANCE guarantee: agents NEVER cross a rendered rack body. The
+// layout→world affine has residuals (the layout↔CAD relation is not exactly
+// affine) and the sim legitimately routes through layout-space U/J (their
+// topology is unresolved), so instead of trusting mapped layout paths we
+// RE-ROUTE each move segment in world space against the rendered rack AABBs
+// — the same obstacle-avoiding rectilinear algorithm the sim uses, ported
+// to the display layer. A candidate path that intersects any rack box is
+// rejected, so a clean route is clean by construction. Sim KPIs/distances
+// are untouched; this is purely how the animation drives through the scene.
+let _wrGeo = null;
+function worldRouterGeo() {
+  if (_wrGeo) return _wrGeo;
+  const C = 0.45;  // agent clearance off rack faces (m)
+  const obs = [];
+  for (const r of LAYOUT.racks) {
+    if (r.skip) continue;
+    const a = cadToWorld(Math.min(r.x0, r.x1), Math.min(r.y0, r.y1));
+    const c = cadToWorld(Math.max(r.x0, r.x1), Math.max(r.y0, r.y1));
+    obs.push({x0: Math.min(a.x, c.x), z0: Math.min(a.z, c.z),
+              x1: Math.max(a.x, c.x), z1: Math.max(a.z, c.z)});
+  }
+  const xs = new Set(), zs = new Set();
+  for (const o of obs) {
+    xs.add(o.x0 - C); xs.add(o.x1 + C);
+    zs.add(o.z0 - C); zs.add(o.z1 + C);
+  }
+  _wrGeo = {obs, xs: [...xs].sort((a, b) => a - b),
+            zs: [...zs].sort((a, b) => a - b), C};
+  return _wrGeo;
+}
+
+function snapOutWorld(p) {
+  // Push the point out of any rack box. Adjacent boxes whose gap is below
+  // the agent clearance (e.g. the 0.30 m H/I back-to-back slot) form a
+  // CLUSTER — escaping a single box would land inside its neighbour and
+  // oscillate, so the exit is taken off the union bounding box of the
+  // whole connected cluster of G-inflated boxes containing the point.
+  // G < C keeps legitimate access points (standing exactly C off a face)
+  // untouched.
+  const {obs, C} = worldRouterGeo();
+  const G = C - 0.03;
+  let x = p.x, z = p.z;
+  for (let pass = 0; pass < 3; pass++) {
+    const seed = obs.filter(o => o.x0 - G < x && x < o.x1 + G &&
+                                 o.z0 - G < z && z < o.z1 + G);
+    if (!seed.length) break;
+    // Grow the connected cluster: boxes whose G-inflated rects touch a
+    // cluster member (pairwise, NOT bbox — bbox over-merges distant racks).
+    const cluster = new Set(seed);
+    let grew = true;
+    while (grew) {
+      grew = false;
+      for (const o of obs) {
+        if (cluster.has(o)) continue;
+        for (const m of cluster) {
+          if (o.x0 - G < m.x1 + G && o.x1 + G > m.x0 - G &&
+              o.z0 - G < m.z1 + G && o.z1 + G > m.z0 - G) {
+            cluster.add(o); grew = true; break;
+          }
+        }
+      }
+    }
+    let cx0 = Infinity, cz0 = Infinity, cx1 = -Infinity, cz1 = -Infinity;
+    for (const o of cluster) {
+      cx0 = Math.min(cx0, o.x0); cz0 = Math.min(cz0, o.z0);
+      cx1 = Math.max(cx1, o.x1); cz1 = Math.max(cz1, o.z1);
+    }
+    const d = [
+      [x - cx0, [cx0 - C, z]], [cx1 - x, [cx1 + C, z]],
+      [z - cz0, [x, cz0 - C]], [cz1 - z, [x, cz1 + C]],
+    ].sort((a, b) => a[0] - b[0]);
+    x = d[0][1][0]; z = d[0][1][1];
+  }
+  return {x, z};
+}
+
+function _wrSegClean(p, q, obs) {
+  for (const o of obs) {
+    const dx = q.x - p.x, dz = q.z - p.z;
+    let t0 = 0, t1 = 1, ok = true;
+    const tests = [[-dx, p.x - o.x0], [dx, o.x1 - p.x],
+                   [-dz, p.z - o.z0], [dz, o.z1 - p.z]];
+    for (const [pp, qq] of tests) {
+      if (pp === 0) { if (qq < 0) { ok = false; break; } continue; }
+      const t = qq / pp;
+      if (pp < 0) t0 = Math.max(t0, t); else t1 = Math.min(t1, t);
+      if (t0 >= t1) { ok = false; break; }
+    }
+    if (ok && t0 < t1) return false;
+  }
+  return true;
+}
+
+function _wrDedup(pts) {
+  const out = [pts[0]];
+  for (const p of pts.slice(1)) {
+    const l = out[out.length - 1];
+    if (Math.abs(p.x - l.x) > 1e-9 || Math.abs(p.z - l.z) > 1e-9) out.push(p);
+  }
+  return out;
+}
+
+function _wrLen(pts) {
+  let d = 0;
+  for (let i = 1; i < pts.length; i++) {
+    d += Math.abs(pts[i].x - pts[i - 1].x) + Math.abs(pts[i].z - pts[i - 1].z);
+  }
+  return d;
+}
+
+function worldRoute(aIn, bIn) {
+  const {obs, xs, zs} = worldRouterGeo();
+  const a = snapOutWorld(aIn), b = snapOutWorld(bIn);
+  const P = (x, z) => ({x, z});
+  // Manhattan lower bound: a clean L-bend is optimal.
+  for (const pts of [[a, P(b.x, a.z), b], [a, P(a.x, b.z), b]]) {
+    const d = _wrDedup(pts);
+    if (d.length < 2) return d.length ? [d[0], d[0]] : [a, b];
+    if (d.every((_, i) => i === d.length - 1 || _wrSegClean(d[i], d[i + 1], obs))) return d;
+  }
+  const cands = [];
+  for (const z of zs) cands.push(_wrDedup([a, P(a.x, z), P(b.x, z), b]));
+  for (const x of xs) cands.push(_wrDedup([a, P(x, a.z), P(x, b.z), b]));
+  for (const x of xs) {
+    for (const z of zs) {
+      cands.push(_wrDedup([a, P(x, a.z), P(x, z), P(b.x, z), b]));
+      cands.push(_wrDedup([a, P(a.x, z), P(x, z), P(x, b.z), b]));
+    }
+  }
+  cands.sort((p, q) => _wrLen(p) - _wrLen(q));
+  for (const pts of cands) {
+    if (pts.length >= 2 &&
+        pts.every((_, i) => i === pts.length - 1 || _wrSegClean(pts[i], pts[i + 1], obs))) {
+      return pts;
+    }
+  }
+  return [a, b];  // should not happen (measured: 0 failures on real timelines)
 }
 
 function highlightPick(letter, bay, level, position) {
@@ -1678,17 +1937,17 @@ function setKPIs(walk, lead, rtu, opu, orders, simMin) {
     const h = Math.floor(simMin / 60), m = Math.floor(simMin % 60), s = Math.floor((simMin * 60) % 60);
     document.getElementById('time-label').textContent =
       `sim t=${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    // Shift indicator (08:00-16:30 / 16:30-00:30 / off). Sim t=0 maps to 08:00.
-    const wallMin = (simMin + 480) % (24 * 60);
-    let shiftText, cls;
-    if (wallMin >= 480 && wallMin < 990) { shiftText = 'Shift 1 · A'; cls = ''; }
-    else if (wallMin >= 990 && wallMin < 1470) { shiftText = 'Shift 2 · B'; cls = ''; }
-    else { shiftText = 'Off-shift'; cls = 'off'; }
-    // Override with break window 12:00-12:30
-    if (wallMin >= 720 && wallMin < 750) { shiftText = 'BREAK 30min'; cls = 'break'; }
+    // Working-day indicator. SHIFT_MODE=continuous: sim time is
+    // concatenated 480-min single-shift days (matches the ZWM92
+    // 07:00-16:00 dispatch profile) — there is no off-shift gap in sim
+    // time, so the badge shows Day N · HH:MM instead of a fake
+    // "Off-shift" state.
+    const day = Math.floor(simMin / 480) + 1;
+    const wallMin = 420 + (simMin % 480);  // day starts at 07:00
+    const wh = Math.floor(wallMin / 60), wm = Math.floor(wallMin % 60);
     const b = document.getElementById('shift-badge');
-    b.textContent = shiftText;
-    b.className = 'shift-badge ' + cls;
+    b.textContent = `Day ${day} · ${String(wh).padStart(2,'0')}:${String(wm).padStart(2,'0')}`;
+    b.className = 'shift-badge';
   }
 }
 
@@ -1713,6 +1972,7 @@ const POLICIES = [
   {key: 'usage_based_abc',            label: 'Usage-based ABC'},
   {key: 'double_abc',                 label: 'Double ABC'},
   {key: 'travel_distance_optimized',  label: 'Travel-distance Optimized'},
+  {key: 'line_aware_slotting',        label: 'Line-aware Slotting'},
 ];
 
 function fmtSimT(simMin) {
@@ -1807,8 +2067,13 @@ class TimelinePlayer {
       if (ev.type === 'op_move') {
         const id = ev.op_id;
         const tr = this.opTracks.get(id) || {segments: [], lastT: 0};
-        const t0 = opPrevT.get(id) ?? 0;
-        tr.segments.push({t0, t1: ev.t, from: ev.from, to: ev.to});
+        const t0 = ev.t_start ?? opPrevT.get(id) ?? 0;
+        const t1 = ev.t_end ?? ev.t;
+        // Keep the full recorded corridor path (waypoints) — _trackPos
+        // walks it piecewise so agents follow aisles instead of cutting
+        // straight lines through rack bodies.
+        const path = (ev.path && ev.path.length >= 2) ? ev.path : null;
+        tr.segments.push({t0, t1, from: ev.from, to: ev.to, path, coordSystem: this.header?.coord_system || 'layout_m'});
         opPrevT.set(id, ev.t);
         this.opTracks.set(id, tr);
       }
@@ -1817,13 +2082,29 @@ class TimelinePlayer {
     for (const ev of events) {
       if (ev.type === 'rt_dispatch') {
         const id = ev.rt_id;
-        // Find pos_id world coord by walking racks
-        const xy = this._posIdToWorld(ev.pos_id);
-        if (!xy) continue;
+        let from = null, to = null, coordSystem = this.header?.coord_system || 'layout_m';
+        if (ev.path && ev.path.length >= 2) {
+          from = ev.path[0];
+          to = ev.path[ev.path.length - 1];
+        } else {
+          const xy = this._posIdToWorld(ev.pos_id);
+          if (!xy) continue;
+          from = null;
+          to = [xy.x, xy.z];
+          coordSystem = 'world_xz';
+        }
         const tr = this.rtTracks.get(id) || {segments: []};
-        const t0 = rtPrevT.get(id) ?? Math.max(0, ev.t - 0.5);
-        tr.segments.push({t0, t1: ev.t, from: null, to: [xy.x, xy.z], dur: 0.5});
-        rtPrevT.set(id, ev.t);
+        const t0 = ev.t_start ?? rtPrevT.get(id) ?? Math.max(0, ev.t - 0.5);
+        const t1 = ev.t_arrive ?? ev.t_end ?? ev.t;
+        const path = (ev.path && ev.path.length >= 2) ? ev.path : null;
+        tr.segments.push({t0, t1, from, to, path, coordSystem});
+        // Depot return leg (recorder >= 2026-06-09 writes t_home): the
+        // truck drives back along the reversed path after service ends.
+        if (ev.t_home && ev.t_end && ev.t_home > ev.t_end && path) {
+          tr.segments.push({t0: ev.t_end, t1: ev.t_home, from: to, to: from,
+                            path: [...path].reverse(), coordSystem});
+        }
+        rtPrevT.set(id, ev.t_home ?? ev.t_end ?? ev.t);
         this.rtTracks.set(id, tr);
       }
     }
@@ -1975,22 +2256,46 @@ class TimelinePlayer {
     const s = segs[lo];
     if (!s) return null;
     if (t >= s.t1) {
-      // Past last segment → snap to its end
+      // Past last segment → snap to its end (pushed out of any rack box)
       const last = segs[segs.length - 1];
-      const p = cadCmToWorld(last.to);
-      return p ? {x: p.x, z: p.z} : null;
+      const p = timelinePointToWorld(last.to, last.coordSystem);
+      return p ? snapOutWorld(p) : null;
     }
     if (t < s.t0) {
       // Before this segment's start → snap to its 'from' (or previous 'to')
-      const p = cadCmToWorld(s.from);
-      return p ? {x: p.x, z: p.z} : null;
+      const p = timelinePointToWorld(s.from || s.to, s.coordSystem);
+      return p ? snapOutWorld(p) : null;
     }
-    // Linear interpolation within segment
+    // Interpolation within segment. The drive path is computed ONCE per
+    // segment by the world-space router (worldRoute) against the rendered
+    // rack boxes — guaranteed obstruction-free — then followed piecewise-
+    // linearly by cumulative distance.
     const u = (t - s.t0) / Math.max(1e-6, s.t1 - s.t0);
-    const a = cadCmToWorld(s.from);
-    const b = cadCmToWorld(s.to);
-    if (!a || !b) return null;
-    return {x: a.x + (b.x - a.x) * u, z: a.z + (b.z - a.z) * u};
+    if (!s._wpts) {
+      const a = timelinePointToWorld(s.from || s.to, s.coordSystem);
+      const b = timelinePointToWorld(s.to, s.coordSystem);
+      if (a && b) {
+        const pts = worldRoute(a, b);
+        const cum = [0];
+        let total = 0;
+        for (let i = 1; i < pts.length; i++) {
+          total += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].z - pts[i - 1].z);
+          cum.push(total);
+        }
+        s._wpts = {pts, cum, total};
+      } else {
+        s._wpts = {pts: null};
+      }
+    }
+    const w = s._wpts;
+    if (!w.pts) return null;
+    if (w.total <= 1e-9) return {x: w.pts[0].x, z: w.pts[0].z};
+    const d = u * w.total;
+    let i = 1;
+    while (i < w.cum.length - 1 && w.cum[i] < d) i++;
+    const f = (d - w.cum[i - 1]) / Math.max(1e-9, w.cum[i] - w.cum[i - 1]);
+    return {x: w.pts[i - 1].x + (w.pts[i].x - w.pts[i - 1].x) * f,
+            z: w.pts[i - 1].z + (w.pts[i].z - w.pts[i - 1].z) * f};
   }
 
   _updateHud() {
@@ -2089,10 +2394,7 @@ document.addEventListener('keydown', e => {
   else if (e.key === '4') tweenCamera('cinematic');
   else if (e.key === 'l' || e.key === 'L') document.getElementById('btn-toggle-labels').click();
   else if (e.key === 'p' || e.key === 'P') document.getElementById('btn-toggle-plan').click();
-  else if (e.key === 'h' || e.key === 'H') {
-    // H = heatmap toggle placeholder (M5)
-    showToast('Heatmap overlay — M5 dashboard');
-  } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
+  else if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
     document.getElementById('fps').classList.toggle('on');
     e.preventDefault();
   } else if (e.key === ' ') {
@@ -2228,6 +2530,7 @@ const DATA_PATHS = {
   zwm92:       ['./data/zwm92_summary.json', '../output/zwm92_summary.json'],
   timing:      ['./data/timing_study_f400.json', '../output/timing_study_f400.json'],
   prep:        ['./data/preprocess_stats.json', '../output/preprocess_stats.json'],
+  stats:       ['./data/policy_stats.json', '../output/policy_stats.json'],
 };
 const POLICY_RACK_CSV = {
   baseline_actual_sap:        ['./data/baseline_actual_sap_picks_per_rack.csv', '../output/baseline_actual_sap_picks_per_rack.csv'],
@@ -2235,20 +2538,24 @@ const POLICY_RACK_CSV = {
   usage_based_abc:            ['./data/usage-based_abc_picks_per_rack.csv', '../output/usage-based_abc_picks_per_rack.csv'],
   double_abc:                 ['./data/double_abc_picks_per_rack.csv', '../output/double_abc_picks_per_rack.csv'],
   travel_distance_optimized:  ['./data/travel-distance_optimized_picks_per_rack.csv', '../output/travel-distance_optimized_picks_per_rack.csv'],
+  // NOTE: the timeline file uses underscores (recorder sanitizer) while the
+  // CSV files keep the hyphen (main._safe_name) — key matches the timeline.
+  line_aware_slotting:        ['./data/line-aware_slotting_picks_per_rack.csv', '../output/line-aware_slotting_picks_per_rack.csv'],
 };
 
-const DASH = {policy: null, validation: null, sensitivity: null, zwm92: null, timing: null, prep: null, charts: {}};
+const DASH = {policy: null, validation: null, sensitivity: null, zwm92: null, timing: null, prep: null, stats: null, charts: {}};
 
 async function loadAllData() {
-  const [policy, validation, sensitivity, zwm92, timing, prep] = await Promise.all([
+  const [policy, validation, sensitivity, zwm92, timing, prep, stats] = await Promise.all([
     fetchJSON(DATA_PATHS.policy),
     fetchJSON(DATA_PATHS.validation),
     fetchJSON(DATA_PATHS.sensitivity),
     fetchJSON(DATA_PATHS.zwm92),
     fetchJSON(DATA_PATHS.timing),
     fetchJSON(DATA_PATHS.prep),
+    fetchJSON(DATA_PATHS.stats),
   ]);
-  Object.assign(DASH, {policy, validation, sensitivity, zwm92, timing, prep});
+  Object.assign(DASH, {policy, validation, sensitivity, zwm92, timing, prep, stats});
   renderAllPanels();
 }
 
@@ -2292,11 +2599,25 @@ function renderCompare() {
   const sel = (player && player._policyLabel) || 'Baseline (Actual SAP)';
   const s = DASH.policy[sel] || baseline || DASH.policy[names[0]];
   if (!s || s.avg_walk_distance == null) return; // policy data malformed; skip
+  // 95% CI half-widths from policy_stats.json (per metric, per policy) —
+  // available once the N>=20 replication run has been analyzed.
+  const ciOf = (metric) => {
+    const st = DASH.stats && DASH.stats.metrics && DASH.stats.metrics[metric];
+    const pp = st && st.per_policy && st.per_policy[sel];
+    const h = pp && pp.ci95_half_width;
+    return (typeof h === 'number' && isFinite(h)) ? h : null;
+  };
+  const fmtCI = (h, scale = 1, dec = 2) =>
+    h == null ? '' : `<div class="unit" style="opacity:.7">±${(h * scale).toFixed(dec)}</div>`;
+  const waitV = s.avg_total_wait ?? s.avg_wait_time ?? 0;
+  const thrV = s.throughput_orders_per_day;
   document.getElementById('compare-cards').innerHTML = `
-    <div class="kpi-card"><div class="ttl">Walk</div><div class="num">${s.avg_walk_distance.toFixed(1)}<span class="unit">m</span></div></div>
-    <div class="kpi-card"><div class="ttl">Lead</div><div class="num">${s.avg_lead_time.toFixed(2)}<span class="unit">min</span></div></div>
-    <div class="kpi-card"><div class="ttl">RT util</div><div class="num">${(s.reach_truck_utilization*100).toFixed(1)}<span class="unit">%</span></div></div>
-    <div class="kpi-card"><div class="ttl">Op util</div><div class="num">${(s.operator_utilization*100).toFixed(1)}<span class="unit">%</span></div></div>
+    <div class="kpi-card"><div class="ttl">Lead</div><div class="num">${s.avg_lead_time.toFixed(2)}<span class="unit">min</span></div>${fmtCI(ciOf('avg_lead_time'))}</div>
+    <div class="kpi-card"><div class="ttl">Wait</div><div class="num">${waitV.toFixed(2)}<span class="unit">min</span></div>${fmtCI(ciOf('avg_total_wait'))}</div>
+    <div class="kpi-card"><div class="ttl">RT util</div><div class="num">${(s.reach_truck_utilization*100).toFixed(1)}<span class="unit">%</span></div>${fmtCI(ciOf('reach_truck_utilization'), 100, 1)}</div>
+    <div class="kpi-card"><div class="ttl">Thruput</div><div class="num">${thrV != null ? thrV.toFixed(0) : s.orders_completed}<span class="unit">${thrV != null ? '/day' : 'orders'}</span></div>${fmtCI(ciOf('throughput_orders_per_day'), 1, 0)}</div>
+    <div class="kpi-card"><div class="ttl">Walk</div><div class="num">${s.avg_walk_distance.toFixed(1)}<span class="unit">m</span></div>${fmtCI(ciOf('avg_walk_distance'), 1, 1)}</div>
+    <div class="kpi-card"><div class="ttl">Op util</div><div class="num">${(s.operator_utilization*100).toFixed(1)}<span class="unit">%</span></div>${fmtCI(ciOf('operator_utilization'), 100, 1)}</div>
   `;
 
   chartDestroy('compare-walk');
@@ -2320,6 +2641,7 @@ function renderCompare() {
   });
 
   // Before / After deltas (vs Baseline SAP)
+  if (!baseline) return; // policy_summary.json lacks the SAP baseline key
   const baseW = baseline.avg_walk_distance, baseL = baseline.avg_lead_time;
   const rows = names.filter(n => n !== 'Baseline (Actual SAP)').map(n => {
     const p = DASH.policy[n];
@@ -2328,13 +2650,56 @@ function renderCompare() {
     const cls = (dW + dL * 5) > 0 ? 'bad' : 'good';
     return `<div class="row"><span class="k">${n}</span><span class="v ${cls}">${dW >= 0 ? '+' : ''}${dW.toFixed(1)}m / ${dL >= 0 ? '+' : ''}${dL.toFixed(2)}min</span></div>`;
   }).join('');
-  document.getElementById('compare-delta').innerHTML = rows;
+  document.getElementById('compare-delta').innerHTML = rows + renderHypothesisTable();
+}
+
+// Hypothesis-test table: CRN paired-by-replication t-tests vs the
+// Heuristic baseline for the four advisor KPIs (from policy_stats.json).
+// Falls back to the legacy paired-by-order Wilcoxon block on N=1 data.
+function renderHypothesisTable() {
+  const st = DASH.stats;
+  if (!st) return '';
+  const KPI_KEYS = [
+    ['avg_lead_time', 'Lead time'],
+    ['avg_total_wait', 'Waiting time'],
+    ['reach_truck_utilization', 'RT utilization'],
+    ['throughput_orders_per_day', 'Throughput'],
+  ];
+  const rows = [];
+  for (const [key, label] of KPI_KEYS) {
+    const m = st.metrics && st.metrics[key];
+    const pt = m && m.paired_t_vs_baseline;
+    if (!pt) continue;
+    for (const w of pt) {
+      const sig = w['significant_at_0.05'];
+      rows.push(`<tr><td>${label}</td><td>${w.policy.replace('Baseline ', '')}</td>` +
+        `<td class="r">${w.mean_diff >= 0 ? '+' : ''}${w.mean_diff.toFixed(3)}</td>` +
+        `<td class="r">${w.p_value < 0.0001 ? '<0.0001' : w.p_value.toFixed(4)}</td>` +
+        `<td><span class="badge ${sig ? 'ok' : ''}">${sig ? 'SIGNIFICANT' : 'NS'}</span></td></tr>`);
+    }
+  }
+  if (!rows.length && st.paired_by_order) {
+    for (const [pol, metrics] of Object.entries(st.paired_by_order)) {
+      for (const [k, v] of Object.entries(metrics)) {
+        const sig = v['significant_at_0.05'];
+        rows.push(`<tr><td>${v.label || k}</td><td>${pol.replace('Baseline ', '')}</td>` +
+          `<td class="r">${v.mean_diff >= 0 ? '+' : ''}${(v.mean_diff || 0).toFixed(3)}</td>` +
+          `<td class="r">${(v.p_holm ?? v.p_value ?? 0).toExponential(1)}</td>` +
+          `<td><span class="badge ${sig ? 'ok' : ''}">${sig ? 'SIG (Holm)' : 'NS'}</span></td></tr>`);
+      }
+    }
+  }
+  if (!rows.length) return '';
+  return `<div style="margin-top:8px"><div class="ttl" style="font-size:9px;letter-spacing:.6px;color:var(--text-dim);text-transform:uppercase">Hypothesis tests vs Heuristic baseline (paired by replication, CRN)</div>
+    <table><thead><tr><th>KPI</th><th>Policy</th><th class="r">Δ mean</th><th class="r">p</th><th>verdict</th></tr></thead>
+    <tbody>${rows.join('')}</tbody></table></div>`;
 }
 
 function renderValidation() {
   if (!DASH.validation) return;
   const r = DASH.validation.chi_square_per_rack_restricted;
-  const pt = DASH.validation.paired_t_test || {};
+  const pt = DASH.validation.t_test_per_material || {};
+  const dv = DASH.validation.daily_volume_check || {};
   document.getElementById('val-summary').textContent =
     `χ²=${r.chi_square.toFixed(2)} (dof=${r.dof}), p=${r.p_value.toExponential(2)}. ` +
     `Expected source: ${DASH.validation.expected_source}.`;
@@ -2351,15 +2716,21 @@ function renderValidation() {
     },
     options: chartCommon()
   });
+  const pooled = r.pooled;
   document.getElementById('val-stats').innerHTML = `
     <div class="row"><span class="k">χ² statistic</span><span class="v">${r.chi_square.toFixed(2)}</span></div>
     <div class="row"><span class="k">dof</span><span class="v">${r.dof}</span></div>
     <div class="row"><span class="k">p-value</span><span class="v ${r.p_value < 0.05 ? 'bad' : 'good'}">${r.p_value.toExponential(2)}</span></div>
-    ${pt.t_statistic !== undefined ? `<div class="row"><span class="k">Paired-t (avg walk)</span><span class="v">t=${pt.t_statistic.toFixed(2)}, p=${(pt.p_value||0).toExponential(2)}</span></div>` : ''}
+    ${r.cramers_v != null ? `<div class="row"><span class="k">Cramér's V (effect size)</span><span class="v ${r.cramers_v < 0.3 ? 'good' : 'bad'}">${r.cramers_v.toFixed(3)} (${r.cramers_v < 0.1 ? 'negligible' : r.cramers_v < 0.3 ? 'small' : r.cramers_v < 0.5 ? 'medium' : 'large'})</span></div>` : ''}
+    ${pooled ? `<div class="row"><span class="k">χ² pooled (Cochran ${pooled.cochran_satisfied ? 'OK' : 'viol.'})</span><span class="v ${pooled.p_value < 0.05 ? 'bad' : 'good'}">χ²=${pooled.chi_square.toFixed(2)}, p=${pooled.p_value.toExponential(2)}</span></div>` : ''}
+    ${pt.t_statistic !== undefined ? `<div class="row"><span class="k">Paired-t (log picks/mat)</span><span class="v">t=${pt.t_statistic.toFixed(2)}, p=${(pt.p_value||0).toExponential(2)} (n=${pt.n_materials_paired||'?'})</span></div>` : ''}
+    ${dv.sim_orders_per_day !== undefined ? `<div class="row"><span class="k">Daily volume vs ZWM92</span><span class="v ${dv.status === 'PASS' ? 'good' : 'bad'}">${dv.sim_orders_per_day}/day vs ${dv.zwm92_orders_per_active_day} (${dv.relative_error >= 0 ? '+' : ''}${(dv.relative_error*100).toFixed(1)}%)</span></div>` : ''}
   `;
   document.getElementById('cochran-note').innerHTML =
     r.cochran_low_cells && r.cochran_low_cells.length
-      ? `<span class="badge bad">VIOLATED</span> ${r.cochran_warning}`
+      ? (pooled && pooled.cochran_satisfied
+          ? `<span class="badge ok">POOLED OK</span> Low-E cells merged; pooled test satisfies Cochran. Unpooled: ${r.cochran_warning}`
+          : `<span class="badge bad">VIOLATED</span> ${r.cochran_warning}`)
       : `<span class="badge ok">OK</span> All expected counts ≥ 5.`;
 }
 
@@ -2459,11 +2830,17 @@ function applyHeatmapOverlay() {
 function renderDriver() {
   if (!DASH.zwm92) return;
   const z = DASH.zwm92;
+  const batchCards = z.batch_size_mean != null ? `
+    <div class="kpi-card"><div class="ttl">Batch size (mean)</div><div class="num">${z.batch_size_mean.toFixed(2)}<span class="unit">kits</span></div></div>
+    <div class="kpi-card"><div class="ttl">Batch size (max)</div><div class="num">${z.batch_size_max}</div></div>
+    <div class="kpi-card"><div class="ttl">Dispatch batches</div><div class="num">${z.n_batches.toLocaleString()}</div></div>
+    <div class="kpi-card"><div class="ttl">Orders / active day</div><div class="num">${z.orders_per_active_day.toFixed(0)}</div></div>` : '';
   document.getElementById('drv-cards').innerHTML = `
-    <div class="kpi-card"><div class="ttl">IAT (within shift)</div><div class="num">${z.iat_within_shift_mean.toFixed(2)}<span class="unit">min</span></div></div>
+    <div class="kpi-card"><div class="ttl">Inter-batch IAT</div><div class="num">${z.iat_within_shift_mean.toFixed(2)}<span class="unit">min</span></div></div>
     <div class="kpi-card"><div class="ttl">IAT (calendar)</div><div class="num">${z.iat_calendar_mean.toFixed(2)}<span class="unit">min</span></div></div>
     <div class="kpi-card"><div class="ttl">Orders built</div><div class="num">${z.orders_built.toLocaleString()}</div></div>
     <div class="kpi-card"><div class="ttl">Distinct/kit (mean)</div><div class="num">${z.n_distinct_per_kit_mean.toFixed(2)}</div></div>
+    ${batchCards}
   `;
   const lines = z.lines || {};
   const lineLabels = Object.keys(lines).sort((a, b) => lines[b] - lines[a]).slice(0, 10);
@@ -2477,15 +2854,23 @@ function renderDriver() {
     },
     options: Object.assign(chartCommon({plugins: {legend: {position: 'right', labels: {color:'#cbd5e1', font:{size:9}, boxWidth:10}}, tooltip: chartCommon().plugins.tooltip}}), {scales: {}})
   });
+  const batchNote = z.batch_size_mean != null
+    ? ` SAP dispatches kits in BURSTS: ${z.n_batches.toLocaleString()} same-timestamp ` +
+      `batches (mean ${z.batch_size_mean.toFixed(2)}, max ${z.batch_size_max} kits) over ` +
+      `${z.active_days} active days — the driver samples empirical inter-batch gaps + ` +
+      `batch sizes to reproduce the real ~${z.orders_per_active_day.toFixed(0)} kit-orders/day.`
+    : '';
   document.getElementById('drv-pmf-text').textContent =
     `Mean ${z.n_distinct_per_kit_mean.toFixed(2)} distinct materials/kit ` +
-    `(qty-expanded mean ${z.n_picks_per_kit_mean.toFixed(2)}/kit). N=${z.orders_built.toLocaleString()} kits.`;
+    `(qty-expanded mean ${z.n_picks_per_kit_mean.toFixed(2)}/kit). N=${z.orders_built.toLocaleString()} kits.` +
+    batchNote;
 }
 
 function renderTiming() {
   if (!DASH.timing) return;
   const cats = DASH.timing.category_stats || {};
-  const keys = Object.keys(cats);
+  // Skip zero-observation categories (e.g. ascend_rt: all stats null).
+  const keys = Object.keys(cats).filter(k => cats[k] && cats[k].mean_s != null);
   chartDestroy('timing');
   DASH.charts['timing'] = new Chart(document.getElementById('chart-timing'), {
     type: 'bar',
@@ -2598,23 +2983,61 @@ function renderBottleneck() {
   if (!p) return;
   const rtBusyPct = (p.reach_truck_utilization * 100);
   const opBusyPct = (p.operator_utilization * 100);
+  const kdxBusyPct = (p.kardex_utilization || 0) * 100;
   const queueRT = p.avg_op_queue_wait || 0;
   // Heuristic verdict: whichever resource is the closest to saturation.
-  const verdict = rtBusyPct > opBusyPct ? 'Reach truck' : 'Operator';
-  const sev = Math.max(rtBusyPct, opBusyPct) > 60 ? 'warn' : Math.max(rtBusyPct, opBusyPct) > 40 ? '' : 'good';
+  const peak = Math.max(rtBusyPct, opBusyPct, kdxBusyPct);
+  const verdict = peak === rtBusyPct ? 'Reach truck'
+                : peak === opBusyPct ? 'Operator' : 'Kardex';
+  const sev = peak > 60 ? 'warn' : peak > 40 ? '' : 'good';
   document.getElementById('x-bottleneck').innerHTML = `
     <div class="row"><span class="k">RT utilization</span><span class="v ${sev}">${rtBusyPct.toFixed(1)}%</span></div>
     <div class="row"><span class="k">Operator utilization</span><span class="v ${sev}">${opBusyPct.toFixed(1)}%</span></div>
+    ${p.kardex_utilization != null ? `<div class="row"><span class="k">Kardex utilization</span><span class="v">${kdxBusyPct.toFixed(1)}%</span></div>` : ''}
     <div class="row"><span class="k">Avg queue wait</span><span class="v">${queueRT.toFixed(2)} min</span></div>
     <div class="row"><span class="k">Likely bottleneck</span><span class="v"><span class="badge ${sev === 'warn' ? 'bad' : 'ok'}">${verdict}</span></span></div>
   `;
 }
 
 async function renderReslot() {
-  // Use Travel-Distance picks per material as the "optimal" suggestion;
-  // compare to Baseline (Actual SAP) picks_per_material if available.
+  // Top-20 re-slotting candidates: materials whose pick volume differs most
+  // between the Actual-SAP placement and the Travel-Distance-optimized one.
   const out = document.getElementById('x-reslot-list');
-  out.innerHTML = '<p style="color:var(--text-dim);font-size:10px">Re-slotting plan derived from sim picks-per-material. See <code>output/*_picks_per_material.csv</code> for the full table.</p>';
+  const [sapCsv, tdCsv] = await Promise.all([
+    fetchCSV(['./data/baseline_actual_sap_picks_per_material.csv',
+              '../output/baseline_actual_sap_picks_per_material.csv']),
+    // Proposed side = Line-aware Slotting (the congestion-aware policy);
+    // falls back to Travel-distance for older data sets.
+    fetchCSV(['./data/line-aware_slotting_picks_per_material.csv',
+              '../output/line-aware_slotting_picks_per_material.csv',
+              './data/travel-distance_optimized_picks_per_material.csv',
+              '../output/travel-distance_optimized_picks_per_material.csv']),
+  ]);
+  if (!sapCsv || !tdCsv) {
+    out.innerHTML = '<p style="color:var(--text-dim);font-size:10px">Re-slotting plan derived from sim picks-per-material. See <code>output/*_picks_per_material.csv</code> for the full table.</p>';
+    return;
+  }
+  const sap = Object.fromEntries(parseCSV(sapCsv).map(r => [r.material_id, r.pick_count]));
+  const td = Object.fromEntries(parseCSV(tdCsv).map(r => [r.material_id, r.pick_count]));
+  const ids = new Set([...Object.keys(sap), ...Object.keys(td)]);
+  const items = [...ids].map(id => {
+    const a = sap[id] || 0, b = td[id] || 0;
+    return {id, sap: a, td: b, delta: b - a, vol: Math.max(a, b)};
+  }).filter(x => x.vol >= 3)
+    .sort((x, y) => Math.abs(y.delta) - Math.abs(x.delta) || y.vol - x.vol)
+    .slice(0, 20);
+  if (!items.length) {
+    out.innerHTML = '<p style="color:var(--text-dim);font-size:10px">No high-volume divergence between SAP and Travel-Distance placements in this run.</p>';
+    return;
+  }
+  const rows = items.map(x =>
+    `<tr><td style="font-family:monospace">${x.id}</td><td class="r">${x.sap}</td><td class="r">${x.td}</td>` +
+    `<td class="r ${x.delta > 0 ? 'good' : 'bad'}">${x.delta >= 0 ? '+' : ''}${x.delta}</td></tr>`).join('');
+  out.innerHTML = `
+    <p style="color:var(--text-dim);font-size:10px;margin:4px 0">Top-${items.length} materials by |pick-volume divergence| between the
+    Actual-SAP placement and the proposed (Line-aware Slotting) run — the shortlist a re-slotting project would tackle first.</p>
+    <table><thead><tr><th>Material</th><th class="r">SAP picks</th><th class="r">Proposed</th><th class="r">Δ</th></tr></thead>
+    <tbody>${rows}</tbody></table>`;
 }
 
 function applyStress(mode) {
@@ -2717,7 +3140,7 @@ document.getElementById('btn-theme').addEventListener('click', e => {
   document.body.classList.toggle('theme-light');
   const isLight = document.body.classList.contains('theme-light');
   e.currentTarget.textContent = isLight ? 'Dark' : 'Light';
-  scene.background = new THREE.Color(isLight ? 0xeef2f6 : 0xeef2f6); // keep CAD-realistic light
+  scene.background = new THREE.Color(isLight ? 0xeef2f6 : 0xdde3eb); // dark theme restores the default scene bg
 });
 // Help (U10)
 const helpModal = document.getElementById('help-modal');
