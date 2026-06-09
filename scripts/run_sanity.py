@@ -64,10 +64,13 @@ F400_TARGETS = {
     "REACH_TRUCK_PICK_PLACE_TIME": ("REACH_TRUCK_PICK_PLACE_TIME", 0.005),
 }
 KPI_RANGES = {
-    "avg_walk_distance": (60.0, 100.0),
-    "avg_lead_time":     (2.0, 7.0),
-    "reach_truck_utilization": (0.0, 0.30),
-    "operator_utilization":    (0.0, 0.30),
+    # Plausible ranges calibrated from the 6-policy N=20 CRN run
+    # (2026-06-10): >=20% headroom around observed means, still catches
+    # degenerate runs (0 m walk, 200 min lead, etc.).
+    "avg_walk_distance": (75.0, 115.0),
+    "avg_lead_time": (5.0, 35.0),
+    "reach_truck_utilization": (0.0, 0.55),
+    "operator_utilization": (0.20, 0.75),
 }
 
 

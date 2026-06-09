@@ -12,7 +12,9 @@ def compare_policies(results, output_dir="output"):
         return
 
     # Color palette
-    colors = ["#e74c3c", "#3498db", "#2ecc71", "#f39c12"][:len(names)]
+    palette = ["#e74c3c", "#3498db", "#2ecc71", "#f39c12", "#9b59b6",
+               "#1abc9c", "#e67e22", "#34495e"]
+    colors = [palette[i % len(palette)] for i in range(len(names))]
 
     # 1. Average order prep time
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))

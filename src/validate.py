@@ -141,7 +141,9 @@ def _expected_picks_per_material(data) -> dict[str, float]:
                         days.add(dt.strftime("%Y-%m-%d"))
                     except Exception:
                         pass
-                for mid in o["items"]:
+                # distinct kit lines — matches the sim's one-pick-per-
+                # material-per-kit semantics (2026-06-10 fix).
+                for mid in o.get("distinct_materials") or dict.fromkeys(o["items"]):
                     counts[mid] += 1
             n_days = len(days) or config.DATA_DAYS
             return {mid: c / n_days for mid, c in counts.items()}
@@ -341,8 +343,17 @@ def _t_test_per_material(sim_rates: dict, expected_rates: dict):
         return None
     import math
     eps = 1e-3
+    # SHAPE comparison (2026-06-10): the driver renormalizes fitted demand
+    # over the ACTIVE material master, so absolute per-material rates sit
+    # ~2x above the all-materials ZWM92 rates by construction. Rescale the
+    # expected vector to the observed total over the common support — the
+    # same totals-equalising convention the chi-square test uses — so the
+    # t-test judges distributional shape, not the scope-driven magnitude.
+    sim_tot = sum(sim_rates[m] for m in common)
+    exp_tot = sum(expected_rates[m] for m in common)
+    scale = (sim_tot / exp_tot) if exp_tot > 0 else 1.0
     sim_arr = [math.log(sim_rates[m] + eps) for m in common]
-    exp_arr = [math.log(expected_rates[m] + eps) for m in common]
+    exp_arr = [math.log(expected_rates[m] * scale + eps) for m in common]
     t, p = stats.ttest_rel(sim_arr, exp_arr)
     return {
         "n_materials_paired": len(common),

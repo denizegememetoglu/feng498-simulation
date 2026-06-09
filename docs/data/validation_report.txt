@@ -6,50 +6,50 @@ SAP fidelity: 750 materials placed from SAP bins; 750 SAP slots assigned; 2872 K
 
 Chi-square (restricted to SAP-decoded materials [headline]):
   racks tested: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
-  observed     = [115.0, 35.0, 21.0, 152.0, 242.0, 31.0, 188.0, 43.0, 0.0, 0.0]
-  expected     = [110.31, 32.44, 10.46, 143.37, 298.45, 73.19, 126.03, 32.7, 0.01, 0.04]
-  chi-square   = 80.327
+  observed     = [148.0, 20.0, 44.0, 187.0, 260.0, 57.0, 476.0, 85.0, 0.0, 0.0]
+  expected     = [82.52, 13.38, 10.0, 255.27, 478.95, 127.34, 254.32, 55.1, 0.04, 0.1]
+  chi-square   = 537.680
   dof          = 9
   p-value      = 0.0000
-  Cramér's V   = 0.104 (small effect; with n in the hundreds the test has power to reject for even small shape deviations)
+  Cramér's V   = 0.216 (small effect; with n in the hundreds the test has power to reject for even small shape deviations)
   verdict      = REJECT H0 (distributions differ)
-  WARNING      = Cochran's rule violated: 2 of 10 cells have expected count < 5 — [('I', 0.01), ('J', 0.04)]. Unpooled p-value is approximate; the POOLED test below is the headline number.
+  WARNING      = Cochran's rule violated: 2 of 10 cells have expected count < 5 — [('I', 0.04), ('J', 0.1)]. Unpooled p-value is approximate; the POOLED test below is the headline number.
   POOLED (low-E cells merged; Cochran OK):
     cells      = ['A', 'B', 'C+OTHER', 'D', 'E', 'F', 'G', 'H']
-    chi-square = 80.117  dof = 7  p = 0.0000
+    chi-square = 535.053  dof = 7  p = 0.0000
     verdict    = REJECT H0 (distributions differ)
 
 Chi-square (all sim picks vs SAP-decoded (biased)):
   racks tested: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'U']
-  observed     = [132, 97, 64, 167, 271, 94, 227, 96, 62, 77, 22]
-  expected     = [83.89, 53.98, 82.01, 196.67, 433.24, 113.25, 212.25, 96.57, 10.6, 15.91, 10.64]
-  chi-square   = 631.297
+  observed     = [178, 134, 141, 223, 293, 114, 576, 162, 83, 114, 27]
+  expected     = [131.05, 84.33, 128.12, 307.26, 676.83, 176.92, 331.58, 150.87, 16.56, 24.86, 16.62]
+  chi-square   = 1084.240
   dof          = 10
   p-value      = 0.0000
-  Cramér's V   = 0.220 (small effect; with n in the hundreds the test has power to reject for even small shape deviations)
+  Cramér's V   = 0.230 (small effect; with n in the hundreds the test has power to reject for even small shape deviations)
   verdict      = REJECT H0 (distributions differ)
 
 Paired t-test (log daily picks per material):
-  n paired = 770
-  t        = -8.520
+  n paired = 928
+  t        = 8.751
   p-value  = 0.0000
   verdict  = REJECT H0 (means differ)
 
 Daily volume calibration (sim vs ZWM92 actual):
   status   = INFO (informational; rigorous gate = replication CI check)
-  sim      = 267.0 orders/day
+  sim      = 378.0 orders/day
   ZWM92    = 396.2 orders/active day
-  rel err  = -32.6%
+  rel err  = -4.6%
 
 Replication CI check (multi-rep throughput vs ZWM92):
   status   = PASS
-  Baseline (Actual SAP): simulated arrivals/day within 8.8% of ZWM92 actual (396)
-  Baseline (Heuristic): throughput 430.1/day CI95 [399.0, 461.2] (n=20)
-  Baseline (Actual SAP): throughput 430.3/day CI95 [399.2, 461.3] (n=20)
-  Usage-based ABC: throughput 430.1/day CI95 [399.0, 461.2] (n=20)
-  Double ABC: throughput 430.0/day CI95 [398.9, 461.2] (n=20)
-  Travel-distance Optimized: throughput 428.2/day CI95 [397.8, 458.6] (n=20)
-  Line-aware Slotting: throughput 430.3/day CI95 [399.2, 461.4] (n=20)
+  Baseline (Actual SAP): simulated arrivals/day within 1.1% of ZWM92 actual (396)
+  Baseline (Heuristic): throughput 398.4/day CI95 [377.7, 419.2] (n=20)
+  Baseline (Actual SAP): throughput 398.5/day CI95 [377.7, 419.3] (n=20)
+  Usage-based ABC: throughput 398.5/day CI95 [377.7, 419.3] (n=20)
+  Double ABC: throughput 398.4/day CI95 [377.6, 419.1] (n=20)
+  Travel-distance Optimized: throughput 395.7/day CI95 [375.8, 415.6] (n=20)
+  Line-aware Slotting: throughput 398.6/day CI95 [377.8, 419.4] (n=20)
 
 Notes:
   - Expected rack distribution source: ZWM92 actuals (real per-bin dispatch counts).

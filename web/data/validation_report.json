@@ -69,38 +69,38 @@
       "J"
     ],
     "observed": [
-      115.0,
-      35.0,
-      21.0,
-      152.0,
-      242.0,
-      31.0,
-      188.0,
-      43.0,
+      148.0,
+      20.0,
+      44.0,
+      187.0,
+      260.0,
+      57.0,
+      476.0,
+      85.0,
       0.0,
       0.0
     ],
     "expected": [
-      110.31,
-      32.44,
-      10.46,
-      143.37,
-      298.45,
-      73.19,
-      126.03,
-      32.7,
-      0.01,
-      0.04
+      82.52,
+      13.38,
+      10.0,
+      255.27,
+      478.95,
+      127.34,
+      254.32,
+      55.1,
+      0.04,
+      0.1
     ],
-    "chi_square": 80.3270111080976,
-    "p_value": 1.391578080565429e-13,
-    "cramers_v": 0.1039,
+    "chi_square": 537.6796488420739,
+    "p_value": 4.870806036766729e-110,
+    "cramers_v": 0.2163,
     "dof": 9,
     "cochran_low_cells": [
       "I",
       "J"
     ],
-    "cochran_warning": "Cochran's rule violated: 2 of 10 cells have expected count < 5 \u2014 [('I', 0.01), ('J', 0.04)]. Unpooled p-value is approximate; the POOLED test below is the headline number.",
+    "cochran_warning": "Cochran's rule violated: 2 of 10 cells have expected count < 5 \u2014 [('I', 0.04), ('J', 0.1)]. Unpooled p-value is approximate; the POOLED test below is the headline number.",
     "pooled": {
       "racks": [
         "A",
@@ -113,27 +113,27 @@
         "H"
       ],
       "observed": [
-        115.0,
-        35.0,
-        21.0,
-        152.0,
-        242.0,
-        31.0,
-        188.0,
-        43.0
+        148.0,
+        20.0,
+        44.0,
+        187.0,
+        260.0,
+        57.0,
+        476.0,
+        85.0
       ],
       "expected": [
-        110.31,
-        32.44,
-        10.51,
-        143.37,
-        298.45,
-        73.19,
-        126.03,
-        32.7
+        82.52,
+        13.38,
+        10.14,
+        255.27,
+        478.95,
+        127.34,
+        254.32,
+        55.1
       ],
-      "chi_square": 80.11686361678191,
-      "p_value": 1.303948480311727e-14,
+      "chi_square": 535.052698285886,
+      "p_value": 2.3210536023282493e-111,
       "dof": 7,
       "cochran_satisfied": true
     }
@@ -153,50 +153,50 @@
       "U"
     ],
     "observed": [
-      132,
-      97,
-      64,
-      167,
-      271,
-      94,
-      227,
-      96,
-      62,
-      77,
-      22
+      178,
+      134,
+      141,
+      223,
+      293,
+      114,
+      576,
+      162,
+      83,
+      114,
+      27
     ],
     "expected": [
-      83.89,
-      53.98,
-      82.01,
-      196.67,
-      433.24,
-      113.25,
-      212.25,
-      96.57,
-      10.6,
-      15.91,
-      10.64
+      131.05,
+      84.33,
+      128.12,
+      307.26,
+      676.83,
+      176.92,
+      331.58,
+      150.87,
+      16.56,
+      24.86,
+      16.62
     ],
-    "chi_square": 631.2974914388182,
-    "p_value": 3.4483985868234887e-129,
-    "cramers_v": 0.2196,
+    "chi_square": 1084.239708654134,
+    "p_value": 1.31740426756298e-226,
+    "cramers_v": 0.2303,
     "dof": 10,
     "cochran_low_cells": [],
     "cochran_warning": null,
     "pooled": null
   },
   "t_test_per_material": {
-    "n_materials_paired": 770,
-    "t_statistic": -8.519983840462976,
-    "p_value": 8.368677498573448e-17,
-    "mean_log_diff": -0.27939995007180257
+    "n_materials_paired": 928,
+    "t_statistic": 8.750644815051809,
+    "p_value": 9.882887311493782e-18,
+    "mean_log_diff": 0.3155085689487276
   },
   "daily_volume_check": {
     "status": "INFO",
-    "sim_orders_per_day": 267.0,
+    "sim_orders_per_day": 378.0,
     "zwm92_orders_per_active_day": 396.2,
-    "relative_error": -0.326,
+    "relative_error": -0.0458,
     "note": "Single short-run estimate \u2014 informational only; the replication-CI check is the rigorous volume gate."
   },
   "replication_ci_check": {
@@ -205,66 +205,66 @@
     "per_policy": {
       "Baseline (Heuristic)": {
         "n": 20,
-        "throughput_mean": 430.1,
+        "throughput_mean": 398.4,
         "throughput_ci95": [
-          399.0,
-          461.2
+          377.7,
+          419.2
         ],
-        "arrivals_per_day_mean": 430.9,
-        "volume_vs_zwm92_rel_err": 0.0877
+        "arrivals_per_day_mean": 400.5,
+        "volume_vs_zwm92_rel_err": 0.011
       },
       "Baseline (Actual SAP)": {
         "n": 20,
-        "throughput_mean": 430.3,
+        "throughput_mean": 398.5,
         "throughput_ci95": [
-          399.2,
-          461.3
+          377.7,
+          419.3
         ],
-        "arrivals_per_day_mean": 430.9,
-        "volume_vs_zwm92_rel_err": 0.0877
+        "arrivals_per_day_mean": 400.5,
+        "volume_vs_zwm92_rel_err": 0.011
       },
       "Usage-based ABC": {
         "n": 20,
-        "throughput_mean": 430.1,
+        "throughput_mean": 398.5,
         "throughput_ci95": [
-          399.0,
-          461.2
+          377.7,
+          419.3
         ],
-        "arrivals_per_day_mean": 430.9,
-        "volume_vs_zwm92_rel_err": 0.0877
+        "arrivals_per_day_mean": 400.5,
+        "volume_vs_zwm92_rel_err": 0.011
       },
       "Double ABC": {
         "n": 20,
-        "throughput_mean": 430.0,
+        "throughput_mean": 398.4,
         "throughput_ci95": [
-          398.9,
-          461.2
+          377.6,
+          419.1
         ],
-        "arrivals_per_day_mean": 430.9,
-        "volume_vs_zwm92_rel_err": 0.0877
+        "arrivals_per_day_mean": 400.5,
+        "volume_vs_zwm92_rel_err": 0.011
       },
       "Travel-distance Optimized": {
         "n": 20,
-        "throughput_mean": 428.2,
+        "throughput_mean": 395.7,
         "throughput_ci95": [
-          397.8,
-          458.6
+          375.8,
+          415.6
         ],
-        "arrivals_per_day_mean": 430.9,
-        "volume_vs_zwm92_rel_err": 0.0877
+        "arrivals_per_day_mean": 400.5,
+        "volume_vs_zwm92_rel_err": 0.011
       },
       "Line-aware Slotting": {
         "n": 20,
-        "throughput_mean": 430.3,
+        "throughput_mean": 398.6,
         "throughput_ci95": [
-          399.2,
-          461.4
+          377.8,
+          419.4
         ],
-        "arrivals_per_day_mean": 430.9,
-        "volume_vs_zwm92_rel_err": 0.0877
+        "arrivals_per_day_mean": 400.5,
+        "volume_vs_zwm92_rel_err": 0.011
       }
     },
-    "headline": "Baseline (Actual SAP): simulated arrivals/day within 8.8% of ZWM92 actual (396)"
+    "headline": "Baseline (Actual SAP): simulated arrivals/day within 1.1% of ZWM92 actual (396)"
   },
   "notes": [
     "Expected rack distribution source: ZWM92 actuals (real per-bin dispatch counts).",

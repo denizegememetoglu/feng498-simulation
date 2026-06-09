@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%233dcd58%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-size=%2220%22 font-family=%22sans-serif%22 font-weight=%22bold%22 text-anchor=%22middle%22 fill=%22%23062b12%22%3ES%3C/text%3E%3C/svg%3E">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>SE Manisa Ambar — Sim v2 (FENG 498)</title>
@@ -500,6 +501,7 @@ body.theme-light .val { color: #0f172a; }
     <div class="panel" data-panel="sensitivity"><h3>OAT tornado<button class="panel-action" data-csv="sens">CSV</button></h3>
       <p>Walk-distance Δ vs baseline as each timing constant flexes ±25% (default).</p>
       <canvas id="chart-sens" height="240"></canvas>
+      <p id="sens-note" style="font-size:10px;color:var(--text-dim);margin:4px 0 0"></p>
     </div>
     <div class="panel" data-panel="heatmap"><h3>Picks per rack (D5)</h3>
       <p>Toggle 3D overlay with H key. Bars show pick volume per rack-row for the selected policy.</p>
@@ -572,13 +574,14 @@ body.theme-light .val { color: #0f172a; }
     <p style="color:var(--text-muted);font-size:12px;line-height:1.6;margin-bottom:14px">
       FENG 498 senior project · SimPy discrete-event simulation of the Manisa
       MV-switchgear warehouse. Real ZWM92 dispatch trace (40 804 kit-orders),
-      F400 time-motion derived timing, 5 slotting policies benchmarked.
+      F400 time-motion derived timing, 6 slotting policies benchmarked.
     </p>
     <table style="width:100%;font-size:11px;border-collapse:collapse">
       <tr><td style="padding:3px 4px;color:var(--text-dim)">1 / 2 / 3 / 4</td><td>Camera presets (Iso / Top / Plan / Cinematic)</td></tr>
       <tr><td style="padding:3px 4px;color:var(--text-dim)">L / P</td><td>Toggle labels / floor zones</td></tr>
       <tr><td style="padding:3px 4px;color:var(--text-dim)">A</td><td>Analytics sidebar</td></tr>
       <tr><td style="padding:3px 4px;color:var(--text-dim)">H</td><td>Heatmap overlay (picks per rack)</td></tr>
+      <tr><td style="padding:3px 4px;color:var(--text-dim)">Photos btn</td><td>Real warehouse photo dock (appears when web/photos/ has photo1.jpg…)</td></tr>
       <tr><td style="padding:3px 4px;color:var(--text-dim)">Space</td><td>Play / pause timeline</td></tr>
       <tr><td style="padding:3px 4px;color:var(--text-dim)">← / →</td><td>Step ±30 sim-min</td></tr>
       <tr><td style="padding:3px 4px;color:var(--text-dim)">Cmd+Shift+D</td><td>FPS HUD</td></tr>
@@ -2803,6 +2806,16 @@ function renderSensitivity() {
     items.push({param: info.label || param, lo: lo - baseW, hi: hi - baseW, range: Math.abs(lo-baseW) + Math.abs(hi-baseW)});
   }
   items.sort((a, b) => b.range - a.range);
+  // Flat bars are a FINDING, not a rendering bug: walk distance is set by
+  // rack geometry, so ±25% on timing constants barely moves it — only the
+  // arrival-rate knob has visible effect. Say so under the chart.
+  const sensNote = document.getElementById('sens-note');
+  if (sensNote) {
+    const maxRange = items.length ? Math.max(...items.map(x => x.range)) : 0;
+    sensNote.textContent = maxRange < 1.0
+      ? 'Bars ≈ 0 except arrival rate: walk distance is governed by rack geometry, not pick-time constants — robustness to timing uncertainty (the IAT bar confirms the model responds to demand).'
+      : '';
+  }
   chartDestroy('sens');
   const ctx = document.getElementById('chart-sens');
   DASH.charts['sens'] = new Chart(ctx, {
@@ -2939,7 +2952,7 @@ function renderTiming() {
     },
     options: chartCommon({scales: {x: {ticks: {color:'#94a3b8', font:{size:8}, maxRotation: 45}, grid: {color:'rgba(255,255,255,0.06)'}}, y: chartCommon().scales.y}})
   });
-  const rows = keys.map(k => `<tr><td>${k}</td><td class="r">${cats[k].n}</td><td class="r">${cats[k].mean_s.toFixed(2)}</td><td class="r">${cats[k].stdev_s.toFixed(2)}</td></tr>`).join('');
+  const rows = keys.map(k => `<tr><td>${k}</td><td class="r">${cats[k].n}</td><td class="r">${cats[k].mean_s.toFixed(2)}</td><td class="r">${cats[k].stdev_s != null ? cats[k].stdev_s.toFixed(2) : '—'}</td></tr>`).join('');
   document.getElementById('timing-table').innerHTML =
     `<table><thead><tr><th>Category</th><th class="r">n</th><th class="r">mean (s)</th><th class="r">stdev</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
@@ -3271,6 +3284,7 @@ window.SIM_V2 = {
   player,
   POLICIES
 };
+window.player = player;  // console-debug convenience alias
 
 console.log(`sim_v2 ready. Entities: ${ENTITIES.operators.length} op, ${ENTITIES.rts.length} rt, ${ENTITIES.milkruns.length} milk, ${ENTITIES.kardex.length} kardex, ${ENTITIES.kitting.length} kit. Layout: ${LAYOUT.racks.length} racks.`);
 </script>
