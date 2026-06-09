@@ -46,3 +46,6 @@ NEXT_SESSION_PROMPT.md
 # Real warehouse photos — local demo only, never push
 web/photos/
 docs/photos/
+
+# Headless viewer smoke artifacts — scratch, not deliverables
+Reports/viewer_smoke*

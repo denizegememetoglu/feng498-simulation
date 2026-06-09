@@ -21,6 +21,7 @@ from PyQt6.QtCore import QUrl, QTimer, pyqtSlot
 from PyQt6.QtGui import QImage
 
 OUT_DIR = '/home/dege/feng498-simulation/Reports/viewer_smoke_20260610'
+os.makedirs(OUT_DIR, exist_ok=True)
 BASE_URL = 'http://127.0.0.1:8123/web/sim_v2.html'
 
 POLICIES = [
