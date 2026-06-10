@@ -19,22 +19,25 @@ GEOMETRY_PATH = ROOT / "output" / "dwg_codex_geometry.json"
 OUTPUT_PATH = ROOT / "output" / "viewer_layout_v1.json"
 
 # web/index.html:166-183 — authoritative idx -> letter/role/label
+# Fable5 blind CAD re-extraction 2026-06-10 (output/fable5_layout/RAPOR.md):
+#   idx6=E / idx7=F (v6 had them swapped — F400 consumption + photo evidence),
+#   idx0=U14 KÜÇÜK RF stub, idx1=J14 SE stub, idx14=J13 KÜÇÜK RF (182cm).
 VIEWER_RACK_MODEL: dict[int, dict] = {
-    0:  {"letter": "J",  "label": False, "role": "j-fragment"},
-    1:  {"letter": None, "label": False, "role": "unmapped-trash-side-stub"},
+    0:  {"letter": "U",  "label": False, "role": "u-kucuk-rf-stub"},
+    1:  {"letter": "J",  "label": False, "role": "j-se-stub"},
     2:  {"letter": "J",  "label": False, "role": "j-south-arm"},
     3:  {"letter": "I",  "label": True,  "role": "small"},
     4:  {"letter": "H",  "label": True,  "role": "small"},
     5:  {"letter": "G",  "label": True,  "role": "normal"},
-    6:  {"letter": "F",  "label": True,  "role": "normal"},
-    7:  {"letter": "E",  "label": True,  "role": "normal"},
+    6:  {"letter": "E",  "label": True,  "role": "normal"},
+    7:  {"letter": "F",  "label": True,  "role": "normal"},
     8:  {"letter": "D",  "label": True,  "role": "normal"},
     9:  {"letter": "C",  "label": True,  "role": "normal"},
     10: {"letter": "B",  "label": True,  "role": "normal"},
     11: {"letter": "A",  "label": True,  "role": "normal"},
     12: {"letter": "U",  "label": True,  "role": "perpendicular"},
     13: {"letter": "J",  "label": False, "role": "j-fragment"},
-    14: {"letter": None, "label": False, "role": "unmapped-post"},
+    14: {"letter": "J",  "label": False, "role": "j-kucuk-rf"},
     15: {"letter": "J",  "label": False, "role": "j-east-vertical"},
 }
 
@@ -47,7 +50,9 @@ PDF_BAY_OVERRIDES: dict[int, dict] = {
     9:  {"bays": 12, "anchor": "east"},   # C
     10: {"bays": 11, "anchor": "east"},   # B
     11: {"bays": 11, "anchor": "east"},   # A
-    12: {"bays": 14, "anchor": "y"},      # U vertical
+    12: {"bays": 13, "anchor": "y"},      # U leg = U13..U1 (12 slot + 100cm
+                                          # kuzey kapağı); U14 = idx0 stub →
+                                          # toplam 14 (Fable5 2026-06-10)
 }
 
 # web/index.html:376-384
@@ -191,6 +196,14 @@ def main() -> None:
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8") as fh:
         json.dump(payload, fh, indent=2, ensure_ascii=False)
+    # sim_v2.html './viewer_layout_v1.json' yolunu web/'den çözer; docs/ GH
+    # Pages aynasıdır. 2026-06-10: bayat web/ kopyası E/F'i ters gösterdi —
+    # bir daha yaşanmasın diye export her üç kopyayı da yazar.
+    for mirror in (ROOT / "web" / "viewer_layout_v1.json",
+                   ROOT / "docs" / "viewer_layout_v1.json"):
+        with open(mirror, "w", encoding="utf-8") as fh:
+            json.dump(payload, fh, indent=2, ensure_ascii=False)
+        print(f"Mirrored -> {mirror}")
 
     print(f"Wrote {OUTPUT_PATH} ({OUTPUT_PATH.stat().st_size:,} bytes)")
     print(f"  racks={len(racks)}  letter-bearing={sum(1 for r in racks if r['letter'])}")

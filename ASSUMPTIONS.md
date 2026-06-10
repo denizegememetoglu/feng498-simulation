@@ -726,6 +726,71 @@ text must say "distribution-driven (ZWM92-fitted)".
 
 ---
 
+## 25. 2026-06-10 — Fable5 kör CAD yeniden-çıkarımı ve TAM GEÇİŞ
+
+**Ne oldu:** Claude (Fable 5), repo'daki hiçbir layout dosyasına bakmadan
+DWG + 11 raf PDF'i + 9 fabrika fotoğrafı + ZWM92×özet tüketim çapraz
+tablosundan layout'u sıfırdan türetti (`output/fable5_layout/` — tüm kanıt
+zinciri orada: `RAPOR.md`, `blind_assignment.json`, `comparison_report.json`,
+`adversarial_verdicts.json`). Kullanıcı onayıyla ("tam geçiş", 2026-06-10)
+`config/layout.json`'a uygulandı: `scripts/apply_fable5_layout.py`.
+Geçiş öncesi yedek: `config/layout.json.bak_pre_fable5_20260610`.
+
+**Kritik bulgu — repo iç çelişkisi:** sim'in layout.json'u v4 harf dizilimi
+taşıyordu (A=güney, B/C sırt-sırta), viewer + rack_mapping v6 tam tersini.
+Kör çıkarım hükmü: v6 büyük ölçüde doğru, ama **E↔F v6'da ters** (F400
+tüketimi %75.8 E + F|FORKLIFT YOLU|E fotoğrafı + koridor etiketi); ayrıca
+idx0=U14, idx1=J14, "phantom" idx14=**J13 KÜÇÜK RF** (PDF 182 cm ↔ CAD
+ölçüsü 184.01). Hiçbir entity unmapped kalmadı.
+
+**Yeni harf↔sıra eşlemesi (CAD güneyden kuzeye):** J-kolu(J12-J2), I, H
+(sırt-sırta çift, 25-30 cm), G, E, F, D, C, B, A(kuzey); U = batı dikey kol
+(U13-U2) + U14 GB stub + U1 100 cm kuzey kapağı; J = 5-seksiyonlu çevre
+dirseği (J1=COL01, J13=X-elemanı, J14=GD stub, J15-J18=doğu kol).
+
+**Sim'e etkisi:**
+- SAP join DEĞİŞMEDİ: bay kodları, pallets_per_bay, bay_overrides,
+  pallet_count aynen korundu (canary 3203 ✓; seviyesiz (raf,koy,poz)
+  anahtar kümesi bire bir; 802 malzeme join'li).
+- G seviyesi 9→8 (G KISA raf: zincir 546'da biter, 288=12×8×3 TAM) —
+  modellenen pozisyon 3137→3101 (tam −36).
+- E'nin kit yönü düzeltildi (eski dosyada kendi konvansiyonuna göre bile
+  yanlıştı: kit=west ama F400 koridoru doğu yüzünde).
+- H/I'nin bitişik kit koridoru YOK (iki 305 RT arasında sırt-sırta) →
+  kit_corridor_side=TBD; davranış `ASSUME_KIT_ACCESS_WHEN_TBD`'ye bağlı.
+- Ölçülmüş koridorlar (CAD DIMENSION'lardan): kit=200 (3 adet), RT=320
+  (E-F forklift yolu)/300/305, batı 429, doğu 279.7.
+- TÜM KPI'lar yeniden baseline'landı (bkz. output/policy_summary.json).
+
+**Bilinçli yumuşak noktalar:** H/I yaprak sırası MEDIUM (H=kuzey yaprak,
+v6 ile aynı); A/C/D/F/G/I koy etiketlerinin pusula yönü doğrulanamadı
+(E1=doğu, B12=batı, J/U yönleri DOĞRULANDI); B7 söküm-sonrası boşluk CAD'de
+kiriş olarak durur (sim'de B7 pozisyonları yaşamaya devam eder — SAP B-07
+referansları kırılmasın diye bilinçli korundu); J/U segment pallet_count
+bölüşümü tahminîdir (rack toplamları damgalarla bire bir).
+
+---
+
+## 26. Veri kullanım haritası (2026-06-10 — "her veri kullanılmış mı?" denetimi)
+
+| Kaynak | Nerede kullanılıyor | Tez çıktısı |
+|---|---|---|
+| özet (SAP master, 5941 malzeme) | `data_loader.load_storage_bins/abc` — bin decode, ABC | Sim envanteri + RealBaseline join (802 bin) |
+| zppq11 (76 gün tüketim) | ABC/Usage politikaları ağırlıkları | Politika karşılaştırması |
+| ZWM92 (9 aile, 40 804 kit) | Driver dağılımları (IAT/batch/n_items/line/material); validation actuals; **hat×raf tüketim çapraz tablosu (yeni — layout harf doğrulaması)** | Driver + χ²/paired-t + layout kanıtı |
+| F400 video etüdü (2 319 olay) | Timing sabitleri + lognormal CV'ler | Süreç süreleri |
+| 11 raf PDF'i | **Fable5: damgalar (3203/137/306/1894), seviye zincirleri, per-bay profiller, ÖN/ARKA, KÜÇÜK RF'ler** | Layout + kapasite + V&V face validity |
+| DWG (AutoCAD) | **Fable5: tam entity envanteri + ölçüler (koridorlar!) + portallar + satır analitiği** | Layout geometrisi |
+| Fabrika fotoğrafları (9 yer) | **Fable5: harf plakaları (B/C, E/F, J/G), FORKLIFT YOLU, hat tabelaları** | Layout harf kanıtı + viewer paleti |
+| hava.zip (9 yüksek çekim, 2026-06-10) | **Foto katalog workflow'u: palet/raf detay paleti + bağımsız çapraz-doğrulama** | Viewer gerçekçiliği + face validity |
+| WhatsApp saha verisi (11 Mayıs) | bay_overrides (J12 cart, U8 offset, feeder koyları) | Pozisyon modeli |
+| mrpc sheet | MRP controller → hat adı | Hat eşleme |
+| Rack mapping/Codex geçmişi | v7'ye evrildi (Fable5 doğrulamasıyla) | Provenance zinciri |
+
+Kullanılmayan veri yok; her kaynağın tezdeki rolü yukarıda izlenebilir.
+
+---
+
 ## How to update after the May 4 visit
 
 1. Open `config/layout.json`.

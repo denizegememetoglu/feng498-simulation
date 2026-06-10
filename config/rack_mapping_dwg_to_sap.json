@@ -1,154 +1,550 @@
 {
-  "_schema": "rack_mapping_dwg_to_sap/v6",
-  "_source_dxf": "data/SE Manisa Ambar Rafları.dwg via libredwg-git dwg2dxf (sanity); geometry authoritative from Codex preview",
-  "_source_codex_preview": "/home/dege/se_manisa_ambar_3d_preview/index.html",
-  "_source_codex_export": "output/dwg_codex_geometry.json",
-  "_source_pdfs": "data/rack-drawings/{A..J,U}.pdf",
-  "_companion_layout": "output/viewer_layout_v1.json (post-VIEWER_RACK_MODEL + PDF_BAY_OVERRIDES)",
-  "_revision_note": "v6 (2026-05-27): aligns with the FINAL VIEWER_RACK_MODEL in web/index.html:166-183. Letter mapping reflects user's hand sketch corrections: 11=A, 10=B, 9=C, 8=D, 7=E, 6=F, 5=G, 4=H (small), 3=I (small), 12=U (perpendicular), 0/2/13/15=J compound, 1 and 14 unmapped. v5 reversed this order (idx 2=A...10=H); v6 supersedes. Backup at .bak_v5.",
-  "_viewer_model_locked": {
-    "ordering_rule": "viewer renders racks south->north as J/(unmapped)/A,B,C,D,E,F,G,H,I,J then U vertical west, J vertical north and fragments",
-    "by_codex_idx": {
-      "0":  "J (j-fragment, south-west stub)",
-      "1":  "UNMAPPED (south-east trash-side stub)",
-      "2":  "J (j-south-arm)",
-      "3":  "I (small, back-to-back south leaf with idx 4)",
-      "4":  "H (small, back-to-back north leaf with idx 3)",
-      "5":  "G",
-      "6":  "F",
-      "7":  "E",
-      "8":  "D",
-      "9":  "C",
-      "10": "B",
-      "11": "A (south-most full rack)",
-      "12": "U (perpendicular, west vertical leg)",
-      "13": "J (j-fragment, north fragment)",
-      "14": "UNMAPPED (isolated SE post pair)",
-      "15": "J (j-east-vertical)"
-    },
-    "j_compound_members": [0, 2, 13, 15],
-    "unmapped": [1, 14]
+ "_schema": "rack_mapping_dwg_to_sap/v7",
+ "_source_dxf": "data/SE Manisa Ambar Rafları.dwg via libredwg-git dwg2dxf (sanity); geometry authoritative from Codex preview",
+ "_source_codex_preview": "/home/dege/se_manisa_ambar_3d_preview/index.html",
+ "_source_codex_export": "output/dwg_codex_geometry.json",
+ "_source_pdfs": "data/rack-drawings/{A..J,U}.pdf",
+ "_companion_layout": "output/viewer_layout_v1.json (post-VIEWER_RACK_MODEL + PDF_BAY_OVERRIDES)",
+ "_revision_note": "v7 (2026-06-10): Fable5 blind CAD re-extraction applied. E/F un-swapped (idx6=E, idx7=F — F400 consumption 75.8% E + factory photo F|FORKLIFT YOLU|E + corridor label). idx0=U14 KÜÇÜK RF (was J), idx1=J14 (was UNMAPPED), idx14=J13 KÜÇÜK RF 182cm (was UNMAPPED \"phantom\"). No entity left unmapped. Evidence: output/fable5_layout/{RAPOR.md,blind_assignment.json,comparison_report.json,adversarial_verdicts.json}. Previous: v6 (2026-05-27): aligns with the FINAL VIEWER_RACK_MODEL in web/index.html:166-183. Letter mapping reflects user's hand sketch corrections: 11=A, 10=B, 9=C, 8=D, 7=E, 6=F, 5=G, 4=H (small), 3=I (small), 12=U (perpendicular), 0/2/13/15=J compound, 1 and 14 unmapped. v5 reversed this order (idx 2=A...10=H); v6 supersedes. Backup at .bak_v5.",
+ "_viewer_model_locked": {
+  "ordering_rule": "CAD south->north: J-arm(idx2), I(3), H(4), G(5), E(6), F(7), D(8), C(9), B(10), A(11); U = west vertical leg (12) + SW stub (0) + north cap; J = perimeter bracket [1,2,13,14,15] + east leg",
+  "by_codex_idx": {
+   "0": "U (U14 KÜÇÜK RF, south-west detached stub — 200cm)",
+   "1": "J (J14, south-east stub next to ÇÖP KOVASI)",
+   "2": "J (j-south-arm)",
+   "3": "I (small, back-to-back south leaf with idx 4)",
+   "4": "H (small, back-to-back north leaf with idx 3)",
+   "5": "G",
+   "6": "E (F400 corridor row; east-end revision anomaly)",
+   "7": "F (PREMSET; across the 320cm FORKLIFT YOLU from E)",
+   "8": "D",
+   "9": "C",
+   "10": "B",
+   "11": "A (NORTH-most full rack — AKS_PAK/MCset-Aksesuar zone)",
+   "12": "U (perpendicular, west vertical leg)",
+   "13": "J (j-fragment, north fragment)",
+   "14": "J (J13 KÜÇÜK RF, X-braced 182cm element)",
+   "15": "J (j-east-vertical)"
   },
-  "_pdf_bay_overrides": {
-    "_source": "web/index.html:207-216 PDF_BAY_OVERRIDES",
-    "by_codex_idx": {
-      "5":  {"bays": 12, "anchor": "east", "_note": "G.pdf has 12 bays (CAD 11)"},
-      "6":  {"bays": 12, "anchor": "east", "_note": "F.pdf has 12 bays (CAD 12 ✓)"},
-      "7":  {"bays": 12, "anchor": "east", "_note": "E.pdf has 12 bays (CAD 14 — drop 2 stubs)"},
-      "8":  {"bays": 12, "anchor": "east", "_note": "D.pdf has 12 bays (CAD 12 ✓)"},
-      "9":  {"bays": 12, "anchor": "east", "_note": "C.pdf has 12 bays (CAD 11)"},
-      "10": {"bays": 11, "anchor": "east", "_note": "B.pdf has 11 bays (CAD 11 ✓)"},
-      "11": {"bays": 11, "anchor": "east", "_note": "A.pdf has 11 bays (CAD 12 — A2..A12 only)"},
-      "12": {"bays": 14, "anchor": "y",    "_note": "U.pdf vertical 14 bays (CAD 12)"}
-    },
-    "small_rack_clamp": {
-      "_source": "web/index.html:190-202 applyPdfSmallRackFootprint",
-      "_applies_to": [3, 4],
-      "pdf_bays": 11,
-      "pdf_span_cm": 3080,
-      "_note": "H/I PDFs both show 11 bays at 280cm pitch from east anchor"
-    }
-  },
-  "_level_heights_cm_by_letter": {
-    "_source": "web/index.html:376-384 LEVEL_HEIGHTS_CM",
-    "A": [61, 136, 206, 291, 376, 461, 546, 631, 700],
-    "B": [61, 136, 206, 291, 376, 461, 546, 631, 700],
-    "C": [61, 136, 206, 291, 376, 461, 546, 631, 700],
-    "D": [61, 136, 204, 291, 376, 461, 546, 631, 700],
-    "E": [61, 136, 206, 291, 376, 461, 546, 631, 700],
-    "F": [61, 136, 206, 291, 376, 461, 546, 631, 700],
-    "G": [61, 136, 206, 291, 376, 461, 546],
-    "H": [61, 136, 206, 322, 438, 554, 700],
-    "I": [61, 136, 206, 322, 438, 554, 670, 700],
-    "J": [61, 136, 206, 322, 438, 554, 670, 700],
-    "U": [118, 222, 346, 455, 564, 676, 700]
-  },
-  "_sap_capacities_pdf": {
-    "_source": "data/rack-drawings/{A..J,U}.pdf stamp totals; pallet canary 3203",
-    "A": 297, "B": 288, "C": 297, "D": 300, "E": 294, "F": 303, "G": 288,
-    "H": 240, "I": 252, "J": 381, "U": 263,
-    "total": 3203
-  },
-  "rows": [
-    {"codex_idx": 0,  "sap_rack": "J", "segment_id": "south-west-stub-fragment", "confidence": "medium",
-     "evidence": ["x≈1847..2057, y≈438 — fragment of J compound rack", "rendered as J geometry but no duplicate J label"],
-     "geometry": {"dir": "x", "x0": 1847.13, "x1": 2057.13, "y0": 390.21, "y1": 485.21, "bays": 1}},
-
-    {"codex_idx": 1,  "sap_rack": null, "disposition": "UNMAPPED", "confidence": "high",
-     "evidence": ["x≈5355..5635, y≈634 — south-east near ÇÖP KOVASI label", "no layout rack here; possible signage/structural fragment"],
-     "geometry": {"dir": "x", "x0": 5354.85, "x1": 5634.85, "y0": 586.65, "y1": 681.65, "bays": 1}},
-
-    {"codex_idx": 2,  "sap_rack": "J", "segment_id": "j-south-arm", "confidence": "high",
-     "evidence": ["x≈2270..5280, y≈934 — long horizontal south arm of J", "carries the j-south-arm role; under J compound label"],
-     "geometry": {"dir": "x", "x0": 2270.13, "x1": 5279.85, "y0": 886.65, "y1": 981.65, "bays": 11}},
-
-    {"codex_idx": 3,  "sap_rack": "I", "segment_id": "small-south-leaf", "confidence": "high",
-     "evidence": ["back-to-back pair south leaf with idx 4 (30cm gap)", "I.pdf has 11 bays at 280cm pitch from east anchor"],
-     "geometry": {"dir": "x", "x0": 2270.13, "x1": 5349.85, "y0": 1291.65, "y1": 1386.65, "bays": 11},
-     "viewer_clamp": {"pdf_bays": 11, "pdf_span_cm": 3080, "x0_after": 2269.85, "x1_after": 5349.85}},
-
-    {"codex_idx": 4,  "sap_rack": "H", "segment_id": "small-north-leaf", "confidence": "high",
-     "evidence": ["back-to-back pair north leaf with idx 3 (30cm gap)", "H.pdf has 11 bays at 280cm pitch from east anchor"],
-     "geometry": {"dir": "x", "x0": 2270.13, "x1": 5349.85, "y0": 1416.65, "y1": 1511.65, "bays": 11},
-     "viewer_clamp": {"pdf_bays": 11, "pdf_span_cm": 3080, "x0_after": 2269.85, "x1_after": 5349.85}},
-
-    {"codex_idx": 5,  "sap_rack": "G", "segment_id": "main", "confidence": "high",
-     "evidence": ["viewer-final ordering A,B,C,D,E,F,G,H,I,J south->north", "G.pdf has 12 bays; CAD shows 12 posts ✓"],
-     "geometry": {"dir": "x", "x0": 2270.13, "x1": 5629.85, "y0": 1821.65, "y1": 1916.65, "bays": 12},
-     "pdf_bay_count": 12},
-
-    {"codex_idx": 6,  "sap_rack": "F", "segment_id": "main", "confidence": "high",
-     "evidence": ["viewer-final ordering A,B,C,D,E,F,G,H,I,J", "F.pdf has 12 bays; CAD shows 14 (2 extra structural stubs dropped to PDF 12)"],
-     "geometry": {"dir": "x", "x0": 2272.13, "x1": 5697.13, "y0": 2126.7, "y1": 2221.7, "bays": 14},
-     "pdf_bay_count": 12, "_pdf_codex_mismatch_bays": "-2"},
-
-    {"codex_idx": 7,  "sap_rack": "E", "segment_id": "main", "confidence": "high",
-     "evidence": ["viewer-final ordering A,B,C,D,E,F,G,H,I,J", "E.pdf has 12 bays; CAD shows 12 posts ✓"],
-     "geometry": {"dir": "x", "x0": 2267.13, "x1": 5627.13, "y0": 2551.65, "y1": 2646.65, "bays": 12},
-     "pdf_bay_count": 12},
-
-    {"codex_idx": 8,  "sap_rack": "D", "segment_id": "main", "confidence": "high",
-     "evidence": ["viewer-final ordering A,B,C,D,E,F,G,H,I,J", "D.pdf has 12 bays; CAD starts at x=2550 (other rows at 2270); L3 height variant 204cm"],
-     "geometry": {"dir": "x", "x0": 2550.13, "x1": 5630.13, "y0": 2856.65, "y1": 2951.65, "bays": 11},
-     "pdf_bay_count": 12, "_pdf_codex_mismatch_bays": "+1"},
-
-    {"codex_idx": 9,  "sap_rack": "C", "segment_id": "main", "confidence": "high",
-     "evidence": ["viewer-final ordering A,B,C,D,E,F,G,H,I,J", "C.pdf has 12 bays; CAD shows 12 posts ✓"],
-     "geometry": {"dir": "x", "x0": 2270.13, "x1": 5629.85, "y0": 3261.63, "y1": 3356.63, "bays": 12},
-     "pdf_bay_count": 12},
-
-    {"codex_idx": 10, "sap_rack": "B", "segment_id": "main", "confidence": "high",
-     "evidence": ["viewer-final ordering A,B,C,D,E,F,G,H,I,J", "B.pdf has 11 bays; CAD starts at x=2550"],
-     "geometry": {"dir": "x", "x0": 2550.13, "x1": 5630.13, "y0": 3566.65, "y1": 3661.65, "bays": 11},
-     "pdf_bay_count": 11},
-
-    {"codex_idx": 11, "sap_rack": "A", "segment_id": "main", "confidence": "high",
-     "evidence": ["north-most full rack in CAD = A in viewer ordering", "A.pdf has 11 bays (A2..A12); CAD shows 12, viewer clamps to 11"],
-     "geometry": {"dir": "x", "x0": 2261.44, "x1": 5619.44, "y0": 3971.65, "y1": 4066.65, "bays": 12},
-     "pdf_bay_count": 11, "_pdf_codex_mismatch_bays": "-1"},
-
-    {"codex_idx": 12, "sap_rack": "U", "segment_id": "vertical_west_leg", "confidence": "high",
-     "evidence": ["x≈1736..1831 is the long perpendicular axis feature in CAD", "U is the perpendicular rack; U.pdf has U1..U14"],
-     "geometry": {"dir": "y", "x0": 1736.13, "x1": 1831.13, "y0": 508.51, "y1": 3866.51, "bays": 12},
-     "pdf_bay_count": 14, "_pdf_codex_mismatch_bays": "+2"},
-
-    {"codex_idx": 13, "sap_rack": "J", "segment_id": "j-fragment-south-arm-east", "confidence": "medium",
-     "evidence": ["x≈2175..2270, y≈573..853 — SE corner of J south-arm region", "1 bay; east-end stub of J south arm"],
-     "geometry": {"dir": "y", "x0": 2175.13, "x1": 2270.13, "y0": 573.24, "y1": 853.24, "bays": 1}},
-
-    {"codex_idx": 14, "sap_rack": null, "disposition": "UNMAPPED", "confidence": "low",
-     "evidence": ["isolated y-dir 1-bay at x≈5185..5280, y≈683..877 — south-east", "no layout rack matches; possible signage post or small column"],
-     "geometry": {"dir": "y", "x0": 5185.14, "x1": 5280.14, "y0": 682.71, "y1": 876.72, "bays": 1}},
-
-    {"codex_idx": 15, "sap_rack": "J", "segment_id": "j-east-vertical", "confidence": "medium",
-     "evidence": ["east-side vertical 4-bay row at x≈5640..5735, y≈692..1812", "treated as J east vertical leg in viewer compound label"],
-     "geometry": {"dir": "y", "x0": 5639.85, "x1": 5734.85, "y0": 691.65, "y1": 1811.65, "bays": 4}}
+  "j_compound_members": [
+   1,
+   2,
+   13,
+   14,
+   15
   ],
-  "_open_questions": [
-    "idx 3+4 (H/I) sit 30cm apart back-to-back in CAD; viewer renders both with 11x280cm PDF footprint clamped east. Site visit to confirm exact gap.",
-    "idx 6 (F) has 14 CAD posts vs F.pdf 12 — viewer override drops 2 east-end stubs as structural detail.",
-    "idx 8 (D) and idx 10 (B) start at x=2550 instead of x≈2270 in CAD — kept as-is, only semantic labels overridden.",
-    "idx 14 (isolated SE post pair at x=5185-5280) — phantom DWG entity or real small column? Resolve on site visit.",
-    "idx 15 is rendered as J east-vertical compound member; CAD extracted only 4 bays vs U.pdf 14 bays for the actual U rack (idx 12)."
+  "unmapped": [],
+  "u_compound_members": [
+   0,
+   12
   ]
+ },
+ "_pdf_bay_overrides": {
+  "_source": "web/index.html:207-216 PDF_BAY_OVERRIDES",
+  "by_codex_idx": {
+   "5": {
+    "bays": 12,
+    "anchor": "east",
+    "_note": "G.pdf has 12 bays (CAD 11)"
+   },
+   "6": {
+    "bays": 12,
+    "anchor": "east",
+    "_note": "F.pdf has 12 bays (CAD 12 ✓)"
+   },
+   "7": {
+    "bays": 12,
+    "anchor": "east",
+    "_note": "E.pdf has 12 bays (CAD 14 — drop 2 stubs)"
+   },
+   "8": {
+    "bays": 12,
+    "anchor": "east",
+    "_note": "D.pdf has 12 bays (CAD 12 ✓)"
+   },
+   "9": {
+    "bays": 12,
+    "anchor": "east",
+    "_note": "C.pdf has 12 bays (CAD 11)"
+   },
+   "10": {
+    "bays": 11,
+    "anchor": "east",
+    "_note": "B.pdf has 11 bays (CAD 11 ✓)"
+   },
+   "11": {
+    "bays": 11,
+    "anchor": "east",
+    "_note": "A.pdf has 11 bays (CAD 12 — A2..A12 only)"
+   },
+   "12": {
+    "bays": 14,
+    "anchor": "y",
+    "_note": "U.pdf vertical 14 bays (CAD 12)"
+   }
+  },
+  "small_rack_clamp": {
+   "_source": "web/index.html:190-202 applyPdfSmallRackFootprint",
+   "_applies_to": [
+    3,
+    4
+   ],
+   "pdf_bays": 11,
+   "pdf_span_cm": 3080,
+   "_note": "H/I PDFs both show 11 bays at 280cm pitch from east anchor"
+  }
+ },
+ "_level_heights_cm_by_letter": {
+  "_source": "web/index.html:376-384 LEVEL_HEIGHTS_CM",
+  "A": [
+   61,
+   136,
+   206,
+   291,
+   376,
+   461,
+   546,
+   631,
+   700
+  ],
+  "B": [
+   61,
+   136,
+   206,
+   291,
+   376,
+   461,
+   546,
+   631,
+   700
+  ],
+  "C": [
+   61,
+   136,
+   206,
+   291,
+   376,
+   461,
+   546,
+   631,
+   700
+  ],
+  "D": [
+   61,
+   136,
+   204,
+   291,
+   376,
+   461,
+   546,
+   631,
+   700
+  ],
+  "E": [
+   61,
+   136,
+   206,
+   291,
+   376,
+   461,
+   546,
+   631,
+   700
+  ],
+  "F": [
+   61,
+   136,
+   206,
+   291,
+   376,
+   461,
+   546,
+   631,
+   700
+  ],
+  "G": [
+   61,
+   136,
+   206,
+   291,
+   376,
+   461,
+   546
+  ],
+  "H": [
+   61,
+   136,
+   206,
+   322,
+   438,
+   554,
+   700
+  ],
+  "I": [
+   61,
+   136,
+   206,
+   322,
+   438,
+   554,
+   670,
+   700
+  ],
+  "J": [
+   61,
+   136,
+   206,
+   322,
+   438,
+   554,
+   670,
+   700
+  ],
+  "U": [
+   118,
+   222,
+   346,
+   455,
+   564,
+   676,
+   700
+  ]
+ },
+ "_sap_capacities_pdf": {
+  "_source": "data/rack-drawings/{A..J,U}.pdf stamp totals; pallet canary 3203",
+  "A": 297,
+  "B": 288,
+  "C": 297,
+  "D": 300,
+  "E": 294,
+  "F": 303,
+  "G": 288,
+  "H": 240,
+  "I": 252,
+  "J": 381,
+  "U": 263,
+  "total": 3203
+ },
+ "rows": [
+  {
+   "codex_idx": 0,
+   "sap_rack": "J",
+   "segment_id": "south-west-stub-fragment",
+   "confidence": "medium",
+   "evidence": [
+    "x≈1847..2057, y≈438 — fragment of J compound rack",
+    "rendered as J geometry but no duplicate J label"
+   ],
+   "geometry": {
+    "dir": "x",
+    "x0": 1847.13,
+    "x1": 2057.13,
+    "y0": 390.21,
+    "y1": 485.21,
+    "bays": 1
+   }
+  },
+  {
+   "codex_idx": 1,
+   "sap_rack": null,
+   "disposition": "UNMAPPED",
+   "confidence": "high",
+   "evidence": [
+    "x≈5355..5635, y≈634 — south-east near ÇÖP KOVASI label",
+    "no layout rack here; possible signage/structural fragment"
+   ],
+   "geometry": {
+    "dir": "x",
+    "x0": 5354.85,
+    "x1": 5634.85,
+    "y0": 586.65,
+    "y1": 681.65,
+    "bays": 1
+   }
+  },
+  {
+   "codex_idx": 2,
+   "sap_rack": "J",
+   "segment_id": "j-south-arm",
+   "confidence": "high",
+   "evidence": [
+    "x≈2270..5280, y≈934 — long horizontal south arm of J",
+    "carries the j-south-arm role; under J compound label"
+   ],
+   "geometry": {
+    "dir": "x",
+    "x0": 2270.13,
+    "x1": 5279.85,
+    "y0": 886.65,
+    "y1": 981.65,
+    "bays": 11
+   }
+  },
+  {
+   "codex_idx": 3,
+   "sap_rack": "I",
+   "segment_id": "small-south-leaf",
+   "confidence": "high",
+   "evidence": [
+    "back-to-back pair south leaf with idx 4 (30cm gap)",
+    "I.pdf has 11 bays at 280cm pitch from east anchor"
+   ],
+   "geometry": {
+    "dir": "x",
+    "x0": 2270.13,
+    "x1": 5349.85,
+    "y0": 1291.65,
+    "y1": 1386.65,
+    "bays": 11
+   },
+   "viewer_clamp": {
+    "pdf_bays": 11,
+    "pdf_span_cm": 3080,
+    "x0_after": 2269.85,
+    "x1_after": 5349.85
+   }
+  },
+  {
+   "codex_idx": 4,
+   "sap_rack": "H",
+   "segment_id": "small-north-leaf",
+   "confidence": "high",
+   "evidence": [
+    "back-to-back pair north leaf with idx 3 (30cm gap)",
+    "H.pdf has 11 bays at 280cm pitch from east anchor"
+   ],
+   "geometry": {
+    "dir": "x",
+    "x0": 2270.13,
+    "x1": 5349.85,
+    "y0": 1416.65,
+    "y1": 1511.65,
+    "bays": 11
+   },
+   "viewer_clamp": {
+    "pdf_bays": 11,
+    "pdf_span_cm": 3080,
+    "x0_after": 2269.85,
+    "x1_after": 5349.85
+   }
+  },
+  {
+   "codex_idx": 5,
+   "sap_rack": "G",
+   "segment_id": "main",
+   "confidence": "high",
+   "evidence": [
+    "viewer-final ordering A,B,C,D,E,F,G,H,I,J south->north",
+    "G.pdf has 12 bays; CAD shows 12 posts ✓"
+   ],
+   "geometry": {
+    "dir": "x",
+    "x0": 2270.13,
+    "x1": 5629.85,
+    "y0": 1821.65,
+    "y1": 1916.65,
+    "bays": 12
+   },
+   "pdf_bay_count": 12
+  },
+  {
+   "codex_idx": 6,
+   "sap_rack": "F",
+   "segment_id": "main",
+   "confidence": "high",
+   "evidence": [
+    "viewer-final ordering A,B,C,D,E,F,G,H,I,J",
+    "F.pdf has 12 bays; CAD shows 14 (2 extra structural stubs dropped to PDF 12)"
+   ],
+   "geometry": {
+    "dir": "x",
+    "x0": 2272.13,
+    "x1": 5697.13,
+    "y0": 2126.7,
+    "y1": 2221.7,
+    "bays": 14
+   },
+   "pdf_bay_count": 12,
+   "_pdf_codex_mismatch_bays": "-2"
+  },
+  {
+   "codex_idx": 7,
+   "sap_rack": "E",
+   "segment_id": "main",
+   "confidence": "high",
+   "evidence": [
+    "viewer-final ordering A,B,C,D,E,F,G,H,I,J",
+    "E.pdf has 12 bays; CAD shows 12 posts ✓"
+   ],
+   "geometry": {
+    "dir": "x",
+    "x0": 2267.13,
+    "x1": 5627.13,
+    "y0": 2551.65,
+    "y1": 2646.65,
+    "bays": 12
+   },
+   "pdf_bay_count": 12
+  },
+  {
+   "codex_idx": 8,
+   "sap_rack": "D",
+   "segment_id": "main",
+   "confidence": "high",
+   "evidence": [
+    "viewer-final ordering A,B,C,D,E,F,G,H,I,J",
+    "D.pdf has 12 bays; CAD starts at x=2550 (other rows at 2270); L3 height variant 204cm"
+   ],
+   "geometry": {
+    "dir": "x",
+    "x0": 2550.13,
+    "x1": 5630.13,
+    "y0": 2856.65,
+    "y1": 2951.65,
+    "bays": 11
+   },
+   "pdf_bay_count": 12,
+   "_pdf_codex_mismatch_bays": "+1"
+  },
+  {
+   "codex_idx": 9,
+   "sap_rack": "C",
+   "segment_id": "main",
+   "confidence": "high",
+   "evidence": [
+    "viewer-final ordering A,B,C,D,E,F,G,H,I,J",
+    "C.pdf has 12 bays; CAD shows 12 posts ✓"
+   ],
+   "geometry": {
+    "dir": "x",
+    "x0": 2270.13,
+    "x1": 5629.85,
+    "y0": 3261.63,
+    "y1": 3356.63,
+    "bays": 12
+   },
+   "pdf_bay_count": 12
+  },
+  {
+   "codex_idx": 10,
+   "sap_rack": "B",
+   "segment_id": "main",
+   "confidence": "high",
+   "evidence": [
+    "viewer-final ordering A,B,C,D,E,F,G,H,I,J",
+    "B.pdf has 11 bays; CAD starts at x=2550"
+   ],
+   "geometry": {
+    "dir": "x",
+    "x0": 2550.13,
+    "x1": 5630.13,
+    "y0": 3566.65,
+    "y1": 3661.65,
+    "bays": 11
+   },
+   "pdf_bay_count": 11
+  },
+  {
+   "codex_idx": 11,
+   "sap_rack": "A",
+   "segment_id": "main",
+   "confidence": "high",
+   "evidence": [
+    "north-most full rack in CAD = A in viewer ordering",
+    "A.pdf has 11 bays (A2..A12); CAD shows 12, viewer clamps to 11"
+   ],
+   "geometry": {
+    "dir": "x",
+    "x0": 2261.44,
+    "x1": 5619.44,
+    "y0": 3971.65,
+    "y1": 4066.65,
+    "bays": 12
+   },
+   "pdf_bay_count": 11,
+   "_pdf_codex_mismatch_bays": "-1"
+  },
+  {
+   "codex_idx": 12,
+   "sap_rack": "U",
+   "segment_id": "vertical_west_leg",
+   "confidence": "high",
+   "evidence": [
+    "x≈1736..1831 is the long perpendicular axis feature in CAD",
+    "U is the perpendicular rack; U.pdf has U1..U14"
+   ],
+   "geometry": {
+    "dir": "y",
+    "x0": 1736.13,
+    "x1": 1831.13,
+    "y0": 508.51,
+    "y1": 3866.51,
+    "bays": 12
+   },
+   "pdf_bay_count": 14,
+   "_pdf_codex_mismatch_bays": "+2"
+  },
+  {
+   "codex_idx": 13,
+   "sap_rack": "J",
+   "segment_id": "j-fragment-south-arm-east",
+   "confidence": "medium",
+   "evidence": [
+    "x≈2175..2270, y≈573..853 — SE corner of J south-arm region",
+    "1 bay; east-end stub of J south arm"
+   ],
+   "geometry": {
+    "dir": "y",
+    "x0": 2175.13,
+    "x1": 2270.13,
+    "y0": 573.24,
+    "y1": 853.24,
+    "bays": 1
+   }
+  },
+  {
+   "codex_idx": 14,
+   "sap_rack": null,
+   "disposition": "UNMAPPED",
+   "confidence": "low",
+   "evidence": [
+    "isolated y-dir 1-bay at x≈5185..5280, y≈683..877 — south-east",
+    "no layout rack matches; possible signage post or small column"
+   ],
+   "geometry": {
+    "dir": "y",
+    "x0": 5185.14,
+    "x1": 5280.14,
+    "y0": 682.71,
+    "y1": 876.72,
+    "bays": 1
+   }
+  },
+  {
+   "codex_idx": 15,
+   "sap_rack": "J",
+   "segment_id": "j-east-vertical",
+   "confidence": "medium",
+   "evidence": [
+    "east-side vertical 4-bay row at x≈5640..5735, y≈692..1812",
+    "treated as J east vertical leg in viewer compound label"
+   ],
+   "geometry": {
+    "dir": "y",
+    "x0": 5639.85,
+    "x1": 5734.85,
+    "y0": 691.65,
+    "y1": 1811.65,
+    "bays": 4
+   }
+  }
+ ],
+ "_open_questions": [
+  "idx 3+4 (H/I) sit 30cm apart back-to-back in CAD; viewer renders both with 11x280cm PDF footprint clamped east. Site visit to confirm exact gap.",
+  "idx 6 (F) has 14 CAD posts vs F.pdf 12 — viewer override drops 2 east-end stubs as structural detail.",
+  "idx 8 (D) and idx 10 (B) start at x=2550 instead of x≈2270 in CAD — kept as-is, only semantic labels overridden.",
+  "idx 14 (isolated SE post pair at x=5185-5280) — phantom DWG entity or real small column? Resolve on site visit.",
+  "idx 15 is rendered as J east-vertical compound member; CAD extracted only 4 bays vs U.pdf 14 bays for the actual U rack (idx 12).",
+  "RESOLVED 2026-06-10 by Fable5 blind re-extraction: idx14=J13, idx1=J14, idx0=U14, E/F swap fixed. Remaining: H/I leaf order MEDIUM; bay-label compass direction for A/C/D/F/G/I unverified."
+ ]
 }
