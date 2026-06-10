@@ -1,6 +1,0 @@
-{
-  "status": "warn",
-  "intent": "ZWM92 last-month hold-out cross-validation.",
-  "method": "Train slotting policies on rows < 2026-04-18, score on remainder.",
-  "note": "Requires --cross-val flag in src.main.py (planned). See plan M6."
-}
