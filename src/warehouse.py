@@ -401,14 +401,12 @@ class Warehouse:
 
     @staticmethod
     def _segment_is_routing_obstacle(rack_id: str, seg_i: int) -> bool:
-        # J horizontal arms and U are preserved in layout.json for SAP/bin
-        # compatibility, but their post-Codex physical topology is unresolved
-        # and currently overlaps other rack bodies. Treat them as storage
-        # positions, not route blockers, until the site visit resolves geometry.
-        if rack_id == "U":
-            return False
-        if rack_id == "J" and seg_i in (0, 2):
-            return False
+        # 2026-06-10: the Fable5 blind CAD re-extraction resolved the J/U
+        # topology (U = west vertical leg + stubs, J = 5-section perimeter
+        # bracket) and the segments no longer overlap any other rack body,
+        # so every rack segment now blocks routing like the physical steel
+        # it represents. (Pre-Fable5 this exempted U and J's arms because
+        # their sketch-era geometry overlapped other racks.)
         return True
 
     def _build_safe_lines(self) -> tuple[list[float], list[float]]:
@@ -654,7 +652,13 @@ class Warehouse:
         return sorted(unique.values(), key=self._path_length)
 
     @staticmethod
-    def _nearby_lines(a: float, b: float, lines: list[float], limit: int = 18) -> list[float]:
+    def _nearby_lines(a: float, b: float, lines: list[float], limit: int = 64) -> list[float]:
+        # limit 18 -> 64 (2026-06-10): with the Fable5 layout all 17 rack
+        # segments block routing (U west leg + J perimeter bracket included),
+        # so some legal routes are long ring detours via the south corridor;
+        # the 18-line midpoint window dropped those lines and the router
+        # falsely reported dead ends. 64 >= total safe-line count, i.e. the
+        # full candidate set; the L-bend shortcut still serves the fast path.
         midpoint = (a + b) / 2
         forced = {round(a, 3), round(b, 3)}
         if lines:
