@@ -163,22 +163,24 @@ const INLINE_GEOMETRY = {
 const GEOM = await loadGeometry();
 // Viewer-only semantics from the hand sketch + rack PDFs.
 // Do not trust layout.json or stale sap_letter fields from external geometry.
+// Fable5 blind CAD re-extraction 2026-06-10: idx6=E / idx7=F (E-F takası
+// düzeltildi — F400 tüketimi + foto kanıtı), idx0=U14, idx1=J14, idx14=J13.
 const VIEWER_RACK_MODEL = new Map([
-  [0,  {letter: 'J', label: false, role: 'j-fragment'}],
-  [1,  {letter: null, label: false, role: 'unmapped-trash-side-stub'}],
+  [0,  {letter: 'U', label: false, role: 'u-kucuk-rf-stub'}],
+  [1,  {letter: 'J', label: false, role: 'j-se-stub'}],
   [2,  {letter: 'J', label: false, role: 'j-south-arm'}],
   [3,  {letter: 'I', label: true,  role: 'small'}],
   [4,  {letter: 'H', label: true,  role: 'small'}],
   [5,  {letter: 'G', label: true,  role: 'normal'}],
-  [6,  {letter: 'F', label: true,  role: 'normal'}],
-  [7,  {letter: 'E', label: true,  role: 'normal'}],
+  [6,  {letter: 'E', label: true,  role: 'normal'}],
+  [7,  {letter: 'F', label: true,  role: 'normal'}],
   [8,  {letter: 'D', label: true,  role: 'normal'}],
   [9,  {letter: 'C', label: true,  role: 'normal'}],
   [10, {letter: 'B', label: true,  role: 'normal'}],
   [11, {letter: 'A', label: true,  role: 'normal'}],
   [12, {letter: 'U', label: true,  role: 'perpendicular'}],
   [13, {letter: 'J', label: false, role: 'j-fragment'}],
-  [14, {letter: null, label: false, role: 'unmapped-post'}],
+  [14, {letter: 'J', label: false, role: 'j-kucuk-rf'}],
   [15, {letter: 'J', label: false, role: 'j-east-vertical'}]
 ]);
 const RACK_LABEL_OFFSETS_BY_CODEX = new Map([
@@ -212,7 +214,7 @@ const PDF_BAY_OVERRIDES = new Map([
   [9,  {bays: 12, anchor: 'east'}],   // C.pdf  (CAD 11)
   [10, {bays: 11, anchor: 'east'}],   // B.pdf  (CAD 11 ✓)
   [11, {bays: 11, anchor: 'east'}],   // A.pdf  (CAD 12 — A.pdf only has A2..A12)
-  [12, {bays: 14, anchor: 'y'}]       // U.pdf  vertical (CAD 12)
+  [12, {bays: 13, anchor: 'y'}]       // U leg = U13..U1 (12 slot + 100cm kapak); U14 = idx0 → Σ14 (Fable5)
 ]);
 
 function applyPdfBayOverride(row, spec) {
