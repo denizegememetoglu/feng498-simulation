@@ -26,6 +26,7 @@ import hashlib
 import json
 import os
 import platform
+import shutil
 import subprocess
 import sys
 import time
@@ -642,6 +643,19 @@ def main():
         for p in sorted(bundle.iterdir()):
             zf.write(p, arcname=f"{bundle.name}/{p.name}")
     print(f"[V&V suite] zip → {zip_path}  ({zip_path.stat().st_size / 1024:.1f} KB)")
+
+    # Prune old report dirs (zips stay as the permanent archive)
+    keep_last = 3
+    old_dirs = sorted(
+        (d for d in REPORTS.iterdir() if d.is_dir() and d.name.startswith(f"{args.out_prefix}_")),
+        key=lambda d: d.stat().st_mtime,
+    )
+    for old_dir in old_dirs[:-keep_last]:
+        shutil.rmtree(old_dir, ignore_errors=True)
+        print(f"[V&V suite] pruned {old_dir.name}/")
+
+    # Mirror viewer data to docs/ for GitHub Pages
+    subprocess.run([sys.executable, str(ROOT / "scripts" / "sync_docs.py")], check=False)
 
     # Quick summary
     ok = sum(1 for v in run_record["status"].values() if v == "ok")
