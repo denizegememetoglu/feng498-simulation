@@ -771,6 +771,8 @@ const mats = {
   carton:     new THREE.MeshStandardMaterial({color: 0xc8a070, roughness: 0.85}),
   cartonAlt:  new THREE.MeshStandardMaterial({color: 0x8c8c92, roughness: 0.85}),
   cartonAlt2: new THREE.MeshStandardMaterial({color: 0x6a5a4a, roughness: 0.85}),
+  // hava foto seti: shrink-wrap'li palet yükleri (beyaz/yarı-mat film)
+  cartonWrap: new THREE.MeshStandardMaterial({color: 0xe9ecef, roughness: 0.45}),
   footprint:  new THREE.MeshStandardMaterial({color: 0xe2e8f0, roughness: 0.95, transparent: true, opacity: 0.65}),
   kitting:    new THREE.MeshStandardMaterial({color: 0xfde047, roughness: 0.92, transparent: true, opacity: 0.55}),
   putaway:    new THREE.MeshStandardMaterial({color: 0xfde68a, roughness: 0.92, transparent: true, opacity: 0.42}),
@@ -793,7 +795,9 @@ const mats = {
   rtWheel:    new THREE.MeshStandardMaterial({color: 0x111418, roughness: 0.85}),
   milkBody:   new THREE.MeshStandardMaterial({color: 0x4a8b3a, roughness: 0.6}),
   milkCart:   new THREE.MeshStandardMaterial({color: 0x6b6f76, roughness: 0.7, metalness: 0.2}),
-  kxCab:      new THREE.MeshStandardMaterial({color: 0xa0aab2, roughness: 0.55, metalness: 0.40}),
+  // hava foto seti (2026-06-10): gerçek Kardex VLM gövdesi koyu lacivert,
+  // sarı trim — IMG_0739/0746
+  kxCab:      new THREE.MeshStandardMaterial({color: 0x1f2f4a, roughness: 0.55, metalness: 0.40}),
   kxStripe:   new THREE.MeshStandardMaterial({color: 0xfbd34a, emissive: 0xfbd34a, emissiveIntensity: 0.18, roughness: 0.5}),
   kxCarousel: new THREE.MeshStandardMaterial({color: 0x37414c, roughness: 0.7}),
   kittingTbl: new THREE.MeshStandardMaterial({color: 0xa9824f, roughness: 0.85}),
@@ -1063,32 +1067,56 @@ function createRack(row, index) {
 }
 
 function addPallets(row, rowIndex, positions, fixed, depth, axis, levels) {
+  // 2026-06-10 design port (Fable5 viewer + hava foto seti): 3 pallets per
+  // 2.7m bay (2 in narrow bays), every beam level + floor, ~82% deterministic
+  // fill, varied carton tones — rendered via InstancedMesh so the density is
+  // ~free (4 draw calls per row instead of thousands of meshes).
   if (positions.length < 2) return;
-  const palletHeight = 0.28, cartonHeight = 0.62;
-  const cartonMats = [mats.carton, mats.cartonAlt, mats.cartonAlt2];
+  const palletH = 0.15, cartonH = 0.55;
+  const hashIJ = (i) => { let x = Math.imul(i ^ 0x9e37, 0x85eb); x ^= x >>> 13; return ((x >>> 0) % 1000) / 1000; };
+  const palletXf = [];
+  const cartonXf = [[], [], []];
+  const layers = [0.10, ...levels];           // floor + every beam level
   for (let bay = 0; bay < positions.length - 1; bay++) {
     const bayStart = positions[bay], bayEnd = positions[bay + 1];
     const bayLength = Math.abs(bayEnd - bayStart);
-    const bayCenter = (bayStart + bayEnd) / 2;
     if (bayLength < 0.65) continue;
-    for (let li = 0; li < levels.length - 1; li += 2) {
-      if ((bay + li + rowIndex) % 3 === 0) continue;  // ~67% fill — matches site photos
-      const h = levels[li] + 0.18;
-      const palletScale = axis === 'x'
-        ? new THREE.Vector3(Math.min(bayLength * 0.34, 0.82), palletHeight, Math.max(depth * 0.34, 0.34))
-        : new THREE.Vector3(Math.max(depth * 0.34, 0.34), palletHeight, Math.min(bayLength * 0.34, 0.82));
-      const cartonScale = axis === 'x'
-        ? new THREE.Vector3(Math.min(bayLength * 0.3, 0.76), cartonHeight, Math.max(depth * 0.3, 0.3))
-        : new THREE.Vector3(Math.max(depth * 0.3, 0.3), cartonHeight, Math.min(bayLength * 0.3, 0.76));
-      const basePos = axis === 'x'
-        ? new THREE.Vector3(bayCenter, h, fixed)
-        : new THREE.Vector3(fixed, h, bayCenter);
-      const cartonMat = cartonMats[(bay + li + rowIndex) % cartonMats.length];
-      addBox(rackGroup, geos.pallet, mats.pallet, basePos, palletScale, false);
-      addBox(rackGroup, geos.pallet, cartonMat,
-        new THREE.Vector3(basePos.x, h + 0.46, basePos.z), cartonScale, false);
+    const nPal = bayLength > 2.3 ? 3 : 2;
+    for (let li = 0; li < layers.length; li++) {
+      const h = layers[li] + 0.10;
+      for (let k = 0; k < nPal; k++) {
+        const seed = ((rowIndex * 31 + bay) * 11 + li) * 7 + k;
+        if (hashIJ(seed) > 0.82) continue;     // ~82% doluluk (saha izlenimi)
+        const along = Math.min(bayStart, bayEnd) + bayLength * (k + 0.5) / nPal;
+        const pos = axis === 'x'
+          ? [along, h + palletH / 2, fixed]
+          : [fixed, h + palletH / 2, along];
+        palletXf.push(pos);
+        cartonXf[Math.floor(hashIJ(seed * 3) * 3)].push(
+          axis === 'x'
+            ? [along, h + palletH + cartonH / 2, fixed]
+            : [fixed, h + palletH + cartonH / 2, along]);
+      }
     }
   }
+  const M = new THREE.Matrix4();
+  const palletSize = axis === 'x'
+    ? [Math.min(2.6 / 3, 0.78), palletH, Math.max(depth * 0.72, 0.9)]
+    : [Math.max(depth * 0.72, 0.9), palletH, Math.min(2.6 / 3, 0.78)];
+  const cartonSize = axis === 'x'
+    ? [palletSize[0] * 0.92, cartonH, palletSize[2] * 0.92]
+    : [palletSize[0] * 0.92, cartonH, palletSize[2] * 0.92];
+  const mkInst = (xfs, size, mat) => {
+    if (!xfs.length) return;
+    const im = new THREE.InstancedMesh(
+      new THREE.BoxGeometry(size[0], size[1], size[2]), mat, xfs.length);
+    xfs.forEach((p, i) => { M.makeTranslation(p[0], p[1], p[2]); im.setMatrixAt(i, M); });
+    im.instanceMatrix.needsUpdate = true;
+    rackGroup.add(im);
+  };
+  mkInst(palletXf, palletSize, mats.pallet);
+  const cartonMats = [mats.carton, mats.cartonAlt, mats.cartonWrap];
+  cartonXf.forEach((xfs, t) => mkInst(xfs, cartonSize, cartonMats[t]));
 }
 
 function addRackLetter(letter, cx, cz, totalH) {
@@ -1665,11 +1693,11 @@ function fitLayoutAffine() {
   const rowsByLetter = RACKS_BY_LETTER;
   const anchors = [];
   for (const rack of SIM_LAYOUT.racks) {
-    // U and J are excluded from the fit: their layout.json orientation does
-    // not map through the axis-swap (known open topology question), and
-    // their anchors poison the affine — measured mean anchor residual is
-    // 8.1 m WITH them vs 1.5 m without (2026-06-09 analysis). Their meshes
-    // still render; only the layout→world fit ignores them.
+    // U and J are excluded from the fit. Tarihçe: Fable5 geçişinden (2026-06-10)
+    // önce sketch-dönemi U/J koordinatları affine'i zehirliyordu (rezidü 8.1 m
+    // vs 1.5 m). Geçiş sonrası layout.json TAM affine ile üretildiği için A-I
+    // anchor'ları kesin fit veriyor; U/J artık dahil edilse de sonuç değişmez —
+    // sıfır-risk için dışarıda bırakıldılar.
     if (rack.id === 'U' || rack.id === 'J') continue;
     const rows = (rowsByLetter.get(rack.id) || []).filter(r => !r.skip);
     if (!rows.length) continue;
@@ -1719,10 +1747,10 @@ function timelinePointToWorld(xy, coordSystem = 'layout_m') {
 }
 
 // ── World-space visual router (2026-06-10) ─────────────────────────────────
-// ZERO-TOLERANCE guarantee: agents NEVER cross a rendered rack body. The
-// layout→world affine has residuals (the layout↔CAD relation is not exactly
-// affine) and the sim legitimately routes through layout-space U/J (their
-// topology is unresolved), so instead of trusting mapped layout paths we
+// ZERO-TOLERANCE guarantee: agents NEVER cross a rendered rack body. Fable5
+// geçişi (2026-06-10) sonrası layout↔CAD ilişkisi tam affine ve sim U/J'yi de
+// obstacle sayıyor, yani eski gerekçeler kalktı; yine de görüntü katmanında
+// bağımsız bir garanti olarak korunuyor: mapped layout path'lerine güvenmek yerine
 // RE-ROUTE each move segment in world space against the rendered rack AABBs
 // — the same obstacle-avoiding rectilinear algorithm the sim uses, ported
 // to the display layer. A candidate path that intersects any rack box is

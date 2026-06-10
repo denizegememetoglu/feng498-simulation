@@ -25,14 +25,14 @@
   "_viewer_model": {
     "VIEWER_RACK_MODEL": {
       "0": {
-        "letter": "J",
+        "letter": "U",
         "label": false,
-        "role": "j-fragment"
+        "role": "u-kucuk-rf-stub"
       },
       "1": {
-        "letter": null,
+        "letter": "J",
         "label": false,
-        "role": "unmapped-trash-side-stub"
+        "role": "j-se-stub"
       },
       "2": {
         "letter": "J",
@@ -55,12 +55,12 @@
         "role": "normal"
       },
       "6": {
-        "letter": "F",
+        "letter": "E",
         "label": true,
         "role": "normal"
       },
       "7": {
-        "letter": "E",
+        "letter": "F",
         "label": true,
         "role": "normal"
       },
@@ -95,9 +95,9 @@
         "role": "j-fragment"
       },
       "14": {
-        "letter": null,
+        "letter": "J",
         "label": false,
-        "role": "unmapped-post"
+        "role": "j-kucuk-rf"
       },
       "15": {
         "letter": "J",
@@ -135,7 +135,7 @@
         "anchor": "east"
       },
       "12": {
-        "bays": 14,
+        "bays": 13,
         "anchor": "y"
       }
     },
@@ -146,8 +146,8 @@
   "racks": [
     {
       "codex_idx": 0,
-      "letter": "J",
-      "role": "j-fragment",
+      "letter": "U",
+      "role": "u-kucuk-rf-stub",
       "label": false,
       "skip": false,
       "dir": "x",
@@ -162,22 +162,21 @@
         2057.13
       ],
       "level_heights_cm": [
-        61,
-        136,
-        206,
-        322,
-        438,
-        554,
-        670,
+        118,
+        222,
+        346,
+        455,
+        564,
+        676,
         700
       ]
     },
     {
       "codex_idx": 1,
-      "letter": null,
-      "role": "unmapped-trash-side-stub",
+      "letter": "J",
+      "role": "j-se-stub",
       "label": false,
-      "skip": true,
+      "skip": false,
       "dir": "x",
       "x0": 5354.85,
       "x1": 5634.85,
@@ -189,7 +188,16 @@
         5354.85,
         5634.85
       ],
-      "level_heights_cm": []
+      "level_heights_cm": [
+        61,
+        136,
+        206,
+        322,
+        438,
+        554,
+        670,
+        700
+      ]
     },
     {
       "codex_idx": 2,
@@ -344,7 +352,7 @@
     },
     {
       "codex_idx": 6,
-      "letter": "F",
+      "letter": "E",
       "role": "normal",
       "label": true,
       "skip": false,
@@ -384,7 +392,7 @@
     },
     {
       "codex_idx": 7,
-      "letter": "E",
+      "letter": "F",
       "role": "normal",
       "label": true,
       "skip": false,
@@ -591,23 +599,22 @@
       "x1": 1831.13,
       "y0": 508.51,
       "y1": 3866.51,
-      "bays": 14,
-      "bay_pitch_cm": 239.86,
+      "bays": 13,
+      "bay_pitch_cm": 258.31,
       "posts": [
         508.51,
-        748.37,
-        988.22,
-        1228.08,
-        1467.94,
-        1707.8,
-        1947.65,
-        2187.51,
-        2427.37,
-        2667.22,
-        2907.08,
-        3146.94,
-        3386.8,
-        3626.65,
+        766.82,
+        1025.13,
+        1283.43,
+        1541.74,
+        1800.05,
+        2058.36,
+        2316.66,
+        2574.97,
+        2833.28,
+        3091.59,
+        3349.89,
+        3608.2,
         3866.51
       ],
       "level_heights_cm": [
@@ -650,10 +657,10 @@
     },
     {
       "codex_idx": 14,
-      "letter": null,
-      "role": "unmapped-post",
+      "letter": "J",
+      "role": "j-kucuk-rf",
       "label": false,
-      "skip": true,
+      "skip": false,
       "dir": "y",
       "x0": 5185.14,
       "x1": 5280.14,
@@ -665,7 +672,16 @@
         682.71,
         876.72
       ],
-      "level_heights_cm": []
+      "level_heights_cm": [
+        61,
+        136,
+        206,
+        322,
+        438,
+        554,
+        670,
+        700
+      ]
     },
     {
       "codex_idx": 15,

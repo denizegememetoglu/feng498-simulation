@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "_source": "Generated from output/dwg_codex_geometry.json via v4 axis-swap transform",
-  "_provenance": "Codex CAD preview is authoritative for rack geometry (x0,x1,y_center). PDF bay counts (data/rack-drawings/*.pdf) are authoritative for SAP join (bays, pallet_count, levels, pallets_per_bay). Existing layout.json provides bay_overrides + kit_corridor_side + rt_aisle_side metadata.",
+  "_provenance": "Geometry: Fable5 blind CAD re-extraction 2026-06-10 (output/fable5_layout/ — DWG dims + 11 rack PDFs + factory photos + ZWM92×özet cross-tab; adversarially verified). Letter ordering: A=north … J-arm=south, U=west leg, J=5-section perimeter bracket. Bay codes / overrides / pallet counts unchanged (SAP join stable).",
   "_notes": [
     "v4 (2026-05-26 PM): Codex-derived geometry replaces v3's libredwg extraction.",
     "Axis-swap: codex_y (cm, south-north) → layout_x (m, east-west, descending);",
@@ -10,7 +10,8 @@
     "SAP join PRESERVED: bays, levels, pallets_per_bay, pallet_count, bay_overrides untouched.",
     "Bay-width recomputed from new (axis-swapped) length / PDF bay count.",
     "U and J preserved verbatim from layout.json — their CAD-topology doesn't map cleanly via axis-swap (see _note in each).",
-    "Pallet canary: total pallet_count must remain 3203 to keep SAP join stable."
+    "Pallet canary: total pallet_count must remain 3203 to keep SAP join stable.",
+    "2026-06-10 FULL TRANSITION: v4 letter placement replaced by the Fable5-verified mapping (see output/fable5_layout/RAPOR.md). E kit side fixed (was pointing at the 320 RT aisle). G levels 9->8. Pre-transition file: config/layout.json.bak_pre_fable5_20260610"
   ],
   "building": {
     "width_m": 80,
@@ -38,6 +39,60 @@
     "depth_m": 4,
     "_source": "approximate, ASSUMPTIONS.md §9"
   },
+  "production_lines": [
+    {
+      "name": "F400",
+      "kitting_point": [
+        23.692,
+        21.91
+      ],
+      "_source": "CAD '(F400)' KITTING cell label (output/dwg_codex_geometry.json) mapped via codex->layout affine fit over rack centroids, x snapped to the kit-corridor safe line between racks F and G. Additive key 2026-06-09; rack geometry untouched."
+    },
+    {
+      "name": "SM6-36",
+      "kitting_point": [
+        31.72,
+        21.08
+      ],
+      "_source": "CAD '(SM6-Premset)' KITTING cell label, same transform; shared zone with PREMSET."
+    },
+    {
+      "name": "PREMSET",
+      "kitting_point": [
+        31.72,
+        21.08
+      ],
+      "_source": "CAD '(SM6-Premset)' KITTING cell label, same transform; shared zone with SM6-36."
+    },
+    {
+      "name": "MCSET",
+      "kitting_point": [
+        44.503,
+        24.0
+      ],
+      "_source": "CAD '(MCset-Aksesuar)' KITTING cell label, same transform."
+    }
+  ],
+  "_production_lines_note": "Only lines with an unambiguous CAD kitting-cell label are mapped (76% of ZWM92 picks). OKKEN/PIX/DMK/SEPAM fall back to the central kitting centroid - the CAD labels '(GMH)', '(RI-P7 SD-POLE)', '(Blokset-Fason)' could not be confidently matched to ZWM92 line names; site visit to resolve.",
+  "kardex_stations": [
+    {
+      "x": 2.0,
+      "y": 5.75
+    },
+    {
+      "x": 2.0,
+      "y": 9.25
+    },
+    {
+      "x": 2.0,
+      "y": 12.75
+    },
+    {
+      "x": 2.0,
+      "y": 16.25
+    }
+  ],
+  "_kardex_stations_note": "Four KDX carousels spread evenly along the kardex zone (x 0-4, y 4-18); per-unit coords were previously collapsed to the zone centroid. Additive key 2026-06-09.",
   "fast_mover_max_level": 3,
   "rt_aisle_width_m": 3.0,
   "kit_corridor_width_m": 2.0,
@@ -114,19 +169,39 @@
       "segments": [
         {
           "start": [
-            10.0,
-            10.0
+            44.198,
+            4.531
           ],
           "end": [
-            20.8,
-            10.0
+            47.168,
+            4.531
           ],
-          "bays": 4,
+          "bays": 1,
           "bay_code_start": 1,
           "bay_width_m": 2.7,
           "levels": 8,
           "pallets_per_bay": 3,
-          "pallet_count": 84,
+          "pallet_count": 24,
+          "bay_overrides": [],
+          "kit_corridor_side": "TBD",
+          "rt_aisle_side": "TBD",
+          "_section": "J1 — SW vertical fragment (COL01, cad x≈2222)"
+        },
+        {
+          "start": [
+            43.253,
+            5.049
+          ],
+          "end": [
+            43.253,
+            34.651
+          ],
+          "bays": 11,
+          "bay_code_start": 2,
+          "bay_width_m": 2.8,
+          "levels": 8,
+          "pallets_per_bay": 3,
+          "pallet_count": 240,
           "bay_overrides": [
             {
               "bays": [
@@ -134,27 +209,7 @@
               ],
               "pallets_per_bay": 2,
               "_source": "WhatsApp 2026-05-11"
-            }
-          ],
-          "kit_corridor_side": "TBD",
-          "rt_aisle_side": "TBD"
-        },
-        {
-          "start": [
-            10.0,
-            10.0
-          ],
-          "end": [
-            10.0,
-            37.0
-          ],
-          "bays": 10,
-          "bay_code_start": 5,
-          "bay_width_m": 2.7,
-          "levels": 8,
-          "pallets_per_bay": 3,
-          "pallet_count": 213,
-          "bay_overrides": [
+            },
             {
               "bays": [
                 10,
@@ -170,10 +225,58 @@
               "pallets_per_bay": 0,
               "_source": "WhatsApp 2026-05-11: cart parking slot",
               "_reserved_for": "cart"
-            },
+            }
+          ],
+          "kit_corridor_side": "east",
+          "rt_aisle_side": "west",
+          "_section": "J2-J12 — south arm (ROW02, cad y≈934); kit = south corridor (RI-P7 SD-POLE)"
+        },
+        {
+          "start": [
+            43.906,
+            33.716
+          ],
+          "end": [
+            45.996,
+            34.752
+          ],
+          "bays": 1,
+          "bay_code_start": 13,
+          "bay_width_m": 1.82,
+          "levels": 8,
+          "pallets_per_bay": 3,
+          "pallet_count": 12,
+          "bay_overrides": [
             {
               "bays": [
-                13,
+                13
+              ],
+              "pallets_per_bay": 2,
+              "_source": "WhatsApp 2026-05-11"
+            }
+          ],
+          "kit_corridor_side": "TBD",
+          "rt_aisle_side": "TBD",
+          "_section": "J13 — KÜÇÜK RF (X-braced element, 182cm PDF / 184cm CAD dim)"
+        },
+        {
+          "start": [
+            46.553,
+            35.49
+          ],
+          "end": [
+            46.553,
+            38.155
+          ],
+          "bays": 1,
+          "bay_code_start": 14,
+          "bay_width_m": 2.7,
+          "levels": 8,
+          "pallets_per_bay": 3,
+          "pallet_count": 21,
+          "bay_overrides": [
+            {
+              "bays": [
                 14
               ],
               "pallets_per_bay": 2,
@@ -181,20 +284,21 @@
             }
           ],
           "kit_corridor_side": "TBD",
-          "rt_aisle_side": "TBD"
+          "rt_aisle_side": "TBD",
+          "_section": "J14 — SE stub (ROW01, ÇÖP KOVASI yanı)"
         },
         {
           "start": [
-            10.0,
-            37.0
+            45.865,
+            38.722
           ],
           "end": [
-            20.8,
-            37.0
+            33.657,
+            38.722
           ],
           "bays": 4,
           "bay_code_start": 15,
-          "bay_width_m": 2.7,
+          "bay_width_m": 2.8,
           "levels": 8,
           "pallets_per_bay": 3,
           "pallet_count": 84,
@@ -211,62 +315,70 @@
             }
           ],
           "kit_corridor_side": "TBD",
-          "rt_aisle_side": "TBD"
+          "rt_aisle_side": "south",
+          "_section": "J15-J18 — east vertical leg (COL02); 279.7cm aisle to H/I east ends"
         }
       ],
-      "_note": "J bracket preserved from layout.json (segments + bays + pallet_count). Codex sees J as idx 12 (vertical leg, 12 posts) + idx 13 (1-bay south-arm fragment) + idx 0 (south-arm-east fragment). The 3-segment bracket topology in layout.json remains the cleanest SAP-join representation."
+      "_note": "J bracket preserved from layout.json (segments + bays + pallet_count). Codex sees J as idx 12 (vertical leg, 12 posts) + idx 13 (1-bay south-arm fragment) + idx 0 (south-arm-east fragment). The 3-segment bracket topology in layout.json remains the cleanest SAP-join representation.",
+      "_orientation": "5-section perimeter bracket: east leg + SE stub + KÜÇÜK RF + south arm + SW frag",
+      "_source": "Fable5 blind CAD extraction 2026-06-10"
     },
     {
       "id": "H",
       "shape": "linear",
-      "_orientation": "vertical, 2nd from west; lives INSIDE J's bracket — south end y=11 stays north of J's bottom arm (y=10), north end y=36.35 stays south of U (y=37). J↔H and H↔I corridor types TBD until May 20.",
+      "_orientation": "vertical in sim frame (CAD: east-west row at y=1464 cm)",
       "segments": [
         {
           "start": [
-            13.779,
-            7.763
+            37.423,
+            35.342
           ],
           "end": [
-            13.779,
-            38.156
+            37.423,
+            5.049
           ],
           "bays": 11,
           "bay_code_start": 1,
-          "bay_width_m": 2.763,
+          "bay_width_m": 2.8,
           "levels": 8,
           "pallets_per_bay": 3,
           "pallet_count": 240,
           "kit_corridor_side": "TBD",
-          "rt_aisle_side": "TBD",
-          "_codex_idx": 10,
+          "rt_aisle_side": "west",
           "_codex_geometry_cm": {
             "x0": 2550.13,
             "x1": 5630.13,
             "y0": 3566.65,
             "y1": 3661.65,
             "bays_codex": 11
-          }
+          },
+          "_fable5_geometry_cm": {
+            "row_y_center": 1464.2,
+            "x0": 2275.1,
+            "x1": 5344.9
+          },
+          "_bay_direction": "H11=west / H1=east (MEDIUM — portal-profile hint)"
         }
       ],
-      "_source": "Codex preview idx 10 (axis-swapped via v4 transform)"
+      "_source": "Fable5 blind CAD extraction 2026-06-10"
     },
     {
       "id": "I",
       "shape": "linear",
-      "_orientation": "vertical, 3rd from west; INSIDE J's bracket like H — south above J bottom arm, north below U. I↔G is the kit corridor (matches G's kit_west).",
+      "_orientation": "vertical in sim frame (CAD: east-west row at y=1339 cm)",
       "segments": [
         {
           "start": [
-            17.133,
-            5.0
+            38.798,
+            5.049
           ],
           "end": [
-            17.133,
-            38.154
+            38.798,
+            35.342
           ],
           "bays": 11,
           "bay_code_start": 1,
-          "bay_width_m": 3.014,
+          "bay_width_m": 2.8,
           "levels": 8,
           "pallets_per_bay": 3,
           "pallet_count": 252,
@@ -290,71 +402,81 @@
               "_source": "WhatsApp 2026-05-11"
             }
           ],
-          "kit_corridor_side": "east",
-          "rt_aisle_side": "TBD",
-          "_codex_idx": 9,
+          "kit_corridor_side": "TBD",
+          "rt_aisle_side": "east",
           "_codex_geometry_cm": {
             "x0": 2270.13,
             "x1": 5629.85,
             "y0": 3261.63,
             "y1": 3356.63,
             "bays_codex": 12
-          }
+          },
+          "_fable5_geometry_cm": {
+            "row_y_center": 1339.2,
+            "x0": 2275.1,
+            "x1": 5344.9
+          },
+          "_bay_direction": "I1=west (convention kept; unverified)"
         }
       ],
-      "_source": "Codex preview idx 9 (axis-swapped via v4 transform)"
+      "_source": "Fable5 blind CAD extraction 2026-06-10"
     },
     {
       "id": "G",
       "shape": "linear",
-      "_orientation": "vertical, 4th from west; the ONLY rack whose body overlaps J's bottom arm — passes through y=10 and meets J at CLOSED junction near (20.9, 10). North end y=36.35 stays south of U.",
+      "_orientation": "vertical in sim frame (CAD: east-west row at y=1869 cm)",
       "segments": [
         {
           "start": [
-            21.587,
-            7.763
+            32.969,
+            5.049
           ],
           "end": [
-            21.587,
-            38.156
+            32.969,
+            38.105
           ],
           "bays": 12,
           "bay_code_start": 1,
-          "bay_width_m": 2.533,
-          "levels": 9,
+          "bay_width_m": 2.8,
+          "levels": 8,
           "pallets_per_bay": 3,
           "pallet_count": 288,
           "kit_corridor_side": "west",
           "rt_aisle_side": "east",
-          "_codex_idx": 8,
           "_codex_geometry_cm": {
             "x0": 2550.13,
             "x1": 5630.13,
             "y0": 2856.65,
             "y1": 2951.65,
             "bays_codex": 11
-          }
+          },
+          "_fable5_geometry_cm": {
+            "row_y_center": 1869.2,
+            "x0": 2275.1,
+            "x1": 5624.9
+          },
+          "_bay_direction": "G1=west (convention kept; unverified)"
         }
       ],
-      "_source": "Codex preview idx 8 (axis-swapped via v4 transform)"
+      "_source": "Fable5 blind CAD extraction 2026-06-10"
     },
     {
       "id": "F",
       "shape": "linear",
-      "_orientation": "vertical, 5th from west; north end y=36.35 stays south of U",
+      "_orientation": "vertical in sim frame (CAD: east-west row at y=2599 cm)",
       "segments": [
         {
           "start": [
-            24.942,
-            4.97
+            24.941,
+            5.711
           ],
           "end": [
-            24.942,
-            38.127
+            24.941,
+            38.078
           ],
           "bays": 12,
           "bay_code_start": 1,
-          "bay_width_m": 2.763,
+          "bay_width_m": 2.8,
           "levels": 9,
           "pallets_per_bay": 3,
           "pallet_count": 303,
@@ -368,37 +490,42 @@
               "_source": "WhatsApp 2026-05-11"
             }
           ],
-          "kit_corridor_side": "east",
-          "rt_aisle_side": "west",
-          "_codex_idx": 7,
+          "kit_corridor_side": "west",
+          "rt_aisle_side": "east",
           "_codex_geometry_cm": {
             "x0": 2267.13,
             "x1": 5627.13,
             "y0": 2551.65,
             "y1": 2646.65,
             "bays_codex": 12
-          }
+          },
+          "_fable5_geometry_cm": {
+            "row_y_center": 2599.2,
+            "x0": 2342.1,
+            "x1": 5622.1
+          },
+          "_bay_direction": "F1=west (convention kept; unverified)"
         }
       ],
-      "_source": "Codex preview idx 7 (axis-swapped via v4 transform)"
+      "_source": "Fable5 blind CAD extraction 2026-06-10"
     },
     {
       "id": "E",
       "shape": "linear",
-      "_orientation": "vertical, 6th from west; north end y=36.35 stays south of U",
+      "_orientation": "vertical in sim frame (CAD: east-west row at y=2174 cm)",
       "segments": [
         {
           "start": [
             29.615,
-            5.02
+            38.078
           ],
           "end": [
             29.615,
-            38.818
+            5.74
           ],
           "bays": 12,
           "bay_code_start": 1,
-          "bay_width_m": 2.817,
+          "bay_width_m": 2.8,
           "levels": 9,
           "pallets_per_bay": 3,
           "pallet_count": 294,
@@ -411,37 +538,42 @@
               "_source": "WhatsApp 2026-05-11"
             }
           ],
-          "kit_corridor_side": "west",
-          "rt_aisle_side": "east",
-          "_codex_idx": 6,
+          "kit_corridor_side": "east",
+          "rt_aisle_side": "west",
           "_codex_geometry_cm": {
             "x0": 2272.13,
             "x1": 5697.13,
             "y0": 2126.7,
             "y1": 2221.7,
             "bays_codex": 14
-          }
+          },
+          "_fable5_geometry_cm": {
+            "row_y_center": 2174.2,
+            "x0": 2345.1,
+            "x1": 5622.1
+          },
+          "_bay_direction": "E1=east — east revision bay, doubled post (VERIFIED, photo+PDF)"
         }
       ],
-      "_source": "Codex preview idx 6 (axis-swapped via v4 transform)"
+      "_source": "Fable5 blind CAD extraction 2026-06-10"
     },
     {
       "id": "D",
       "shape": "linear",
-      "_orientation": "vertical, 7th from west; north end y=36.35 stays south of U",
+      "_orientation": "vertical in sim frame (CAD: east-west row at y=2904 cm)",
       "segments": [
         {
           "start": [
-            32.97,
-            5.0
+            21.586,
+            5.74
           ],
           "end": [
-            32.97,
-            38.154
+            21.586,
+            38.107
           ],
           "bays": 12,
           "bay_code_start": 1,
-          "bay_width_m": 2.763,
+          "bay_width_m": 2.8,
           "levels": 9,
           "pallets_per_bay": 3,
           "pallet_count": 300,
@@ -464,35 +596,40 @@
           ],
           "kit_corridor_side": "east",
           "rt_aisle_side": "west",
-          "_codex_idx": 5,
           "_codex_geometry_cm": {
             "x0": 2270.13,
             "x1": 5629.85,
             "y0": 1821.65,
             "y1": 1916.65,
             "bays_codex": 12
-          }
+          },
+          "_fable5_geometry_cm": {
+            "row_y_center": 2904.2,
+            "x0": 2345.1,
+            "x1": 5625.1
+          },
+          "_bay_direction": "D1=west (convention kept; unverified)"
         }
       ],
-      "_source": "Codex preview idx 5 (axis-swapped via v4 transform)"
+      "_source": "Fable5 blind CAD extraction 2026-06-10"
     },
     {
       "id": "C",
       "shape": "linear",
-      "_orientation": "vertical, 8th from west; north end y=36.35 stays south of U",
+      "_orientation": "vertical in sim frame (CAD: east-west row at y=3309 cm)",
       "segments": [
         {
           "start": [
-            37.424,
-            5.0
+            17.133,
+            38.105
           ],
           "end": [
-            37.424,
-            35.391
+            17.133,
+            5.049
           ],
           "bays": 12,
           "bay_code_start": 1,
-          "bay_width_m": 2.533,
+          "bay_width_m": 2.8,
           "levels": 9,
           "pallets_per_bay": 3,
           "pallet_count": 297,
@@ -509,106 +646,141 @@
           ],
           "kit_corridor_side": "west",
           "rt_aisle_side": "east",
-          "_codex_idx": 4,
           "_codex_geometry_cm": {
             "x0": 2270.13,
             "x1": 5349.85,
             "y0": 1416.65,
             "y1": 1511.65,
             "bays_codex": 11
-          }
+          },
+          "_fable5_geometry_cm": {
+            "row_y_center": 3309.1,
+            "x0": 2275.1,
+            "x1": 5624.9
+          },
+          "_bay_direction": "C12=west — C10-C12 portal/short profile cluster at west (MEDIUM)"
         }
       ],
-      "_source": "Codex preview idx 4 (axis-swapped via v4 transform)"
+      "_source": "Fable5 blind CAD extraction 2026-06-10"
     },
     {
       "id": "B",
       "shape": "linear",
-      "_orientation": "vertical, 9th from west; north end y=36.35 stays south of U",
+      "_orientation": "vertical in sim frame (CAD: east-west row at y=3614 cm)",
       "segments": [
         {
           "start": [
-            38.799,
-            5.0
+            13.778,
+            38.107
           ],
           "end": [
-            38.799,
-            35.391
+            13.778,
+            5.74
           ],
           "bays": 12,
           "bay_code_start": 1,
-          "bay_width_m": 2.533,
+          "bay_width_m": 2.8,
           "levels": 9,
           "pallets_per_bay": 3,
           "pallet_count": 288,
           "kit_corridor_side": "east",
           "rt_aisle_side": "west",
-          "_codex_idx": 3,
           "_codex_geometry_cm": {
             "x0": 2270.13,
             "x1": 5349.85,
             "y0": 1291.65,
             "y1": 1386.65,
             "bays_codex": 11
-          }
+          },
+          "_fable5_geometry_cm": {
+            "row_y_center": 3614.2,
+            "x0": 2345.1,
+            "x1": 5625.1
+          },
+          "_bay_direction": "B12=west / B1=east — strips 5+6 + B7 gap at x≈3955-4225 (VERIFIED)"
         }
       ],
-      "_source": "Codex preview idx 3 (axis-swapped via v4 transform)"
+      "_source": "Fable5 blind CAD extraction 2026-06-10"
     },
     {
       "id": "A",
       "shape": "linear",
-      "_orientation": "vertical, rightmost (east); 11 bays A2-A12 per A.pdf",
+      "_orientation": "vertical in sim frame (CAD: east-west row at y=4019 cm)",
       "segments": [
         {
           "start": [
-            43.253,
-            5.0
+            9.323,
+            7.707
           ],
           "end": [
-            43.253,
-            34.7
+            9.323,
+            38.002
           ],
           "bays": 11,
           "bay_code_start": 2,
-          "bay_width_m": 2.7,
+          "bay_width_m": 2.8,
           "levels": 9,
           "pallets_per_bay": 3,
           "pallet_count": 297,
           "kit_corridor_side": "west",
-          "rt_aisle_side": "TBD",
-          "_codex_idx": 2,
+          "rt_aisle_side": "east",
           "_codex_geometry_cm": {
             "x0": 2270.13,
             "x1": 5279.85,
             "y0": 886.65,
             "y1": 981.65,
             "bays_codex": 11
-          }
+          },
+          "_fable5_geometry_cm": {
+            "row_y_center": 4019.2,
+            "x0": 2544.4,
+            "x1": 5614.4
+          },
+          "_bay_direction": "A2=west (convention kept; compass anchor unverified)"
         }
       ],
-      "_source": "Codex preview idx 2 (axis-swapped via v4 transform)"
+      "_source": "Fable5 blind CAD extraction 2026-06-10"
     },
     {
       "id": "U",
-      "shape": "linear",
-      "_orientation": "horizontal (E-W) at north end y=37, single segment 14 bays U1-U14; west end meets J's top arm at CLOSED junction (~20.8, 37). East end x=45 stays just past A (x=43.7) — no further. Bay width ~1.73m (PDF didn't stamp; shrunk from assumed 2.70 to fit user's drawn topology). Per May 11 SAP cross-check, U bays are 2 pallets wide (positions 1, 2); bay 8 is the exception (positions 2, 3 — 'U8 1 yok'). U14 is a 'KÜÇÜK RF' small rack with non-standard SAP positions {3,5,6} — flagged for May 20.",
+      "shape": "polyline",
+      "_orientation": "west vertical leg (CAD) -> horizontal in sim frame + SW KÜÇÜK RF stub + north cap",
       "segments": [
         {
           "start": [
-            20.8,
-            37.0
+            11.806,
+            -0.319
           ],
           "end": [
-            45.0,
-            37.0
+            11.036,
+            0.717
           ],
-          "bays": 14,
+          "bays": 1,
           "bay_code_start": 1,
-          "bay_width_m": 1.729,
+          "bay_width_m": 1.0,
           "levels": 7,
           "pallets_per_bay": 2,
-          "pallet_count": 263,
+          "pallet_count": 7,
+          "bay_overrides": [],
+          "kit_corridor_side": "TBD",
+          "rt_aisle_side": "TBD",
+          "_section": "U1 — 100cm north cap (kendi 118-564 zinciri, KÜÇÜK RF sub-zone)"
+        },
+        {
+          "start": [
+            11.806,
+            0.199
+          ],
+          "end": [
+            47.879,
+            0.199
+          ],
+          "bays": 12,
+          "bay_code_start": 2,
+          "bay_width_m": 2.8,
+          "levels": 7,
+          "pallets_per_bay": 2,
+          "pallet_count": 246,
           "bay_overrides": [
             {
               "bays": [
@@ -619,11 +791,33 @@
               "_source": "WhatsApp 2026-05-11: '8 hariç, 1 yok' = positions 2,3 not 1,2"
             }
           ],
+          "kit_corridor_side": "south",
+          "rt_aisle_side": "north",
+          "_section": "U2-U13 — west vertical leg (COL00); kit = GMH corridor (CAD-west face); U2 = north 200-slot"
+        },
+        {
+          "start": [
+            48.713,
+            0.875
+          ],
+          "end": [
+            48.713,
+            2.849
+          ],
+          "bays": 1,
+          "bay_code_start": 14,
+          "bay_width_m": 2.0,
+          "levels": 7,
+          "pallets_per_bay": 2,
+          "pallet_count": 10,
+          "bay_overrides": [],
           "kit_corridor_side": "TBD",
-          "rt_aisle_side": "TBD"
+          "rt_aisle_side": "TBD",
+          "_section": "U14 — SW detached KÜÇÜK RF stub (ROW00)"
         }
       ],
-      "_note": "U rack preserved verbatim from layout.json — its 'horizontal at y=37' topology cannot be inferred from Codex's axis-swap (Codex idx 11 maps to layout_x=9.3 which is the west extreme, not north). Site visit needed to resolve."
+      "_note": "U rack preserved verbatim from layout.json — its 'horizontal at y=37' topology cannot be inferred from Codex's axis-swap (Codex idx 11 maps to layout_x=9.3 which is the west extreme, not north). Site visit needed to resolve.",
+      "_source": "Fable5 blind CAD extraction 2026-06-10"
     }
   ]
 }
