@@ -501,11 +501,27 @@ const SLIDES = [
   onEnter(a){ a.tweenCamera('plan',900); }
 },
 {
+  id:'metrics', layout:'content',
+  html:`<div class="wrap-center"><div class="card" style="padding:26px 40px">
+    <div class="eyebrow">Elif Bostancı · Performance metrics</div><h2>Five KPIs, Line-aware vs SAP baseline</h2>
+    <table style="font-size:15px"><thead><tr><th>KPI</th><th>Line-aware</th><th>SAP baseline</th></tr></thead><tbody>
+      <tr class="win"><td>Kitting lead time</td><td>6.91 min</td><td>12.37 min</td></tr>
+      <tr><td>Operator waiting</td><td>4.26 min</td><td>8.45 min</td></tr>
+      <tr><td>Reach-truck utilization</td><td>1.27%</td><td>21.71%</td></tr>
+      <tr><td>Throughput</td><td>398.6 / day</td><td>398.5 / day</td></tr>
+      <tr><td>Walking distance</td><td>92.4 m</td><td>89.0 m</td></tr>
+    </tbody></table>
+    <p class="small">N = 20 replications, common random numbers. Lead time and waiting fall 44%, reach-truck use is nearly eliminated, throughput holds and walking stays essentially flat.</p>
+  </div></div>`,
+  notes:'These four service KPIs plus walking are the scorecard. Line-aware halves lead time and waiting and frees the reach truck, while throughput is unchanged because the system is demand-limited. Walking barely moves, the win is queueing, not distance.',
+  onEnter(a){ a.tweenCamera('plan',700); }
+},
+{
   id:'verification', layout:'content',
   html:`<div class="wrap-center"><div class="card" style="padding:26px 36px">
-    <div class="eyebrow">Elif Bostancı · Metrics &amp; verification</div><h2>Metrics, and the model does what we coded</h2>
+    <div class="eyebrow">Elif Bostancı · Verification</div><h2>Did we build it right?</h2>
     <div class="split" style="gap:24px"><div><ul style="margin-top:0">
-      <li>Four KPIs: lead time, operator wait, RT utilization, throughput</li>
+      <li>Verification checks the model behaves the way we coded it</li>
       <li>Unit-tested SAP decoder, Kardex routing, resource tracking</li>
       <li>Capacity reconciles, 3,101 modelled close to 3,203 drawn</li>
       <li>Fixed seeds (42 plus i) make every run reproducible</li>
