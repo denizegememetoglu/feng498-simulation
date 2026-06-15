@@ -18,10 +18,8 @@ Output:
     output/sensitivity_tornado_<kpi>.png  (one per tracked KPI)
 """
 
-import copy
 import json
 import os
-import statistics
 
 import matplotlib
 
@@ -125,7 +123,7 @@ def _run_one(data, label):
 
 
 def collect_sensitivity():
-    print(f"Sensitivity: preprocessing...")
+    print("Sensitivity: preprocessing...")
     data = preprocess()
     snapshot = _capture_baseline()
 
@@ -218,7 +216,7 @@ def plot_tornado(results, kpi_key, kpi_label, out_path):
     ax.set_yticklabels(labels)
     ax.axvline(0, color="#222", linewidth=1.0)
     ax.set_xlabel(f"% change in {kpi_label} from baseline (±20% input swing)")
-    ax.set_title(f"Tornado — {kpi_label}\n"
+    ax.set_title(f"Tornado: {kpi_label}\n"
                  f"(OAT sensitivity, Heuristic policy, {N_SENS_REPS} reps per cell)")
     ax.grid(axis="x", linestyle=":", alpha=0.5)
     plt.tight_layout()
