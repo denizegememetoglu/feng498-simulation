@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FENG 498 Project Presentation</title>
+<style>
+  :root{
+    --green:#3dcd58; --green-d:#2aa544; --navy:#0f2747; --blue:#0e63b3;
+    --ink:#0f172a; --body:#1e293b; --muted:#64748b; --line:#e2e8f0;
+    --card:rgba(255,255,255,.95); --shadow:0 18px 60px rgba(15,39,71,.22),0 4px 14px rgba(15,39,71,.12);
+    --r:18px;
+    --font:'Segoe UI',-apple-system,system-ui,sans-serif;
+    --mono:'SF Mono',ui-monospace,'Cascadia Code',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;width:100%;overflow:hidden;background:#dfe6ee;font-family:var(--font);color:var(--body)}
+
+  /* layer 0, 3D backdrop */
+  #sim-frame{position:fixed;inset:0;width:100%;height:100%;border:none;z-index:0;
+    transition:opacity .5s ease-in-out, filter .5s ease-in-out;background:#dfe6ee}
+
+  /* layer 1, slide overlay */
+  #overlay{position:fixed;inset:0;z-index:10;pointer-events:none}
+  #overlay.layout-content #sim-frame,
+  #overlay.layout-title   #sim-frame{} /* dim handled via body class below */
+
+  body.dim #sim-frame{opacity:.16;filter:blur(2px) saturate(.7)}
+  body:not(.dim) #sim-frame{opacity:1;filter:none}
+
+  /* slide card */
+  .card{position:absolute;background:var(--card);border-radius:var(--r);
+    box-shadow:var(--shadow);pointer-events:auto;backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,.6);animation:fade .45s .06s ease both}
+  /* opacity-only entrance for centered cards: must NOT touch transform (layouts use translate to center) */
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  /* crossfade-out for the outgoing card (opacity only, transform-safe) */
+  @keyframes fade-out{from{opacity:1}to{opacity:0}}
+  .card.leaving{animation:fade-out .28s ease forwards !important;pointer-events:none;z-index:9}
+  /* scene caption cards may lift in (they don't rely on a centering transform, or carry their own) */
+  @keyframes lift{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes lift-side{from{opacity:0;transform:translateY(-50%) translateX(10px)}to{opacity:1;transform:translateY(-50%) translateX(0)}}
+  .corner.card{animation:lift .5s .08s cubic-bezier(.22,.68,0,1.08) both}
+  .side.card{animation:lift-side .5s .08s cubic-bezier(.22,.68,0,1.08) both}
+
+  /* layouts */
+  .pos-center{top:50%;left:50%;transform:translate(-50%,-50%);width:min(880px,86vw);padding:42px 50px}
+  .wrap-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(900px,88vw)}
+  .wrap-center .card{position:relative;width:100%}
+  .corner{left:42px;bottom:84px;max-width:430px;padding:28px 32px}
+  .side{right:42px;top:50%;transform:translateY(-50%);max-width:400px;padding:28px 32px}
+  /* anchor caption cards against the bright, busy live 3D scene */
+  .corner.card,.side.card{box-shadow:0 22px 64px rgba(0,0,0,.45),0 4px 16px rgba(0,0,0,.30);
+    border-color:rgba(255,255,255,.5);border-left:3px solid var(--green)}
+
+  /* typography */
+  .eyebrow{font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--green-d);margin-bottom:10px}
+  h1{font-size:36px;line-height:1.12;color:var(--ink);font-weight:800;letter-spacing:-.01em}
+  h2{font-size:30px;line-height:1.15;color:var(--ink);font-weight:800;letter-spacing:-.01em;margin-bottom:18px}
+  .corner h2,.side h2{font-size:22px;margin-bottom:10px}
+  .sub{font-size:17px;color:var(--muted);margin-top:14px;line-height:1.5}
+  p{font-size:17px;line-height:1.6}
+  .corner p,.side p{font-size:16px}
+  ul{list-style:none;margin-top:6px}
+  li{position:relative;padding:9px 0 9px 30px;font-size:18px;line-height:1.45;color:var(--body);border-bottom:1px solid var(--line)}
+  li:last-child{border-bottom:none}
+  li::before{content:"";position:absolute;left:4px;top:17px;width:9px;height:9px;border-radius:2px;background:var(--green);transform:rotate(45deg)}
+  .corner li,.side li{font-size:15px;padding:7px 0 7px 24px}
+  .corner li::before,.side li::before{top:14px;width:7px;height:7px}
+  /* staggered reveal for content-slide bullets (opacity only) */
+  @keyframes item{from{opacity:0}to{opacity:1}}
+  .pos-center li,.wrap-center li{opacity:0;animation:item .4s ease forwards}
+  .pos-center li:nth-child(1),.wrap-center li:nth-child(1){animation-delay:.34s}
+  .pos-center li:nth-child(2),.wrap-center li:nth-child(2){animation-delay:.46s}
+  .pos-center li:nth-child(3),.wrap-center li:nth-child(3){animation-delay:.58s}
+  .pos-center li:nth-child(4),.wrap-center li:nth-child(4){animation-delay:.70s}
+  .pos-center li:nth-child(5),.wrap-center li:nth-child(5){animation-delay:.82s}
+  .pos-center li:nth-child(6),.wrap-center li:nth-child(6){animation-delay:.94s}
+
+  /* title slide */
+  .authors{display:grid;grid-template-columns:repeat(3,auto);gap:8px 28px;justify-content:center;margin-top:22px}
+  .authors span{font-size:15px;color:var(--body);font-weight:600}
+  .teaser{margin-top:26px;display:inline-block;background:linear-gradient(135deg,var(--green),var(--green-d));
+    color:#fff;font-weight:700;font-size:17px;padding:12px 22px;border-radius:999px;box-shadow:0 8px 24px rgba(61,205,88,.4)}
+  .meta{margin-top:20px;font-size:14px;color:var(--muted)}
+  .logo{height:56px;margin-bottom:6px}
+
+  /* figure */
+  .fig{margin-top:18px;text-align:center}
+  .fig img{max-width:100%;max-height:46vh;border-radius:12px;box-shadow:0 8px 26px rgba(15,39,71,.18)}
+  .fig figcaption{font-size:13px;color:var(--muted);margin-top:8px}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center}
+  .split .fig{margin-top:0}
+
+  /* table */
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:16px}
+  th,td{text-align:right;padding:10px 12px;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  thead th{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:2px solid var(--ink)}
+  tr.win td{background:rgba(61,205,88,.16);font-weight:700;color:var(--navy)}
+  tr.win td:first-child::after{content:" ★";color:var(--green-d)}
+
+  /* big numbers */
+  .bignums{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:6px}
+  .bn{background:linear-gradient(160deg,#fff,#f1f6fb);border:1px solid var(--line);border-radius:14px;padding:22px 24px;text-align:center}
+  @keyframes bn-pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+  .bignums .bn{opacity:0;animation:bn-pop .42s cubic-bezier(.34,1.56,.64,1) forwards}
+  .bignums .bn:nth-child(1){animation-delay:.38s}
+  .bignums .bn:nth-child(2){animation-delay:.52s}
+  .bignums .bn:nth-child(3){animation-delay:.66s}
+  .bignums .bn:nth-child(4){animation-delay:.80s}
+  .bn .v{font-size:44px;font-weight:800;color:var(--navy);line-height:1;letter-spacing:-.02em}
+  .bn .v.good{color:var(--green-d)}
+  .bn .u{font-size:14px;color:var(--muted);font-weight:600;margin-top:4px}
+  .bn .l{font-size:14px;color:var(--body);margin-top:10px;line-height:1.35}
+
+  /* css bar chart */
+  .bars{margin-top:10px}
+  .bar-row{display:grid;grid-template-columns:200px 1fr 70px;align-items:center;gap:12px;margin:9px 0}
+  .split .bar-row{grid-template-columns:124px 1fr 50px;gap:8px}  /* keep bars from being squashed in 2-col layout */
+  .bar-row .nm{font-size:14px;color:var(--body);text-align:right}
+  .split .bar-row .nm{font-size:13px}
+  .bar-track{height:22px;background:#eef2f7;border-radius:6px;overflow:hidden}
+  .bar-fill{height:100%;background:linear-gradient(90deg,#9fb6cf,#6f8eb0);border-radius:6px;width:0;transition:width .7s cubic-bezier(.4,0,.2,1)}
+  .bar-row.win .bar-fill{background:linear-gradient(90deg,var(--green),var(--green-d))}
+  .bar-row.bad .bar-fill{background:linear-gradient(90deg,#e08a8a,#cf5a5a)}
+  .bar-row .val{font-size:14px;font-weight:700;color:var(--navy);text-align:left}
+  .bar-row.win .nm{font-weight:700;color:var(--navy)}
+
+  /* three-source cols */
+  .cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:6px}
+  .srcbox{background:#f7fafc;border:1px solid var(--line);border-radius:13px;padding:18px 20px}
+  .srcbox h3{font-size:16px;color:var(--navy);margin-bottom:8px}
+  .srcbox .big{font-size:28px;font-weight:800;color:var(--green-d);line-height:1}
+  .srcbox p{font-size:13.5px;color:var(--muted);margin-top:8px;line-height:1.45}
+
+  /* closing chips */
+  .chips{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:20px}
+  .chip{background:var(--navy);color:#fff;border-radius:12px;padding:12px 18px;text-align:center}
+  .chip .cv{font-size:24px;font-weight:800;color:var(--green)}
+  .chip .cl{font-size:12px;color:#cbd5e1;margin-top:3px}
+  .quote{font-size:22px;font-style:italic;color:var(--navy);line-height:1.4;font-weight:600}
+  .contact{margin-top:18px;font-size:14px;color:var(--muted)}
+
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px 34px}
+  .twocol h3{font-size:15px;color:var(--green-d);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+
+  .scene-hint{display:inline-block;font-size:13px;color:var(--green-d);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px;background:rgba(61,205,88,.12);border-radius:4px;padding:2px 6px}
+
+  /* presenter chrome */
+  #progress{position:fixed;left:0;bottom:0;height:5px;background:linear-gradient(90deg,var(--green),var(--green-d));z-index:30;transition:width .35s ease;width:0}
+  #nav{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:30;display:flex;gap:8px;align-items:center;
+    background:rgba(255,255,255,.92);border:1px solid #c4cdd8;border-radius:999px;padding:6px 8px;box-shadow:0 6px 20px rgba(15,39,71,.16)}
+  #nav button{width:34px;height:34px;border:none;border-radius:50%;background:var(--navy);color:#fff;font-size:16px;line-height:1;cursor:pointer;display:grid;place-items:center;transition:background .15s,transform .1s}
+  #nav button:hover{background:var(--blue);transform:scale(1.08)}
+  #nav .counter{font-family:var(--mono);font-size:13px;color:var(--muted);min-width:54px;text-align:center}
+  #hint{position:fixed;top:14px;right:16px;z-index:30;font-size:12px;color:#475569;background:rgba(255,255,255,.85);
+    border:1px solid var(--line);padding:5px 12px;border-radius:999px;font-family:var(--mono);transition:opacity .6s ease}
+  #hint.hidden{opacity:0;pointer-events:none}
+
+  /* speaker notes */
+  #notes{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(15,23,42,.95);color:#e2e8f0;
+    padding:16px 28px 28px;font-size:14px;line-height:1.6;transform:translateY(105%);transition:transform .3s ease;
+    max-height:32vh;overflow:auto;border-top:3px solid var(--green)}
+  #notes.show{transform:none}
+  #notes strong{color:#5fe27a;display:block;margin-bottom:6px;font-size:13px;text-transform:uppercase;letter-spacing:.05em}
+
+  /* overview grid */
+  #grid{position:fixed;inset:0;z-index:50;background:rgba(15,23,42,.96);padding:46px;overflow:auto;
+    opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s}
+  #grid.show{opacity:1;visibility:visible}
+  #grid h2{color:#fff;text-align:center;margin-bottom:26px}
+  .gwrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;max-width:1200px;margin:0 auto}
+  .gitem{background:#1e2d44;border:1px solid #2c3e5c;border-radius:12px;padding:16px 18px;cursor:pointer;color:#cbd5e1;transition:.15s;text-align:left}
+  .gitem:hover{background:#274064;border-color:var(--green)}
+  .gitem.active{border-color:var(--green);background:#22436b}
+  .gitem .gn{font-family:var(--mono);font-size:12px;color:var(--green)}
+  .gitem .gt{font-size:15px;font-weight:600;margin-top:5px;color:#fff;line-height:1.25}
+  .gitem .gk{font-size:11px;color:#7d93b3;margin-top:6px;text-transform:uppercase;letter-spacing:.05em}
+
+  /* ── section divider ─────────────────────────────────────────── */
+  .secnum{font-size:88px;font-weight:800;line-height:.9;letter-spacing:-.03em;
+    background:linear-gradient(160deg,var(--green),var(--green-d));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:var(--green-d)}
+  .divider .eyebrow{margin-top:12px}
+  .divider h1{font-size:44px;margin-top:2px}
+  .presenter{margin-top:18px;font-size:21px;font-weight:700;color:var(--navy);display:inline-flex;align-items:center;gap:11px}
+  .presenter::before{content:"";width:28px;height:3px;border-radius:2px;background:var(--green)}
+  .presenter::after{content:"";width:28px;height:3px;border-radius:2px;background:var(--green)}
+  /* ── anticipated-question (backup) ───────────────────────────── */
+  .qlabel{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    color:#fff;background:var(--blue);border-radius:6px;padding:4px 11px;margin-bottom:14px}
+  .qq{font-size:26px;line-height:1.18;color:var(--navy);font-weight:800;margin-bottom:14px}
+  .qq::before{content:"\201C"}.qq::after{content:"\201D"}
+  /* ── mechanism steps ─────────────────────────────────────────── */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:10px}
+  .step{background:#f7fafc;border:1px solid var(--line);border-left:4px solid var(--green);border-radius:13px;padding:18px 20px}
+  .step .sn{font-size:13px;font-weight:800;color:var(--green-d);letter-spacing:.07em;text-transform:uppercase}
+  .step h3{font-size:16px;color:var(--navy);margin:7px 0 6px}
+  .step p{font-size:13.5px;color:var(--muted);line-height:1.45}
+  .flow{display:flex;flex-direction:column;gap:20px;margin-top:10px}
+  .flow .fl{background:#f1f6fb;border:1px solid var(--line);border-left:4px solid var(--green);border-radius:11px;padding:12px 16px;font-size:15.5px;color:var(--body);position:relative}
+  .flow .fl b{color:var(--navy)}
+  .flow .fl:not(:last-child)::after{content:"\2193";position:absolute;left:26px;bottom:-17px;color:var(--green-d);font-weight:800;font-size:16px}
+  .note-box{margin-top:14px;background:rgba(61,205,88,.10);border:1px solid rgba(61,205,88,.4);border-radius:12px;padding:13px 18px;font-size:15px;color:var(--navy);line-height:1.45}
+  .note-box b{color:var(--green-d)}
+  td.gA{background:rgba(61,205,88,.16);font-weight:700;color:var(--navy)}
+  .small{font-size:13.5px;color:var(--muted);margin-top:10px;line-height:1.5}
+  /* ── formula card (offline, no library) ─────────────────────── */
+  .formula{font-family:'Cambria Math','Latin Modern Math','Times New Roman',Georgia,serif;font-size:21px;color:var(--navy);
+    display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;line-height:1.25;
+    background:linear-gradient(160deg,#f3f9ff,#eaf2fb);border:1px solid var(--line);
+    border-left:4px solid var(--green);border-radius:14px;padding:16px 20px;margin-top:16px}
+  .formula .var{font-style:italic;font-weight:600}
+  .formula .rad{font-size:1.45em;line-height:.7}
+  .formula b{color:var(--green-d);font-style:normal}
+  .formula sub{font-size:.62em}
+  .frac{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle}
+  .frac .num{padding:0 8px 3px}
+  .frac .den{padding:3px 8px 0;border-top:2px solid currentColor}
+  .formula .lbl{font-family:var(--font);font-size:12.5px;color:var(--muted);font-style:normal;margin-left:6px}
+</style>
+</head>
+<body class="dim">
+  <iframe id="sim-frame" src="./sim_v2.html?embed=1" title="3D warehouse scene"></iframe>
+  <div id="overlay"></div>
+
+  <div id="progress"></div>
+  <div id="hint">← → navigate · O overview · N notes · F fullscreen</div>
+  <div id="nav">
+    <button id="prev" title="Previous (←)">‹</button>
+    <span class="counter" id="counter">1 / 1</span>
+    <button id="next" title="Next (→)">›</button>
+  </div>
+  <div id="notes"><strong id="notes-h">Speaker notes</strong><span id="notes-b"></span></div>
+  <div id="grid"><h2>Overview · press O or Esc to close</h2><div class="gwrap" id="gwrap"></div></div>
+
+<script type="module">
+// ── Figure path (works from repo-root /web/ and from docs/ root on GitHub Pages)
+const FIG = location.pathname.includes('/web/') ? '../report/figures/' : './figures/';
+
+// ── Verified numbers (source: output/policy_summary.json, policy_stats.json,
+//    validation_report.json, 2026-06-10 N=20 CRN run). Do not edit by hand;
+//    re-read the JSON if the model is rerun.
+const K = {
+  sap:    {name:'Baseline (Actual SAP)',     lead:12.37, ci:1.07, wait:8.45,  rt:21.7, walk:89.0,  thru:398.5},
+  heur:   {name:'Baseline (Heuristic)',      lead:14.71, ci:1.33, wait:10.40, rt:22.8, walk:106.1, thru:398.4},
+  usage:  {name:'Usage-based ABC',           lead:15.24, ci:1.44, wait:10.82, rt:24.4, walk:108.8, thru:398.4},
+  dbl:    {name:'Double ABC',                lead:14.74, ci:1.35, wait:10.40, rt:24.6, walk:104.6, thru:398.4},
+  travel: {name:'Travel-distance Optimized', lead:24.60, ci:3.36, wait:19.03, rt:44.0, walk:96.1,  thru:396.2},
+  la:     {name:'Line-aware Slotting',       lead:6.91,  ci:0.47, wait:4.26,  rt:1.3,  walk:92.4,  thru:398.6},
+};
+const ORDER = ['la','sap','heur','dbl','usage','travel']; // for tables (best→worst-ish)
+// short labels for the bar chart, MUST be declared before SLIDES (barChart() runs
+// during SLIDES construction for the stats slide; a later const would hit the TDZ).
+const SHORT = {la:'Line-aware',sap:'SAP Baseline',heur:'Heuristic',dbl:'Double ABC',usage:'Usage ABC',travel:'Travel-dist.'};
+
+// ── SLIDES ───────────────────────────────────────────────────────────────────
+const SLIDES = [
+// ══════════════════════════════ TITLE ══════════════════════════════
+{
+  id:'title', layout:'title',
+  html:`<div class="pos-center" style="text-align:center">
+    <img class="logo" src="${FIG}ieu_logo.png" alt="IUE" onerror="this.style.display='none'">
+    <div class="eyebrow">FENG 498 · Senior Project Defense · June 2026</div>
+    <h1>Warehouse Storage-Assignment Policies<br>at Schneider Electric Manisa</h1>
+    <div class="sub">A discrete-event simulation study of six slotting policies</div>
+    <div class="authors">
+      <span>Yiğit KAÇAR</span><span>Deniz ETENSEL</span><span>Deniz Ege MEMETOĞLU</span>
+      <span>Nehir KONYAR</span><span>Elif BOSTANCI</span><span>Sümeyra PULÇA</span>
+    </div>
+    <div class="teaser">Line-aware Slotting cuts kitting lead time 44% with zero new hardware</div>
+    <div class="meta">Supervisor: Dr. Oktay KARABAĞ · İzmir University of Economics · Industrial Engineering</div>
+  </div>`,
+  notes:'Welcome the committee. One line summary: by slotting materials near the production line that consumes them and on manual access shelves, we cut average kitting lead time 44% with no new equipment, validated over 120 simulation runs.',
+  onEnter(a){ a.tweenCamera('cinematic',1100); a.setFollow('none'); a.setGroupVisible('labels',false); a.setGroupVisible('plan',false); }
+},
+
+// ════════════════ §1, YİĞİT KAÇAR · Introduction & Problem ════════════════
+{
+  id:'sec-intro', layout:'divider',
+  html:`<div class="pos-center" style="text-align:center">
+    <div class="secnum">01</div><div class="eyebrow">Section One</div>
+    <h1>Introduction &amp; Problem</h1><div class="presenter">Yiğit Kaçar</div></div>`,
+  notes:'Hand off to Yiğit. Introduction and Problem.',
+  onEnter(a){ a.tweenCamera('cinematic',900); a.setFollow('none'); }
+},
+{
+  id:'intro-overview', layout:'content',
+  html:`<div class="pos-center"><div class="eyebrow">Yiğit Kaçar · Overview</div>
+    <h2>Schneider Electric Manisa</h2><ul>
+    <li>Global leader in energy management and automation</li>
+    <li>Medium-voltage switchgear plant, kitting-based supply to the lines</li>
+    <li>About 40,000 kit orders analysed over four months</li>
+    <li>A simulation study of how storage assignment affects performance</li>
+  </ul><p class="sub">Can storage assignment alone improve performance, with no physical changes?</p></div>`,
+  notes:'Schneider Manisa assembles MV switchgear. Kitting is the critical path before assembly. We ask whether re-slotting alone can help.',
+  onEnter(a){ a.tweenCamera('cinematic',900); }
+},
+{
+  id:'warehouse-system', layout:'content',
+  html:`<div class="wrap-center"><div class="card" style="padding:32px 40px"><div class="split">
+    <div><div class="eyebrow">Yiğit Kaçar · Current system</div><h2>How kitting works today</h2><ul>
+      <li>80 by 50 m, 11 rack rows, 3,203 pallet positions</li>
+      <li>Operators build kits, a milk-run delivers every 45 minutes</li>
+      <li>Levels 1 to 3 are manual, level 4 and above need a reach truck</li>
+      <li>8 operators, 7 reach trucks, 4 Kardex, 7 milk-runs, shared</li>
+    </ul></div>
+    <figure class="fig"><img src="${FIG}photo_rt_aisle_CBA.jpg" alt="warehouse aisle"
+      onerror="this.src='${FIG}layout_topdown.png'"><figcaption>Reach-truck aisle, racks C, B, A</figcaption></figure>
+  </div></div></div>`,
+  notes:'Reach trucks fetch anything high, and they are shared. That sharing is where the queue forms.',
+  onEnter(a){ a.tweenCamera('overview_wide',1000); a.setGroupVisible('labels',true); a.setGroupVisible('plan',true); }
+},
+{
+  id:'problem', layout:'content',
+  html:`<div class="pos-center"><div class="eyebrow">Yiğit Kaçar · Problem &amp; objective</div>
+    <h2>The bottleneck is the queue, not the walk</h2><ul>
+    <li>SAP assigns bins by capacity, blind to which line consumes the item</li>
+    <li>Kit components are scattered, fast-movers land on high shelves</li>
+    <li>That forces reach-truck calls, and reach trucks are shared</li>
+    <li>Orders queue at the truck fleet, so lead time grows</li>
+  </ul><div class="note-box">Objective: a slotting policy that shortens lead time without hurting throughput.</div></div>`,
+  notes:'The current SAP assignment classifies by aggregate usage, not by line. Components end up far apart and high, which forces RT calls, and the trucks queue.',
+  onEnter(a){ a.tweenCamera('rt_floor',1000); a.setFollow('none'); }
+},
+{
+  id:'problem-scene', layout:'scene',
+  html:`<div class="corner card"><div class="scene-hint">Live · Reach-truck view</div>
+    <h2>Watch the queue form</h2>
+    <p>Current SAP placement, played fast. Operators stall waiting for a free reach truck, and that wait is most of the lead time.</p></div>`,
+  notes:'Let it run a few seconds. Trucks shuttle, operators idle at kitting tables. This is the mechanism the whole study targets.',
+  onEnter(a,ok,sched){ a.tweenCamera('top',1100); a.setGroupVisible('entities',true);
+    a.player.setSpeed(0.25);
+    a.player.load('baseline_actual_sap','Baseline (Actual SAP)').then(()=>{ if(!ok())return; a.player.setSpeed(0.25); a.player.play(); });
+    sched(1400,()=>a.setCinematicDrift(true)); },
+  onExit(a){ a.player.pause(); a.setFollow('none'); a.setCinematicDrift(false); }
+},
+
+// ════════════ §2, DENİZ ETENSEL · Literature Review & Data ════════════
+{
+  id:'sec-lit', layout:'divider',
+  html:`<div class="pos-center" style="text-align:center">
+    <div class="secnum">02</div><div class="eyebrow">Section Two</div>
+    <h1>Literature Review &amp; Data</h1><div class="presenter">Deniz Etensel</div></div>`,
+  notes:'Hand off to Deniz Etensel. Literature Review and Data.',
+  onEnter(a){ a.tweenCamera('plan',900); }
+},
+{
+  id:'lit-studies', layout:'content',
+  html:`<div class="wrap-center"><div class="card" style="padding:30px 38px"><div class="split">
+    <div><div class="eyebrow">Deniz Etensel · Literature &amp; gap</div><h2>Items are not independent, kits are</h2><ul>
+      <li>Negahban &amp; Smith 2014: DES captures shared-resource congestion</li>
+      <li>Ardiansyah 2024: Double ABC plus DES, ANOVA-validated</li>
+      <li>Amorim-Lopes 2021: slotting and picking must be solved together</li>
+      <li>Gap: aggregate-demand models miss line and kit coupling</li>
+    </ul></div>
+    <figure class="fig"><img src="${FIG}methodological_triangle.png" alt="literature triangle"
+      onerror="this.style.display='none'"><figcaption>Where our method sits</figcaption></figure>
+  </div></div></div>`,
+  notes:'Three pillars: DES for congestion, Double ABC as a literature baseline, integrated slotting. Our contribution closes the line-coupling gap.',
+  onEnter(a){ a.tweenCamera('plan',800); }
+},
+{
+  id:'data', layout:'content',
+  html:`<div class="wrap-center"><div class="card" style="padding:32px 38px">
+    <div class="eyebrow">Deniz Etensel · Data</div><h2>Three independent real-world sources</h2>
+    <div class="cols3">
+      <div class="srcbox"><h3>SAP ZWM92 dispatch log</h3><div class="big">167,784</div><p>rows over 103 active days, reconstructed into 40,804 kit orders. Empirical batch arrivals.</p></div>
+      <div class="srcbox"><h3>SAP material master</h3><div class="big">5,941</div><p>active materials validated, with BOM, layout and dispatch integrated.</p></div>
+      <div class="srcbox"><h3>F400 video time study</h3><div class="big">2,319</div><p>coded micro-events, median timing, with a 20% sensitivity band.</p></div>
+    </div>
+    <figure class="fig" style="margin-top:14px"><img src="${FIG}data_pipeline.png" alt="data pipeline" style="max-height:23vh" onerror="this.style.display='none'"></figure>
+  </div></div>`,
+  notes:'Everything is anchored to real data, no invented numbers. 167,784 log rows became 40,804 kit orders. The F400 video is an independent timing source.',
+  onEnter(a){ a.tweenCamera('iso',700); a.setGroupVisible('labels',false); }
+},
+
+// ════════ §3, DENİZ EGE MEMETOĞLU · Methodology & Simulation (MY PART) ════════
+{
+  id:'sec-method', layout:'divider',
+  html:`<div class="pos-center" style="text-align:center">
+    <div class="secnum">03</div><div class="eyebrow">Section Three</div>
+    <h1>Methodology &amp; Simulation</h1><div class="presenter">Deniz Ege Memetoğlu</div></div>`,
+  notes:'My section. Methodology and Simulation. I am at the live model and will show it running.',
+  onEnter(a){ a.tweenCamera('cinematic',1000); a.setFollow('none'); }
+},
+{
+  id:'methodology-flow', layout:'content',
+  html:`<div class="wrap-center" style="width:min(1200px,96vw)"><div class="card" style="padding:14px 22px 10px">
+    <div class="eyebrow" style="margin-bottom:2px">Deniz Ege · Methodology</div><h2 style="font-size:23px;margin-bottom:6px">How the simulation handles one kit order</h2>
+    <figure class="fig" style="margin-top:0"><img src="${FIG}sim_flowchart_simple.png" alt="methodology flowchart" style="max-height:82vh;max-width:100%;width:auto"></figure>
+  </div></div>`,
+  notes:'My opening. The whole pipeline on one slide: real data, fit distributions, a SimPy model, KPIs, then compare six policies over 20 replications.',
+  onEnter(a){ a.tweenCamera('plan',800); }
+},
+{
+  id:'sim-logic', layout:'content',
+  html:`<div class="wrap-center"><div class="card" style="padding:26px 36px"><div class="split">
+    <div><div class="eyebrow">Deniz Ege · Python simulation logic</div><h2>SimPy DES, distribution-driven</h2><ul>
+      <li>Order source fitted from the dispatch log, not trace replay</li>
+      <li>Empirical batch arrivals, about 419 per day versus 396 real</li>
+      <li>Pick times are lognormal, scale set by the F400 video</li>
+      <li>8 operators, 7 reach trucks, 4 Kardex, 7 milk-runs, position locks</li>
+    </ul>
+    <div class="formula"><span class="var">σ</span> = √<span class="rad">(</span> ln(1 + CV²) <span class="rad">)</span>
+      <span class="lbl">pick-time spread from measured CVs</span></div>
+    </div>
+    <figure class="fig"><img src="${FIG}simpy_architecture.png" alt="resource model"
+      onerror="this.src='${FIG}sim_flowchart_detailed.png'"><figcaption>Discrete-event resource model</figcaption></figure>
+  </div></div></div>`,
+  notes:'Distribution-driven, not replay: I fit distributions from the dispatch log and sample, so I can re-slot and re-run counterfactually. Pick-time variability comes straight from the F400 video CVs through this lognormal sigma.',
+  onEnter(a){ a.tweenCamera('cinematic',900); }
+},
+{
+  id:'sim-demo', layout:'demo',
+  html:`<div class="side card"><div class="scene-hint">Live · Operator follow-cam</div>
+    <h2>The model, alive</h2>
+    <p>Following one operator under the proposed policy. Picks stay on manual shelves near the line, so almost no reach-truck calls. This is the actual engine behind every KPI.</p></div>`,
+  notes:'My demo moment. I follow one operator and narrate: picks stay low and near the line, and the reach truck is rarely called. That absence is the whole effect.',
+  onEnter(a,ok,sched){ a.tweenCamera('agent_follow',1100); a.setGroupVisible('entities',true);
+    a.player.setSpeed(0.25);
+    a.player.load('line_aware_slotting','Line-aware Slotting').then(()=>{ if(!ok())return; a.player.setSpeed(0.25); a.player.play(); a.setFollow('op-1'); });
+  },
+  onExit(a){ a.player.pause(); a.setFollow('none'); }
+},
+
+// ════════════════ §4, NEHİR KONYAR · Policy Design ════════════════
+{
+  id:'sec-policy', layout:'divider',
+  html:`<div class="pos-center" style="text-align:center">
+    <div class="secnum">04</div><div class="eyebrow">Section Four</div>
+    <h1>Policy Design</h1><div class="presenter">Nehir Konyar</div></div>`,
+  notes:'Hand off to Nehir. Policy Design.',
+  onEnter(a){ a.tweenCamera('iso',900); a.setFollow('none'); }
+},
+{
+  id:'policy-overview', layout:'content',
+  html:`<div class="wrap-center"><div class="card" style="padding:28px 36px">
+    <div class="eyebrow">Nehir Konyar · Policy design</div><h2>What we compared</h2>
+    <table><thead><tr><th>Policy</th><th>Lead (min)</th><th>Wait</th><th>RT util</th><th>Walk (m)</th></tr></thead>
+    <tbody>${ORDER.map(k=>{const p=K[k];return `<tr class="${k==='la'?'win':''}">
+      <td>${p.name}</td><td>${p.lead.toFixed(2)}</td><td>${p.wait.toFixed(2)}</td><td>${p.rt.toFixed(1)}%</td><td>${p.walk.toFixed(1)}</td></tr>`}).join('')}
+    </tbody></table>
+    <p class="small">Current SAP is the real baseline. A capacity heuristic is a simple control. Line-aware leads on every service metric.</p></div></div>`,
+  notes:'Six policies, one table. Current SAP, a capacity heuristic, two literature ABC methods, Travel-distance, and our proposed Line-aware.',
+  onEnter(a){ a.tweenCamera('iso',700); a.setGroupVisible('labels',false); }
+},
+{
+  id:'policy-doubleabc', layout:'content',
+  html:`<div class="wrap-center"><div class="card" style="padding:30px 38px"><div class="split">
+    <div><div class="eyebrow">Nehir Konyar · ABC family</div><h2>Usage-based &amp; Double ABC</h2><ul>
+      <li>Usage-based ABC: single criterion, rank by pick frequency</li>
+      <li>Double ABC: two criteria, cost and frequency together</li>
+      <li>AA is high cost and high frequency, best locations</li>
+      <li>Both are literature classics, but ignore line and kit ties</li>
+    </ul></div>
+    <figure class="fig"><img src="${FIG}double_abc_matrix.png" alt="double abc matrix"
+      onerror="this.style.display='none'"><figcaption>Cost by frequency</figcaption></figure>
+  </div></div></div>`,
+  notes:'Usage-based ABC ranks by frequency, Double ABC cross-classifies cost and frequency. Both sharpen classification but still treat items independently.',
+  onEnter(a){ a.tweenCamera('iso',700); }
+},
+{
+  id:'policy-travel', layout:'content',
+  html:`<div class="wrap-center"><div class="card" style="padding:30px 38px"><div class="split">
+    <div><div class="eyebrow">Nehir Konyar · A cautionary baseline</div><h2>Travel-distance Optimized</h2><ul>
+      <li>Greedy rule: highest pick-frequency items go closest to kitting</li>
+      <li>Objective is to minimise operator walking distance</li>
+      <li>It ignores the level, manual versus reach-truck</li>
+      <li>Fast-movers land high, RT calls spike, worst lead time</li>
+    </ul></div>
+    <figure class="fig"><img src="${FIG}rack_access_bands.png" alt="rack access bands"
+      onerror="this.style.display='none'"><figcaption>Manual (1 to 3) versus reach-truck (4+) bands</figcaption></figure>
+  </div></div></div>`,
+  notes:'Travel-distance minimises walking but ignores the vertical level, so it parks fast-movers high and saturates the reach trucks. It is the worst performer and the proof that distance is the wrong objective.',
+  onEnter(a){ a.tweenCamera('rt_floor',800); }
+},
+{
+  id:'policy-lineaware', layout:'content',
+  html:`<div class="wrap-center"><div class="card" style="padding:28px 38px"><div class="split">
+    <div><div class="eyebrow">Nehir Konyar · Proposed</div><h2>Line and Kit Coordinated</h2>
+      <div class="flow">
+        <div class="fl"><b>1. Line-based ABC.</b> Rank materials per production line</div>
+        <div class="fl"><b>2. Kit relationship.</b> Co-locate items picked together</div>
+        <div class="fl"><b>3. Storage assignment.</b> Frequent line items go to manual levels</div>
+      </div></div>
+    <div><div class="eyebrow">Placement priority</div><ul>
+      <li>High-frequency line items go to the manual band</li>
+      <li>Shared materials go to central accessible zones</li>
+      <li>Kit-related items share a rack module or aisle</li>
+    </ul><div class="note-box">A priority rule, not a claim of unlimited manual capacity.</div></div>
+  </div></div></div>`,
+  notes:'The proposed policy in three steps: rank per line, group co-picked items, place frequent line items low. It is a priority ordering, so when the manual band fills, the rest spills upward in order.',
+  onEnter(a){ a.tweenCamera('iso',800); }
+},
+
+// ════════ §5, ELİF BOSTANCI · Verification, Validation & Metrics ════════
+{
+  id:'sec-vv', layout:'divider',
+  html:`<div class="pos-center" style="text-align:center">
+    <div class="secnum">05</div><div class="eyebrow">Section Five</div>
+    <h1>Verification, Validation &amp; Metrics</h1><div class="presenter">Elif Bostancı</div></div>`,
+  notes:'Hand off to Elif. Verification, Validation, Metrics, and Limitations.',
+  onEnter(a){ a.tweenCamera('plan',900); }
+},
+{
+  id:'verification', layout:'content',
+  html:`<div class="wrap-center"><div class="card" style="padding:26px 36px">
+    <div class="eyebrow">Elif Bostancı · Metrics &amp; verification</div><h2>Metrics, and the model does what we coded</h2>
+    <div class="split" style="gap:24px"><div><ul style="margin-top:0">
+      <li>Four KPIs: lead time, operator wait, RT utilization, throughput</li>
+      <li>Unit-tested SAP decoder, Kardex routing, resource tracking</li>
+      <li>Capacity reconciles, 3,101 modelled close to 3,203 drawn</li>
+      <li>Fixed seeds (42 plus i) make every run reproducible</li>
+    </ul></div>
+    <div><table style="font-size:13.5px"><thead><tr><th>Extreme case</th><th>Result</th></tr></thead><tbody>
+      <tr><td>Lower-rack only</td><td>0 RT calls</td></tr>
+      <tr><td>Upper-rack pick</td><td>RT triggered</td></tr>
+      <tr><td>No upper materials</td><td>near 0 wait</td></tr>
+      <tr><td>All upper materials</td><td>util and wait spike</td></tr>
+    </tbody></table></div></div></div></div>`,
+  notes:'Verification asks did we build it right. Unit tests, a capacity reconciliation, and four extreme-case scenarios that all behave as expected. The 102-position gap is feeder bays plus a cart slot.',
+  onEnter(a){ a.tweenCamera('plan',700); }
+},
+{
+  id:'validation', layout:'content',
+  html:`<div class="wrap-center"><div class="card" style="padding:26px 36px">
+    <div class="eyebrow">Elif Bostancı · Validation (Sargent)</div><h2>Honest validation</h2><ul>
+    <li>Physical and operational review with company data and staff</li>
+    <li>Daily volume calibrated to within 1.1% of about 396 kits per day</li>
+    <li>Route sanity in the 3D viewer, no agent crosses a rack body</li>
+  </ul>
+  <div class="formula"><span class="var">χ²</span> = Σ
+    <span class="frac"><span class="num">(O<sub>i</sub> &minus; E<sub>i</sub>)²</span><span class="den">E<sub>i</sub></span></span>
+    = <b>535</b><span class="lbl">df 7</span>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <span class="var">V</span> = √<span class="rad">(</span>
+    <span class="frac"><span class="num">χ²</span><span class="den">n(k &minus; 1)</span></span>
+    <span class="rad">)</span> ≈ <b>0.24</b><span class="lbl">small to moderate</span></div>
+  <p class="small">The chi-square is significant because the model uses its own routing, not a bin-for-bin replay. Read the effect size, V is only small to moderate. This is internal consistency, not holdout.</p></div></div>`,
+  notes:'Validation asks did we build the right thing. Pre-empt the chi-square question: significance is expected at this n with our own routing, so read Cramer V, which is small to moderate. Daily volume matches within 1.1%, and the 3D route check shows zero rack crossings.',
+  onEnter(a){ a.tweenCamera('plan',700); }
+},
+{
+  id:'limitations', layout:'content',
+  html:`<div class="pos-center"><div class="eyebrow">Elif Bostancı · Limitations</div>
+    <h2>What we disclose</h2>
+    <div class="twocol">
+      <div><h3>Limitations</h3><ul style="margin-top:0">
+        <li>F400 timing extrapolated to eight other families</li>
+        <li>In-sample fit, no independent holdout period</li>
+        <li>750 fully decoded, 386 multi-bin treated as hybrid</li>
+        <li>Aisle congestion is not modelled</li>
+      </ul></div>
+      <div><h3>Most important caveat</h3><ul style="margin-top:0">
+        <li>Scope is picking only</li>
+        <li>Line-aware raises replenishment frequency</li>
+        <li>The 1.27% RT figure is picking workload only</li>
+        <li>Live total RT load would be higher</li>
+      </ul></div>
+    </div></div>`,
+  notes:'Lead with the replenishment caveat. The 1.27% RT is picking only, concentrating fast-movers low increases putaway. We disclose it openly, it is identical across policies and schedulable off-peak.',
+  onEnter(a){ a.tweenCamera('plan',700); }
+},
+
+// ════════════ §6, SÜMEYRA PULCA · Results & Conclusion ════════════
+{
+  id:'sec-results', layout:'divider',
+  html:`<div class="pos-center" style="text-align:center">
+    <div class="secnum">06</div><div class="eyebrow">Section Six</div>
+    <h1>Results &amp; Conclusion</h1><div class="presenter">Sümeyra Pulca</div></div>`,
+  notes:'Hand off to Sümeyra. Results and Conclusion.',
+  onEnter(a){ a.tweenCamera('iso',900); a.setFollow('none'); }
+},
+{
+  id:'results-leadtime', layout:'content',
+  html:`<div class="wrap-center"><div class="card" style="padding:28px 40px">
+    <div class="eyebrow">Sümeyra Pulca · Headline result</div><h2>Line-aware Slotting wins decisively</h2>
+    <div class="bignums">
+      <div class="bn"><div class="v good">6.91</div><div class="u">min lead vs 12.37 SAP</div></div>
+      <div class="bn"><div class="v good">44%</div><div class="u">kitting lead-time cut</div></div>
+      <div class="bn"><div class="v good">21.7 to 1.3%</div><div class="u">reach-truck utilization freed</div></div>
+      <div class="bn"><div class="v good">398.6</div><div class="u">orders per day, same as SAP</div></div>
+    </div>
+    <div class="formula"><span class="var">d</span> =
+      <span class="frac"><span class="num">M<sub>SAP</sub> &minus; M<sub>LA</sub></span><span class="den">s<sub>pooled</sub></span></span>
+      =
+      <span class="frac"><span class="num">5.46</span><span class="den">1.76</span></span>
+      ≈ <b>3.10</b><span class="lbl">Cohen's d, very large effect</span></div>
+  </div></div>`,
+  notes:'Four numbers to land. The lead-time win costs nothing in throughput, all six move the same 398 per day because the system is demand-limited. Cohen d of 3.10 is far beyond the 0.8 large threshold.',
+  onEnter(a){ a.tweenCamera('iso',800); a.setGroupVisible('labels',false); }
+},
+{
+  id:'results-demo', layout:'demo',
+  html:`<div class="side card"><div class="scene-hint">Live · Worker view</div>
+    <h2>Line-aware in motion</h2>
+    <p>Following an operator under the proposed policy. Picks stay on manual shelves near the line. Lead 6.91 versus SAP 12.37 minutes.</p></div>`,
+  notes:'Follow the operator under the winning policy. Almost no RT calls, the effect made visible next to the headline number.',
+  onEnter(a,ok,sched){ a.tweenCamera('agent_follow',1100); a.setGroupVisible('entities',true);
+    a.player.setSpeed(0.25);
+    a.player.load('line_aware_slotting','Line-aware Slotting').then(()=>{ if(!ok())return; a.player.setSpeed(0.25); a.player.play(); a.setFollow('op-1'); });
+  },
+  onExit(a){ a.player.pause(); a.setFollow('none'); }
+},
+{
+  id:'stats', layout:'content',
+  html:`<div class="wrap-center"><div class="card" style="padding:24px 34px"><div class="split">
+    <div><div class="eyebrow">Sümeyra Pulca · Statistical tests</div><h2>Significant and large</h2>
+      <table><thead><tr><th>KPI</th><th>F(5,114)</th><th>η²</th></tr></thead><tbody>
+      <tr class="win"><td>Lead time</td><td>47.1</td><td>0.67</td></tr>
+      <tr><td>Operator wait</td><td>33.1</td><td>0.59</td></tr>
+      <tr><td>RT utilization</td><td>430</td><td>0.95</td></tr>
+      <tr><td>Throughput</td><td>0.01</td><td>0.00</td></tr>
+      </tbody></table>
+      <div class="formula" style="font-size:18px"><span class="var">F</span> =
+        <span class="frac"><span class="num">MS<sub>between</sub></span><span class="den">MS<sub>within</sub></span></span>
+        &nbsp;·&nbsp;
+        <span class="var">t</span> =
+        <span class="frac"><span class="num">D</span><span class="den">s<sub>D</sub> / √n</span></span>
+        <span class="lbl">paired, p = 3.7 &times; 10⁻¹³</span></div>
+    </div>
+    <div><div class="eyebrow">Mean lead time (min)</div>${barChart()}
+      <p class="small">Tukey HSD puts Line-aware alone in the best group on every service KPI. Throughput does not move, p = 1.000, the system is demand-limited.</p></div>
+  </div></div></div>`,
+  notes:'One-way ANOVA: policy explains 67% of lead-time variance, 59% of waiting, 95% of RT utilization, all large. The CRN paired t-test gives p of 3.7 times ten to the minus thirteen for Line-aware versus SAP. Throughput does not move, exactly what a demand-limited system shows.',
+  onEnter(a){ a.tweenCamera('iso',700); }
+},
+{
+  id:'queue-leverage-scene', layout:'scene',
+  html:`<div class="corner card"><div class="scene-hint">Live · The worst case</div>
+    <h2>Travel-distance Optimized</h2>
+    <p>Minimal walking, maximal reach-truck congestion. 44% utilization, 24.6 minute lead. Minimising the wrong thing.</p></div>`,
+  notes:'Contrast: the policy that minimises walking is the worst on lead time. Same warehouse, opposite outcome, the trucks are saturated.',
+  onEnter(a,ok,sched){ a.tweenCamera('rt_floor',1000); a.setGroupVisible('entities',true);
+    a.player.setSpeed(0.25);
+    a.player.load('travel_distance_optimized','Travel-distance Optimized').then(()=>{ if(!ok())return; a.player.setSpeed(0.25); a.player.play(); });
+    sched(1350,()=>a.setCinematicDrift(true)); },
+  onExit(a){ a.player.pause(); a.setFollow('none'); a.setCinematicDrift(false); }
+},
+{
+  id:'discussion', layout:'content',
+  html:`<div class="wrap-center"><div class="card" style="padding:30px 38px"><div class="split">
+    <div><div class="eyebrow">Sümeyra Pulca · Why it works</div><h2>Utilization drives lead time</h2><ul>
+      <li>Walk distance is flat, 89 to 109 m across policies</li>
+      <li>Lead time varies 3.6 times, 6.9 to 24.6 min</li>
+      <li>RT utilization and lead time correlate at r close to 0.98</li>
+      <li>Line-aware removes RT calls from the kit path, so wait collapses</li>
+    </ul></div>
+    <figure class="fig"><img src="${FIG}rt_util_vs_lead_scatter.png" alt="util vs lead"
+      onerror="this.style.display='none'"><figcaption>Across the six policy means</figcaption></figure>
+  </div></div></div>`,
+  notes:'The mechanism in one chart. Across the six policies, RT utilization and lead time move together, r close to 0.98. Walking barely changes. The path to a shorter order runs through the queue, not the aisle.',
+  onEnter(a){ a.tweenCamera('rt_floor',900); }
+},
+{
+  id:'conclusion', layout:'content',
+  html:`<div class="wrap-center" style="width:min(820px,80vw)"><div class="card" style="padding:32px 42px;text-align:center">
+    <div class="eyebrow">Sümeyra Pulca · Conclusion</div>
+    <p class="quote">"The path to a shorter order runs through the queue, not the aisle."</p>
+    <div class="chips">
+      <div class="chip"><div class="cv">44%</div><div class="cl">lead time</div></div>
+      <div class="chip"><div class="cv">d = 3.10</div><div class="cl">effect size</div></div>
+      <div class="chip"><div class="cv">20.4 pp</div><div class="cl">RT util freed</div></div>
+      <div class="chip"><div class="cv">zero</div><div class="cl">new hardware</div></div>
+    </div>
+    <p class="small">Future work: holdout validation, per-line time studies, a top-20 re-slot pilot, replenishment. Linked to SDG 8, 9 and 12.</p>
+    <div class="contact">Thank you. Questions welcome. Team FENG 498, Supervisor Dr. Oktay Karabağ, IUE Industrial Engineering.</div>
+  </div></div>`,
+  notes:'Close on the one line and four chips. Future work and SDG links. Open the floor, the live scene keeps running, and we have a backup deck for the mechanism and the usual jury questions.',
+  onEnter(a,ok,sched){ a.tweenCamera('cinematic',1200); a.setGroupVisible('entities',true);
+    a.player.setSpeed(0.25);
+    a.player.load('line_aware_slotting','Line-aware Slotting').then(()=>{ if(!ok())return; a.player.setSpeed(0.25); a.player.play(); });
+    sched(1550,()=>a.setCinematicDrift(true)); },
+  onExit(a){ a.player.pause(); a.setFollow('none'); a.setCinematicDrift(false); }
+},
+];
+
+// ── CSS bar chart helper (mean lead time) ──────────────────────────────────────
+function barChart(){
+  const max = Math.max(...ORDER.map(k=>K[k].lead));
+  return `<div class="bars">${ORDER.map(k=>{const p=K[k];
+    const cls = k==='la'?'win':(k==='travel'?'bad':'');
+    return `<div class="bar-row ${cls}"><div class="nm">${SHORT[k]}</div>
+      <div class="bar-track"><div class="bar-fill" data-w="${(p.lead/max*100).toFixed(1)}%"></div></div>
+      <div class="val">${p.lead.toFixed(1)}</div></div>`;}).join('')}</div>`;
+}
+
+// ── Controller ────────────────────────────────────────────────────────────────
+const frame = document.getElementById('sim-frame');
+const overlay = document.getElementById('overlay');
+const counter = document.getElementById('counter');
+const progress = document.getElementById('progress');
+let api = null, idx = 0, navToken = 0, gridOpen = false, curRoot = null, digitBuf = '', digitTimer = 0;
+
+function render(slide, back){
+  const isDim = slide.layout==='content' || slide.layout==='title' || slide.layout==='divider';
+  document.body.classList.toggle('dim', isDim);
+  overlay.className = 'layout-'+slide.layout;
+
+  // hard-clear any ghost from a prior transition whose removal timer hasn't fired
+  // yet (guarantees no accumulation, at most the current card + one leaving card)
+  for (const g of overlay.querySelectorAll('.leaving')) g.remove();
+
+  // build the incoming slide and append (do NOT wipe innerHTML, that would kill the ghost)
+  const tmp = document.createElement('div');
+  tmp.innerHTML = slide.html;
+  const root = tmp.firstElementChild;
+  const prevRoot = curRoot;
+  curRoot = root;
+  overlay.appendChild(root);
+  const animTarget = root.querySelector('.card') || root;
+  animTarget.classList.add('card');
+
+  // crossfade the single previous root out, fade its actual .card (works for
+  // wrap-center where the card is nested), then remove the whole root.
+  if (prevRoot){
+    const oldCard = prevRoot.querySelector('.card') || prevRoot;
+    oldCard.classList.add('leaving');
+    prevRoot.classList.add('leaving');   // mark the whole root so the next render's hard-clear removes the wrapper too
+    let done = false;
+    const kill = ()=>{ if(done) return; done = true; prevRoot.remove(); };
+    oldCard.addEventListener('animationend', e=>{ if(e.target===oldCard) kill(); });
+    setTimeout(kill, 300);  // safety net if animationend doesn't fire (fade-out is .28s)
+  }
+
+  // play any css bar chart in from zero width, lightly staggered
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    root.querySelectorAll('.bar-fill[data-w]').forEach((el,i)=>{
+      setTimeout(()=>{ el.style.width = el.dataset.w; }, 120 + i*70);
+    });
+  }));
+}
+
+function goTo(n, back=false){
+  if (n<0 || n>=SLIDES.length) return;
+  const prev = SLIDES[idx];
+  if (prev && prev.onExit && api){ try{ prev.onExit(api); }catch(e){ console.warn(e); } }
+  idx = n; navToken++;
+  render(SLIDES[idx], back);
+  if (api){ try{ if(api.setCinematicDrift) api.setCinematicDrift(false); }catch{} }
+  if (api && SLIDES[idx].onEnter){
+    const token = navToken;
+    const ok = ()=> navToken===token;                                  // still on this slide?
+    const sched = (ms,fn)=> setTimeout(()=>{ if(navToken===token) fn(); }, ms);
+    try{ SLIDES[idx].onEnter(api, ok, sched); }catch(e){ console.warn(e); }
+  }
+  counter.textContent = `${idx+1} / ${SLIDES.length}`;
+  progress.style.width = ((idx+1)/SLIDES.length*100)+'%';
+  if (idx>0) document.getElementById('hint').classList.add('hidden');  // fade the keyboard hint after the first move
+  updateNotes(); if(gridOpen) markGrid();
+}
+const next = ()=>goTo(idx+1,false);
+const prev = ()=>goTo(idx-1,true);
+
+// notes
+const notesEl = document.getElementById('notes');
+const notesB = document.getElementById('notes-b');
+function updateNotes(){ notesB.textContent = SLIDES[idx].notes || '(no notes)'; }
+
+// overview grid
+const gwrap = document.getElementById('gwrap');
+const gridEl = document.getElementById('grid');
+function buildGrid(){
+  gwrap.innerHTML = SLIDES.map((s,i)=>`<div class="gitem" data-i="${i}">
+    <div class="gn">${String(i+1).padStart(2,'0')}</div>
+    <div class="gt">${(s.id||'').replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</div>
+    <div class="gk">${s.layout}</div></div>`).join('');
+  gwrap.querySelectorAll('.gitem').forEach(el=>el.addEventListener('click',()=>{ toggleGrid(); goTo(+el.dataset.i); }));
+}
+function markGrid(){ gwrap.querySelectorAll('.gitem').forEach((el,i)=>el.classList.toggle('active',i===idx)); }
+function toggleGrid(){ gridOpen=!gridOpen; gridEl.classList.toggle('show',gridOpen); if(gridOpen) markGrid(); }
+
+// keyboard (bound to parent + iframe doc so it works regardless of focus)
+function handleKey(e){
+  if (gridOpen){ if(e.key==='Escape'||e.key==='o'||e.key==='O') toggleGrid(); e.preventDefault(); return; }
+  switch(e.key){
+    case 'ArrowRight': case 'PageDown': next(); e.preventDefault(); break;
+    case 'ArrowLeft': case 'PageUp': prev(); e.preventDefault(); break;
+    case ' ': next(); e.preventDefault(); break;
+    case 'Escape': if(gridOpen) toggleGrid(); e.preventDefault(); break;
+    case 'o': case 'O': toggleGrid(); e.preventDefault(); break;
+    case 'n': case 'N': notesEl.classList.toggle('show'); e.preventDefault(); break;
+    case 'f': case 'F': (document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()); e.preventDefault(); break;
+    case 'Home': goTo(0); e.preventDefault(); break;
+    case 'End': goTo(SLIDES.length-1); e.preventDefault(); break;
+    default:
+      // multi-digit slide jump: "14" → slide 14. Single digit resolves after 600ms.
+      if(e.key>='0'&&e.key<='9'){
+        clearTimeout(digitTimer); digitBuf += e.key; e.preventDefault();
+        digitTimer = setTimeout(()=>{ const t=parseInt(digitBuf,10)-1; digitBuf=''; if(t>=0&&t<SLIDES.length) goTo(t); }, 600);
+      }
+  }
+}
+window.addEventListener('keydown', handleKey);
+document.getElementById('next').addEventListener('click', next);
+document.getElementById('prev').addEventListener('click', prev);
+
+// wait for the iframe's SIM_V2 API (module uses top-level await, so 'load' fires early)
+frame.addEventListener('load', ()=>{
+  const wait = ()=>{
+    const w = frame.contentWindow;
+    if (w && w.SIM_V2){
+      api = w.SIM_V2;
+      try{ w.document.addEventListener('keydown', handleKey); }catch{}
+      buildGrid();
+      // The current slide is already rendered (render(SLIDES[0]) below, or whatever
+      // the user navigated to before the API was ready). Only fire its onEnter now , 
+      // calling goTo/render again would crossfade the card over an identical copy.
+      try{ if(api.setCinematicDrift) api.setCinematicDrift(false); }catch{}
+      if (SLIDES[idx].onEnter){
+        const token = navToken;
+        const ok = ()=> navToken===token;
+        const sched = (ms,fn)=> setTimeout(()=>{ if(navToken===token) fn(); }, ms);
+        try{ SLIDES[idx].onEnter(api, ok, sched); }catch(e){ console.warn(e); }
+      }
+    } else { requestAnimationFrame(wait); }
+  };
+  wait();
+});
+
+// render first slide chrome immediately even before API is ready
+render(SLIDES[0], false);
+counter.textContent = `1 / ${SLIDES.length}`;
+progress.style.width = (1/SLIDES.length*100)+'%';
+updateNotes();
+</script>
+</body>
+</html>
