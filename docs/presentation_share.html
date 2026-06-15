@@ -410,10 +410,10 @@ const SLIDES = [
   notes:'Distribution-driven, not replay: I fit distributions from the dispatch log and sample, so I can re-slot and re-run counterfactually. Pick-time variability comes straight from the F400 video CVs through this lognormal sigma.',
 },
 {
-  id:'sim-demo', layout:'scene', bg:'worker',
+  id:'sim-demo', layout:'scene', bg:'overview',
   html:`<div class="side card"><div class="scene-hint">Simulation &middot; Operator follow-cam</div>
     <h2>The model, alive</h2>
-    <p>Following one operator under the proposed policy. Picks stay on manual shelves near the line, so almost no reach-truck calls. This is the actual engine behind every KPI.</p></div>`,
+    <p>The proposed policy from a clean overhead view. Picks stay on manual shelves near the line, so almost no reach-truck calls. This is the actual engine behind every KPI.</p></div>`,
   notes:'Demo moment. Picks stay low and near the line, and the reach truck is rarely called. That absence is the whole effect.',
 },
 
@@ -574,10 +574,10 @@ const SLIDES = [
   notes:'Four numbers to land. The lead-time win costs nothing in throughput, all six move the same 398 per day because the system is demand-limited. Cohen d of 3.10 is far beyond the 0.8 large threshold.',
 },
 {
-  id:'results-demo', layout:'scene', bg:'worker',
+  id:'results-demo', layout:'scene', bg:'overview',
   html:`<div class="side card"><div class="scene-hint">Simulation &middot; Worker view</div>
     <h2>Line-aware in motion</h2>
-    <p>Following an operator under the proposed policy. Picks stay on manual shelves near the line. Lead 6.91 versus SAP 12.37 minutes.</p></div>`,
+    <p>Line-aware from a clean overhead view. Picks stay on manual shelves near the line. Lead 6.91 versus SAP 12.37 minutes.</p></div>`,
   notes:'Follow the operator under the winning policy. Almost no RT calls, the effect made visible next to the headline number.',
 },
 {
@@ -603,7 +603,7 @@ const SLIDES = [
   notes:'One-way ANOVA: policy explains 67% of lead-time variance, 59% of waiting, 95% of RT utilization, all large. The CRN paired t-test gives p of 3.7 times ten to the minus thirteen for Line-aware versus SAP. Throughput does not move, exactly what a demand-limited system shows.',
 },
 {
-  id:'queue-leverage-scene', layout:'scene', bg:'congestion',
+  id:'queue-leverage-scene', layout:'scene', bg:'top',
   html:`<div class="corner card"><div class="scene-hint">Simulation &middot; The worst case</div>
     <h2>Travel-distance Optimized</h2>
     <p>Minimal walking, maximal reach-truck congestion. 44% utilization, 24.6 minute lead. Minimising the wrong thing.</p></div>`,
