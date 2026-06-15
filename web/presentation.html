@@ -586,23 +586,30 @@ const SLIDES = [
   onEnter(a){ a.tweenCamera('iso',900); a.setFollow('none'); }
 },
 {
-  id:'results-leadtime', layout:'content',
-  html:`<div class="wrap-center"><div class="card" style="padding:28px 40px">
-    <div class="eyebrow">Sümeyra Pulca · Headline result</div><h2>Line-aware Slotting wins decisively</h2>
-    <div class="bignums">
-      <div class="bn"><div class="v good">6.91</div><div class="u">min lead vs 12.37 SAP</div></div>
-      <div class="bn"><div class="v good">44%</div><div class="u">kitting lead-time cut</div></div>
-      <div class="bn"><div class="v good">21.7 to 1.3%</div><div class="u">reach-truck utilization freed</div></div>
-      <div class="bn"><div class="v good">398.6</div><div class="u">orders per day, same as SAP</div></div>
+  id:'results-current', layout:'content',
+  html:`<div class="wrap-center"><div class="card" style="padding:22px 32px">
+    <div class="eyebrow">Sümeyra Pulca · Current state</div><h2>Where we start today — the SAP baseline</h2>
+    <div class="bignums" style="grid-template-columns:repeat(4,1fr);gap:12px;margin-top:2px">
+      <div class="bn" style="padding:13px 10px"><div class="v" style="font-size:29px">12.37</div><div class="u">min kitting lead · N=20</div></div>
+      <div class="bn" style="padding:13px 10px;animation-delay:.46s"><div class="v" style="font-size:29px;color:#cf5a5a">8.45</div><div class="u">min waiting · 68% queue</div></div>
+      <div class="bn" style="padding:13px 10px;animation-delay:.54s"><div class="v" style="font-size:29px">3.92</div><div class="u">min picking · 32%</div></div>
+      <div class="bn" style="padding:13px 10px;animation-delay:.62s"><div class="v" style="font-size:29px">35.9</div><div class="u">min P95 · 3× mean</div></div>
+      <div class="bn" style="padding:13px 10px;animation-delay:.70s"><div class="v" style="font-size:29px;color:#cf5a5a">21.7%</div><div class="u">RT utilization</div></div>
+      <div class="bn" style="padding:13px 10px;animation-delay:.78s"><div class="v" style="font-size:29px">40.5%</div><div class="u">operator util · waiting</div></div>
+      <div class="bn" style="padding:13px 10px;animation-delay:.86s"><div class="v" style="font-size:29px">398.5</div><div class="u">orders / day</div></div>
+      <div class="bn" style="padding:13px 10px;animation-delay:.94s"><div class="v" style="font-size:29px">89.0</div><div class="u">m walk / order</div></div>
     </div>
-    <div class="formula"><span class="var">d</span> =
-      <span class="frac"><span class="num">M<sub>SAP</sub> &minus; M<sub>LA</sub></span><span class="den">s<sub>pooled</sub></span></span>
-      =
-      <span class="frac"><span class="num">5.46</span><span class="den">1.76</span></span>
-      ≈ <b>3.10</b><span class="lbl">Cohen's d, very large effect</span></div>
+    <div class="eyebrow" style="margin-top:16px">Root cause chain</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:6px">
+      <div class="step" style="padding:11px 13px"><div class="sn">1</div><p style="margin-top:5px">ABC/FMR tool treats all 9 lines as one source — ignores which line needs which material</p></div>
+      <div class="step" style="padding:11px 13px"><div class="sn">2</div><p style="margin-top:5px">High-frequency materials land on upper rack levels (4–9), above manual-reach threshold</p></div>
+      <div class="step" style="padding:11px 13px"><div class="sn">3</div><p style="margin-top:5px">Every upper-level pick needs a reach-truck call from the 7-truck fleet</p></div>
+      <div class="step" style="padding:11px 13px"><div class="sn">4</div><p style="margin-top:5px">Operator holds the order slot while waiting — next orders delayed (cascade)</p></div>
+      <div class="step" style="padding:11px 13px;border-left-color:var(--blue)"><div class="sn" style="color:var(--blue)">5</div><p style="margin-top:5px"><b>396 orders/day × 8.45 min = 55.7 h</b> of idle time every day</p></div>
+    </div>
   </div></div>`,
-  notes:'Four numbers to land. The lead-time win costs nothing in throughput, all six move the same 398 per day because the system is demand-limited. Cohen d of 3.10 is far beyond the 0.8 large threshold.',
-  onEnter(a){ a.tweenCamera('iso',800); a.setGroupVisible('labels',false); }
+  notes:'The SAP baseline in eight numbers. Lead time 12.37 minutes, and 68% of that is pure waiting, not picking. The root cause chain: the slotting tool ignores which line consumes a material, fast-movers go high, every high pick needs a shared reach truck, the operator holds the order while waiting, and it cascades — 55.7 hours of idle time accumulated every day.',
+  onEnter(a){ a.tweenCamera('overview_wide',900); a.setGroupVisible('plan',true); }
 },
 {
   id:'results-demo', layout:'demo',
@@ -617,26 +624,19 @@ const SLIDES = [
   onExit(a){ a.player.pause(); a.setFollow('none'); }
 },
 {
-  id:'stats', layout:'content',
-  html:`<div class="wrap-center"><div class="card" style="padding:24px 34px"><div class="split">
-    <div><div class="eyebrow">Sümeyra Pulca · Statistical tests</div><h2>Significant and large</h2>
-      <table><thead><tr><th>KPI</th><th>F(5,114)</th><th>η²</th></tr></thead><tbody>
-      <tr class="win"><td>Lead time</td><td>47.1</td><td>0.67</td></tr>
-      <tr><td>Operator wait</td><td>33.1</td><td>0.59</td></tr>
-      <tr><td>RT utilization</td><td>430</td><td>0.95</td></tr>
-      <tr><td>Throughput</td><td>0.01</td><td>0.00</td></tr>
-      </tbody></table>
-      <div class="formula" style="font-size:18px"><span class="var">F</span> =
-        <span class="frac"><span class="num">MS<sub>between</sub></span><span class="den">MS<sub>within</sub></span></span>
-        &nbsp;·&nbsp;
-        <span class="var">t</span> =
-        <span class="frac"><span class="num">D</span><span class="den">s<sub>D</sub> / √n</span></span>
-        <span class="lbl">paired, p = 3.7 &times; 10⁻¹³</span></div>
-    </div>
-    <div><div class="eyebrow">Mean lead time (min)</div>${barChart()}
-      <p class="small">Tukey HSD puts Line-aware alone in the best group on every service KPI. Throughput does not move, p = 1.000, the system is demand-limited.</p></div>
-  </div></div></div>`,
-  notes:'One-way ANOVA: policy explains 67% of lead-time variance, 59% of waiting, 95% of RT utilization, all large. The CRN paired t-test gives p of 3.7 times ten to the minus thirteen for Line-aware versus SAP. Throughput does not move, exactly what a demand-limited system shows.',
+  id:'policy-comparison', layout:'content',
+  html:`<div class="wrap-center"><div class="card" style="padding:22px 34px">
+    <div class="eyebrow">Sümeyra Pulca · Policy comparison</div><h2>Six policies, N = 20 replications (CRN)</h2>
+    <table><thead><tr><th>Policy</th><th>Lead</th><th>Wait</th><th>RT util</th><th>Walk</th></tr></thead><tbody>
+      <tr class="win"><td>Line-aware Slotting · proposed</td><td>6.91</td><td>4.26</td><td>1.3%</td><td>92.4</td></tr>
+      <tr><td>Baseline (Actual SAP) · current</td><td>12.37</td><td>8.45</td><td>21.7%</td><td>89.0</td></tr>
+      <tr><td>Heuristic / Double ABC / Usage-based</td><td>14.7–15.2</td><td>10.4–10.8</td><td>22–24%</td><td>104–108</td></tr>
+      <tr><td style="color:#cf5a5a;font-weight:700">Travel-distance Optimized · worst</td><td>24.60</td><td>19.03</td><td>44.0%</td><td>96.1</td></tr>
+    </tbody></table>
+    <p class="small">Lead &amp; wait in minutes, walk in metres. Throughput is flat at ~398 orders/day across all six — the system is demand-limited, so a faster policy costs nothing in output.</p>
+    <div class="eyebrow" style="margin-top:12px">Mean lead time — all six policies (min)</div>${barChart()}
+  </div></div>`,
+  notes:'Six policies under common random numbers. Line-aware is the only one below the SAP baseline at 6.91 minutes. The heuristic family clusters around 15. Travel-distance optimization — minimal walking — is the worst at 24.6, because it ignores the reach-truck queue. Throughput never moves: the system is demand-limited.',
   onEnter(a){ a.tweenCamera('iso',700); }
 },
 {
@@ -652,35 +652,55 @@ const SLIDES = [
   onExit(a){ a.player.pause(); a.setFollow('none'); a.setCinematicDrift(false); }
 },
 {
-  id:'discussion', layout:'content',
-  html:`<div class="wrap-center"><div class="card" style="padding:30px 38px"><div class="split">
-    <div><div class="eyebrow">Sümeyra Pulca · Why it works</div><h2>Utilization drives lead time</h2><ul>
-      <li>Walk distance is flat, 89 to 109 m across policies</li>
-      <li>Lead time varies 3.6 times, 6.9 to 24.6 min</li>
-      <li>RT utilization and lead time correlate at r close to 0.98</li>
-      <li>Line-aware removes RT calls from the kit path, so wait collapses</li>
-    </ul></div>
-    <figure class="fig"><img src="${FIG}rt_util_vs_lead_scatter.png" alt="util vs lead"
-      onerror="this.style.display='none'"><figcaption>Across the six policy means</figcaption></figure>
-  </div></div></div>`,
-  notes:'The mechanism in one chart. Across the six policies, RT utilization and lead time move together, r close to 0.98. Walking barely changes. The path to a shorter order runs through the queue, not the aisle.',
+  id:'anova-stats', layout:'content',
+  html:`<div class="wrap-center" style="width:min(940px,90vw)"><div class="card" style="padding:20px 30px">
+    <div class="eyebrow">Sümeyra Pulca · Statistical significance</div><h2>ANOVA — are the differences real?</h2>
+    <div class="bignums" style="grid-template-columns:repeat(4,1fr);gap:10px;margin-top:2px">
+      <div class="bn" style="padding:11px 8px"><div class="v" style="font-size:26px">47.07</div><div class="u">F(5,114) · lead</div></div>
+      <div class="bn" style="padding:11px 8px;animation-delay:.46s"><div class="v good" style="font-size:26px">&lt; 0.001</div><div class="u">p = 3.55×10⁻²⁶</div></div>
+      <div class="bn" style="padding:11px 8px;animation-delay:.54s"><div class="v" style="font-size:26px">0.674</div><div class="u">η² · 67% variance</div></div>
+      <div class="bn" style="padding:11px 8px;animation-delay:.62s"><div class="v good" style="font-size:26px">3.10</div><div class="u">Cohen's d vs SAP</div></div>
+    </div>
+    <div class="split" style="margin-top:14px;gap:22px;align-items:start">
+      <div><div class="eyebrow">One-way ANOVA · all KPIs (H₀: 6 policies equal)</div>
+        <table style="font-size:13px;margin-top:4px"><thead><tr><th>KPI</th><th>F(5,114)</th><th>Decision</th></tr></thead><tbody>
+        <tr class="win"><td>Kitting lead</td><td>47.07</td><td>Reject H₀</td></tr>
+        <tr><td>Operator wait</td><td>33.09</td><td>Reject H₀</td></tr>
+        <tr><td>RT utilization</td><td>430.06</td><td>Reject H₀</td></tr>
+        <tr><td>Throughput</td><td>0.01</td><td>Fail to reject</td></tr>
+        </tbody></table></div>
+      <div><div class="eyebrow">Paired t-test vs SAP · N=20 CRN</div>
+        <table style="font-size:13px;margin-top:4px"><thead><tr><th>Policy</th><th>Δ min</th><th>t</th></tr></thead><tbody>
+        <tr class="win"><td>Line-aware</td><td>−5.46</td><td>−17.47</td></tr>
+        <tr><td>Heuristic</td><td>+2.34</td><td>11.27</td></tr>
+        <tr><td>Double ABC</td><td>+2.37</td><td>10.05</td></tr>
+        <tr><td>Usage-based</td><td>+2.87</td><td>9.97</td></tr>
+        <tr><td>Travel-dist.</td><td>+12.23</td><td>10.06</td></tr>
+        </tbody></table></div>
+    </div>
+  </div></div>`,
+  notes:'One-way ANOVA across all KPIs. Policy explains 67% of lead-time variance, 59% of waiting, 95% of reach-truck utilization — all large, all reject the null. Throughput does not, p equals one, the system is demand-limited. The CRN paired t-test gives Line-aware minus 5.46 minutes versus SAP at p of 3.7 times ten to the minus thirteen. Cohen d of 3.10 means the gap is three pooled standard deviations — not an artefact.',
   onEnter(a){ a.tweenCamera('rt_floor',900); }
 },
 {
   id:'conclusion', layout:'content',
-  html:`<div class="wrap-center" style="width:min(820px,80vw)"><div class="card" style="padding:32px 42px;text-align:center">
-    <div class="eyebrow">Sümeyra Pulca · Conclusion</div>
-    <p class="quote">"The path to a shorter order runs through the queue, not the aisle."</p>
-    <div class="chips">
-      <div class="chip"><div class="cv">44%</div><div class="cl">lead time</div></div>
-      <div class="chip"><div class="cv">d = 3.10</div><div class="cl">effect size</div></div>
-      <div class="chip"><div class="cv">20.4 pp</div><div class="cl">RT util freed</div></div>
-      <div class="chip"><div class="cv">zero</div><div class="cl">new hardware</div></div>
+  html:`<div class="wrap-center" style="width:min(940px,90vw)"><div class="card" style="padding:24px 34px">
+    <div class="eyebrow">Sümeyra Pulca · Conclusions &amp; future work</div><h2>Line-aware Slotting — the verdict</h2>
+    <div class="bignums" style="grid-template-columns:repeat(4,1fr);gap:12px;margin-top:2px">
+      <div class="bn"><div class="v good" style="font-size:30px">−44%</div><div class="u">lead 12.37 → 6.91</div></div>
+      <div class="bn"><div class="v good" style="font-size:30px">−20.4 pp</div><div class="u">RT util 21.7 → 1.3%</div></div>
+      <div class="bn"><div class="v good" style="font-size:30px">36 hrs</div><div class="u">daily waiting saved</div></div>
+      <div class="bn"><div class="v good" style="font-size:30px">Zero</div><div class="u">capital · re-slotting</div></div>
     </div>
-    <p class="small">Future work: holdout validation, per-line time studies, a top-20 re-slot pilot, replenishment. Linked to SDG 8, 9 and 12.</p>
-    <div class="contact">Thank you. Questions welcome. Team FENG 498, Supervisor Dr. Oktay Karabağ, IUE Industrial Engineering.</div>
+    <div class="note-box" style="margin-top:14px">The bottleneck was <b>not walking distance — it was reach-truck queuing.</b> Line-aware removes RT calls from the kit path (21.7% → 1.3%). Standard methods (Double ABC, travel-distance) made it worse by ignoring the line-corridor structure. The edge <b>grows under stress</b>: 6.2 → 20.7 min at 2× load.</div>
+    <div class="eyebrow" style="margin-top:14px">Future work</div>
+    <div class="steps" style="margin-top:6px">
+      <div class="step"><div class="sn">① Pilot</div><h3>One production line</h3><p>Re-slot 50–100 high-frequency materials to hand-reachable levels; measure lead time before/after to validate the model in the real world.</p></div>
+      <div class="step"><div class="sn">② Time studies</div><h3>Per-line timing</h3><p>F400 timing is extrapolated to all 9 lines. Line-specific video time-motion studies sharpen accuracy and reduce sensitivity risk.</p></div>
+      <div class="step"><div class="sn">③ Co-location</div><h3>Kit-based grouping</h3><p>Group materials that consistently co-occur in a kit — an extra layer on top of Line-aware to cut intra-order travel.</p></div>
+    </div>
   </div></div>`,
-  notes:'Close on the one line and four chips. Future work and SDG links. Open the floor, the live scene keeps running, and we have a backup deck for the mechanism and the usual jury questions.',
+  notes:'Close on four numbers and the one finding. 44% less lead time, reach-truck utilization freed from 21.7 to 1.3%, 36 hours of daily waiting eliminated, zero capital. The bottleneck was the queue, not the walk. Future work: a one-line pilot, per-line time studies, and kit-based co-location. Linked to SDG 8, 9 and 12.',
   onEnter(a,ok,sched){ a.tweenCamera('cinematic',1200); a.setGroupVisible('entities',true);
     a.player.setSpeed(0.25);
     a.player.load('line_aware_slotting','Line-aware Slotting').then(()=>{ if(!ok())return; a.player.setSpeed(0.25); a.player.play(); });
