@@ -1346,6 +1346,16 @@ function addSpecialObjects() {
 // ────────────────────────────────────────────────────────────────────────────
 //  ENTITY FACTORIES — operator · reach truck · milk-run · Kardex · kitting
 // ────────────────────────────────────────────────────────────────────────────
+// Shared contact-shadow material (lazy singleton)
+let _shadowMat = null;
+function _getAgentShadowMat() {
+  if (!_shadowMat) _shadowMat = new THREE.MeshBasicMaterial({
+    color: 0x000000, transparent: true, opacity: 0.22,
+    depthWrite: false, side: THREE.DoubleSide
+  });
+  return _shadowMat;
+}
+
 function createOperator(id) {
   const g = new THREE.Group();
   g.name = `op-${id}`;
@@ -1373,6 +1383,10 @@ function createOperator(id) {
   legR.castShadow = true; g.add(legR);
   g.userData.legL = legL; g.userData.legR = legR;
   g.userData.body = body; g.userData.vest = vest; g.userData.head = head;
+  // Soft contact shadow blob on the floor
+  const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.4, 24), _getAgentShadowMat());
+  shadow.rotation.x = -Math.PI / 2; shadow.position.y = 0.02; shadow.renderOrder = -1;
+  g.add(shadow);
   return g;
 }
 
@@ -1420,6 +1434,10 @@ function createReachTruck(id) {
     g.add(w);
   }
   g.userData.wheels = wheels;
+  // Soft contact shadow blob on the floor
+  const rtShadow = new THREE.Mesh(new THREE.CircleGeometry(0.4, 24), _getAgentShadowMat());
+  rtShadow.rotation.x = -Math.PI / 2; rtShadow.position.y = 0.02; rtShadow.renderOrder = -1;
+  g.add(rtShadow);
   return g;
 }
 
@@ -1964,14 +1982,20 @@ function updateHighlights(t) {
 const easeInOutCubic = x => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 
 const VIEW_PRESETS = {
-  iso:       {pos: [24, 24, 36],   target: [0, 2.25, 0]},
-  top:       {pos: [0, 60, 0.001], target: [0, 0, 0]},
-  plan:      {pos: [22, 30, 22],   target: [0, 1.5, 0]},
-  cinematic: {pos: [-30, 8, 26],   target: [0, 2.0, 0]}
+  iso:          {pos: [24, 24, 36],   target: [0, 2.25, 0]},
+  top:          {pos: [0, 60, 0.001], target: [0, 0, 0]},
+  plan:         {pos: [22, 30, 22],   target: [0, 1.5, 0]},
+  cinematic:    {pos: [-30, 8, 26],   target: [0, 2.0, 0]},
+  // presentation.html cinematic presets (tuned against scene bounds)
+  aisle_inside: {pos: [-6, 1.8, 10],  target: [2, 2.0, 0]},   // floor-level, inside an aisle
+  rt_floor:     {pos: [12, 3.5, 22],  target: [0, 1.0, 0]},   // reach-truck eye level
+  kardex_wall:  {pos: [16, 6, -6],    target: [22, 4.0, 0]},  // Kardex carousels, west wall
+  overview_wide:{pos: [0, 46, 34],    target: [0, 2.0, 0]},   // tilted overhead overview
+  agent_follow: {pos: [14, 11, 16],   target: [0, 1.3, 0]},   // elevated behind-agent chase
 };
 
 let tween = null;
-function tweenCamera(preset, ms = 600) {
+function tweenCamera(preset, ms = 900) {
   const p = VIEW_PRESETS[preset];
   if (!p) return;
   const startPos = camera.position.clone();
@@ -2014,6 +2038,9 @@ function setFollow(id) {
     const list = groups[kind];
     if (list) followTarget = list[parseInt(num) - 1] || null;
   }
+  // While chasing an agent the explicit lerp owns the camera — OrbitControls'
+  // own damping fights it and causes a wobble, so suspend damping during follow.
+  if (controls) controls.enableDamping = followTarget ? false : true;
   for (const btn of document.querySelectorAll('#follow-bar button[data-follow]')) {
     btn.classList.toggle('active', btn.dataset.follow === id);
   }
@@ -2021,10 +2048,24 @@ function setFollow(id) {
 function updateFollow() {
   if (!followTarget || tween) return;
   const p = followTarget.position;
-  if (controls) controls.target.lerp(new THREE.Vector3(p.x, 1.0, p.z), 0.08);
-  const offset = new THREE.Vector3(-6, 5, 8);
-  const desired = new THREE.Vector3(p.x + offset.x, offset.y, p.z + offset.z);
-  camera.position.lerp(desired, 0.04);
+  // Elevated behind-heading chase: camera sits above and behind the agent,
+  // offset along the agent's current facing direction (rotation.y).
+  const yaw = followTarget.rotation.y;
+  const back = 9, up = 11;
+  const desired = new THREE.Vector3(
+    p.x - Math.sin(yaw) * back,
+    up,
+    p.z - Math.cos(yaw) * back
+  );
+  if (controls) controls.target.lerp(new THREE.Vector3(p.x, 1.3, p.z), 0.05);
+  camera.position.lerp(desired, 0.05);
+}
+// Very slow orbit drift for "steady framed shot" presentation slides — gives the
+// wide cinematic shots a little life without chasing any agent. Off by default.
+function setCinematicDrift(on, speed = 0.25) {
+  if (!controls) return;
+  controls.autoRotate = !!on;
+  controls.autoRotateSpeed = speed;
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -2329,8 +2370,23 @@ class TimelinePlayer {
       const tr = this.opTracks.get(id);
       const p = this._trackPos(tr, t);
       if (p) {
-        op.userData.baseX = p.x; op.userData.baseZ = p.z;
-        op.position.x = p.x; op.position.z = p.z;
+        // Lerp position; snap if too far (avoids teleport streaks)
+        const dx = p.x - op.position.x, dz = p.z - op.position.z;
+        if (Math.hypot(dx, dz) > 3) {
+          op.position.x = p.x; op.position.z = p.z;
+        } else {
+          op.position.x += dx * 0.3; op.position.z += dz * 0.3;
+        }
+        op.userData.baseX = op.position.x; op.userData.baseZ = op.position.z;
+        // Heading: slew toward travel direction
+        if (Math.hypot(p.hx, p.hz) > 1e-4) {
+          const theta = Math.atan2(p.hx, p.hz);
+          let d = theta - op.rotation.y;
+          d = Math.atan2(Math.sin(d), Math.cos(d));
+          op.rotation.y += d * 0.18;
+          op.userData._lastHeading = op.rotation.y;
+        }
+        // else: hold last heading (no update)
       }
       i++;
     }
@@ -2341,8 +2397,21 @@ class TimelinePlayer {
       const tr = this.rtTracks.get(id);
       const p = this._trackPos(tr, t, 'rt');
       if (p) {
-        rt.userData.baseX = p.x; rt.userData.baseZ = p.z;
-        rt.position.x = p.x; rt.position.z = p.z;
+        const dx = p.x - rt.position.x, dz = p.z - rt.position.z;
+        if (Math.hypot(dx, dz) > 3) {
+          rt.position.x = p.x; rt.position.z = p.z;
+        } else {
+          rt.position.x += dx * 0.3; rt.position.z += dz * 0.3;
+        }
+        rt.userData.baseX = rt.position.x; rt.userData.baseZ = rt.position.z;
+        // Heading
+        if (Math.hypot(p.hx, p.hz) > 1e-4) {
+          const theta = Math.atan2(p.hx, p.hz);
+          let d = theta - rt.rotation.y;
+          d = Math.atan2(Math.sin(d), Math.cos(d));
+          rt.rotation.y += d * 0.18;
+          rt.userData._lastHeading = rt.rotation.y;
+        }
       }
       j++;
     }
@@ -2364,12 +2433,12 @@ class TimelinePlayer {
       // Past last segment → snap to its end (pushed out of any rack box)
       const last = segs[segs.length - 1];
       const p = timelinePointToWorld(last.to, last.coordSystem);
-      return p ? snapOutWorld(p, snapSet) : null;
+      return p ? {...snapOutWorld(p, snapSet), hx: 0, hz: 0} : null;
     }
     if (t < s.t0) {
       // Before this segment's start → snap to its 'from' (or previous 'to')
       const p = timelinePointToWorld(s.from || s.to, s.coordSystem);
-      return p ? snapOutWorld(p, snapSet) : null;
+      return p ? {...snapOutWorld(p, snapSet), hx: 0, hz: 0} : null;
     }
     // Interpolation within segment. The drive path is computed ONCE per
     // segment by the world-space router (worldRoute) against the rendered
@@ -2380,7 +2449,16 @@ class TimelinePlayer {
       const a = timelinePointToWorld(s.from || s.to, s.coordSystem);
       const b = timelinePointToWorld(s.to, s.coordSystem);
       if (a && b) {
-        const pts = worldRoute(a, b, kind);
+        // Primary: obstacle-avoiding world router
+        let pts = worldRoute(a, b, kind);
+        // No-clip fallback: if router gave a degenerate result, use
+        // recorded s.path (mapped via timelinePointToWorld) → [a,b] last resort.
+        if (!pts || pts.length < 2) {
+          if (s.path && s.path.length >= 2) {
+            pts = s.path.map(pt => timelinePointToWorld(pt, s.coordSystem)).filter(Boolean);
+          }
+          if (!pts || pts.length < 2) pts = [a, b];
+        }
         const cum = [0];
         let total = 0;
         for (let i = 1; i < pts.length; i++) {
@@ -2394,13 +2472,18 @@ class TimelinePlayer {
     }
     const w = s._wpts;
     if (!w.pts) return null;
-    if (w.total <= 1e-9) return {x: w.pts[0].x, z: w.pts[0].z};
+    if (w.total <= 1e-9) return {x: w.pts[0].x, z: w.pts[0].z, hx: 0, hz: 0};
     const d = u * w.total;
     let i = 1;
     while (i < w.cum.length - 1 && w.cum[i] < d) i++;
     const f = (d - w.cum[i - 1]) / Math.max(1e-9, w.cum[i] - w.cum[i - 1]);
-    return {x: w.pts[i - 1].x + (w.pts[i].x - w.pts[i - 1].x) * f,
-            z: w.pts[i - 1].z + (w.pts[i].z - w.pts[i - 1].z) * f};
+    // Return interpolated position + active-leg direction for heading
+    return {
+      x: w.pts[i - 1].x + (w.pts[i].x - w.pts[i - 1].x) * f,
+      z: w.pts[i - 1].z + (w.pts[i].z - w.pts[i - 1].z) * f,
+      hx: w.pts[i].x - w.pts[i - 1].x,
+      hz: w.pts[i].z - w.pts[i - 1].z,
+    };
   }
 
   _updateHud() {
@@ -2466,6 +2549,19 @@ else if (urlView === 'plan') tweenCamera('plan', 0);
 else if (urlView === 'cinematic') tweenCamera('cinematic', 0);
 else tweenCamera('iso', 0);
 
+// Embed mode (?embed=1): hide the viewer's own HUD chrome so it can serve as a
+// clean 3D backdrop inside presentation.html. The viewer's own keyboard
+// listeners are guarded below so navigation keys reach the parent presentation.
+const urlEmbed = new URLSearchParams(window.location.search).get('embed') === '1';
+if (urlEmbed) {
+  document.body.classList.add('embed');
+  for (const id of ['policy-card', 'kpi-hud', 'follow-bar', 'cam-presets',
+                    'legend', 'fps', 'analytics-btn', 'toolbar', 'transport']) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  }
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 //  CONTROLS WIRING
 // ────────────────────────────────────────────────────────────────────────────
@@ -2492,6 +2588,7 @@ document.getElementById('btn-pick-demo').addEventListener('click', () => {
 });
 
 document.addEventListener('keydown', e => {
+  if (urlEmbed) return;  // navigation keys belong to the parent presentation
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   if (e.key === '1') tweenCamera('iso');
   else if (e.key === '2') tweenCamera('top');
@@ -3297,6 +3394,7 @@ helpModal.addEventListener('click', e => { if (e.target === helpModal) helpModal
 
 // 'A' key toggles sidebar
 document.addEventListener('keydown', e => {
+  if (urlEmbed) return;  // navigation keys belong to the parent presentation
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
   if (e.key === 'a' || e.key === 'A') {
     toggleSidebar();
@@ -3333,7 +3431,22 @@ window.SIM_V2 = {
   ENTITIES,
   LAYOUT,
   player,
-  POLICIES
+  POLICIES,
+  // presentation.html control surface
+  setGroupVisible(name, visible) {
+    const map = {
+      racks: rackGroup, labels: labelGroup, plan: planGroup,
+      decor: decorGroup, entities: entityGroup, highlights: highlightGroup
+    };
+    const g = map[name];
+    if (g) g.visible = visible;
+  },
+  applyHeatmapOverlay,
+  clearHeatmapOverlay,
+  toggleSidebar,
+  setCinematicDrift,
+  VIEW_PRESETS,
+  camera
 };
 window.player = player;  // console-debug convenience alias
 

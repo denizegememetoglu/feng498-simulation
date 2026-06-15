@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Schneider FENG498 Defense
+Comment=Live animated defense deck (local server)
+Exec=bash -c "python3 -m http.server 8000 --directory /home/dege/feng498-simulation >/tmp/feng_present_server.log 2>&1 & sleep 1; xdg-open http://localhost:8000/web/presentation.html"
+Terminal=false
+Icon=x-office-presentation
+Categories=Education;Office;
