@@ -321,7 +321,7 @@ const SLIDES = [
     <li>Orders queue at the truck fleet, so lead time grows</li>
   </ul><div class="note-box">Objective: a slotting policy that shortens lead time without hurting throughput.</div></div>`,
   notes:'The current SAP assignment classifies by aggregate usage, not by line. Components end up far apart and high, which forces RT calls, and the trucks queue.',
-  onEnter(a){ a.tweenCamera('rt_floor',1000); a.setFollow('none'); }
+  onEnter(a){ a.tweenCamera('overview_wide',1000); a.setFollow('none'); }
 },
 {
   id:'problem-scene', layout:'scene',
@@ -413,13 +413,13 @@ const SLIDES = [
 },
 {
   id:'sim-demo', layout:'demo',
-  html:`<div class="side card"><div class="scene-hint">Live · Operator follow-cam</div>
+  html:`<div class="side card"><div class="scene-hint">Live · Overhead</div>
     <h2>The model, alive</h2>
-    <p>Following one operator under the proposed policy. Picks stay on manual shelves near the line, so almost no reach-truck calls. This is the actual engine behind every KPI.</p></div>`,
+    <p>The proposed policy from a clean overhead view. Picks stay on manual shelves near the line, so almost no reach-truck calls. This is the actual engine behind every KPI.</p></div>`,
   notes:'My demo moment. I follow one operator and narrate: picks stay low and near the line, and the reach truck is rarely called. That absence is the whole effect.',
-  onEnter(a,ok,sched){ a.tweenCamera('agent_follow',1100); a.setGroupVisible('entities',true);
+  onEnter(a,ok,sched){ a.tweenCamera('plan',1100); a.setGroupVisible('entities',true);
     a.player.setSpeed(0.25);
-    a.player.load('line_aware_slotting','Line-aware Slotting').then(()=>{ if(!ok())return; a.player.setSpeed(0.25); a.player.play(); a.setFollow('op-1'); });
+    a.player.load('line_aware_slotting','Line-aware Slotting').then(()=>{ if(!ok())return; a.player.setSpeed(0.25); a.player.play(); a.setFollow('none'); });
   },
   onExit(a){ a.player.pause(); a.setFollow('none'); }
 },
@@ -593,13 +593,13 @@ const SLIDES = [
 },
 {
   id:'results-demo', layout:'demo',
-  html:`<div class="side card"><div class="scene-hint">Live · Worker view</div>
+  html:`<div class="side card"><div class="scene-hint">Live · Overhead</div>
     <h2>Line-aware in motion</h2>
-    <p>Following an operator under the proposed policy. Picks stay on manual shelves near the line. Lead 6.91 versus SAP 12.37 minutes.</p></div>`,
+    <p>Line-aware from a clean overhead view. Picks stay on manual shelves near the line. Lead 6.91 versus SAP 12.37 minutes.</p></div>`,
   notes:'Follow the operator under the winning policy. Almost no RT calls, the effect made visible next to the headline number.',
-  onEnter(a,ok,sched){ a.tweenCamera('agent_follow',1100); a.setGroupVisible('entities',true);
+  onEnter(a,ok,sched){ a.tweenCamera('plan',1100); a.setGroupVisible('entities',true);
     a.player.setSpeed(0.25);
-    a.player.load('line_aware_slotting','Line-aware Slotting').then(()=>{ if(!ok())return; a.player.setSpeed(0.25); a.player.play(); a.setFollow('op-1'); });
+    a.player.load('line_aware_slotting','Line-aware Slotting').then(()=>{ if(!ok())return; a.player.setSpeed(0.25); a.player.play(); a.setFollow('none'); });
   },
   onExit(a){ a.player.pause(); a.setFollow('none'); }
 },
@@ -632,7 +632,7 @@ const SLIDES = [
     <h2>Travel-distance Optimized</h2>
     <p>Minimal walking, maximal reach-truck congestion. 44% utilization, 24.6 minute lead. Minimising the wrong thing.</p></div>`,
   notes:'Contrast: the policy that minimises walking is the worst on lead time. Same warehouse, opposite outcome, the trucks are saturated.',
-  onEnter(a,ok,sched){ a.tweenCamera('rt_floor',1000); a.setGroupVisible('entities',true);
+  onEnter(a,ok,sched){ a.tweenCamera('overview_wide',1000); a.setGroupVisible('entities',true);
     a.player.setSpeed(0.25);
     a.player.load('travel_distance_optimized','Travel-distance Optimized').then(()=>{ if(!ok())return; a.player.setSpeed(0.25); a.player.play(); });
     sched(1350,()=>a.setCinematicDrift(true)); },
