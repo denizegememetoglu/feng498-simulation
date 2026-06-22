@@ -1,0 +1,68 @@
+\contentsline {section}{\numberline {1}Abstract}{3}{section.1}%
+\contentsline {section}{\numberline {2}Introduction}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Problem Statement}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Motivation}{4}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Objectives}{5}{subsection.2.3}%
+\contentsline {section}{\numberline {3}Literature Review}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Storage Location Assignment}{6}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}ABC Classification and Multi-Criteria Variants}{7}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Simulation-Based Warehouse Studies}{8}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Kitting and In-Plant Logistics}{9}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Research Gap}{10}{subsection.3.5}%
+\contentsline {section}{\numberline {4}Methodology}{11}{section.4}%
+\contentsline {subsection}{\numberline {4.1}System Description}{11}{subsection.4.1}%
+\contentsline {subsubsection}{\numberline {4.1.1}Facility and Storage Structure}{11}{subsubsection.4.1.1}%
+\contentsline {subsubsection}{\numberline {4.1.2}Material Flow and Kitting}{12}{subsubsection.4.1.2}%
+\contentsline {subsubsection}{\numberline {4.1.3}Current Classification Practice and Its Limits}{14}{subsubsection.4.1.3}%
+\contentsline {subsection}{\numberline {4.2}Data Collection and Preprocessing}{14}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}SAP Master and Movement Data}{14}{subsubsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.2}Warehouse-Management Dispatch Log (ZWM92)}{15}{subsubsection.4.2.2}%
+\contentsline {subsubsection}{\numberline {4.2.3}Time and Motion Study}{16}{subsubsection.4.2.3}%
+\contentsline {subsubsection}{\numberline {4.2.4}Geometry}{17}{subsubsection.4.2.4}%
+\contentsline {subsection}{\numberline {4.3}Simulation Model}{18}{subsection.4.3}%
+\contentsline {subsubsection}{\numberline {4.3.1}Modelling Approach}{18}{subsubsection.4.3.1}%
+\contentsline {subsubsection}{\numberline {4.3.2}Order Generation}{18}{subsubsection.4.3.2}%
+\contentsline {subsubsection}{\numberline {4.3.3}Travel, Picking and Service Times}{20}{subsubsection.4.3.3}%
+\contentsline {paragraph}{Routing.}{20}{section*.9}%
+\contentsline {paragraph}{Operator picks.}{20}{section*.10}%
+\contentsline {paragraph}{Reach-truck picks.}{20}{section*.11}%
+\contentsline {paragraph}{Kardex picks.}{20}{section*.12}%
+\contentsline {paragraph}{Stochastic variability.}{21}{section*.13}%
+\contentsline {subsubsection}{\numberline {4.3.4}Model Assumptions}{21}{subsubsection.4.3.4}%
+\contentsline {subsection}{\numberline {4.4}Storage Assignment Policies}{21}{subsection.4.4}%
+\contentsline {paragraph}{Policy~1: Current SAP placement (Baseline -- Actual SAP).}{22}{section*.14}%
+\contentsline {paragraph}{Policy~2: Capacity heuristic (Baseline -- Heuristic).}{22}{section*.15}%
+\contentsline {paragraph}{Policy~3: Usage-based ABC.}{22}{section*.16}%
+\contentsline {paragraph}{Policy~4: Double ABC.}{22}{section*.17}%
+\contentsline {paragraph}{Policy~5: Travel-distance Optimized.}{22}{section*.18}%
+\contentsline {paragraph}{Policy~6: Line-aware Slotting (proposed).}{23}{section*.19}%
+\contentsline {subsection}{\numberline {4.5}Performance Measures}{23}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Verification and Validation Approach}{24}{subsection.4.6}%
+\contentsline {paragraph}{Verification.}{24}{section*.20}%
+\contentsline {paragraph}{Face validation.}{24}{section*.21}%
+\contentsline {paragraph}{Operational validation.}{24}{section*.22}%
+\contentsline {subsection}{\numberline {4.7}Experimental Design and Statistical Analysis}{25}{subsection.4.7}%
+\contentsline {paragraph}{Replications.}{25}{section*.23}%
+\contentsline {paragraph}{Common random numbers.}{25}{section*.24}%
+\contentsline {paragraph}{KPI export.}{25}{section*.25}%
+\contentsline {paragraph}{Hypothesis tests.}{25}{section*.26}%
+\contentsline {section}{\numberline {5}Results and Discussion}{26}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Current System Performance}{26}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Verification and Validation Results}{26}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Policy Comparison}{28}{subsection.5.3}%
+\contentsline {paragraph}{Line-aware Slotting (proposed policy).}{28}{section*.32}%
+\contentsline {paragraph}{Current SAP placement.}{28}{section*.33}%
+\contentsline {paragraph}{Capacity heuristic and ABC variants (Usage-based and Double ABC).}{30}{section*.34}%
+\contentsline {paragraph}{Travel-distance Optimized.}{30}{section*.35}%
+\contentsline {paragraph}{The dominant lever is queueing, not steps.}{30}{section*.36}%
+\contentsline {subsection}{\numberline {5.4}Statistical Tests}{31}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.5}Sensitivity Analysis}{33}{subsection.5.5}%
+\contentsline {subsection}{\numberline {5.6}Discussion}{33}{subsection.5.6}%
+\contentsline {section}{\numberline {6}Conclusions}{34}{section.6}%
+\contentsline {section}{\numberline {7}References}{37}{section.7}%
+\contentsline {section}{\numberline {8}Appendix}{38}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Detailed Simulation Flow Chart}{38}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Full KPI Table}{41}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Model Assumption Register}{41}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}Software and Reproducibility}{41}{subsection.8.4}%
+\contentsline {subsection}{\numberline {8.5}Additional Sensitivity Charts}{43}{subsection.8.5}%

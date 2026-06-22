@@ -1,0 +1,79 @@
+% FENG 498 Final Project Report — Warehouse Layout Optimization
+% Izmir University of Economics, Industrial Engineering
+% Build: bash report/build.sh   (pdflatex ×3)
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx}            % Times New Roman look (template rule)
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing                  % 1.5 line spacing (template rule)
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{amsmath}
+\usepackage{siunitx}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\setlist{topsep=2pt,itemsep=1pt}
+\usepackage{xcolor}
+\definecolor{covertitle}{RGB}{31,78,121}
+\usepackage[hidelinks]{hyperref}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+\graphicspath{{figures/}}
+
+% Table captions above (template rule); figure captions below (default).
+\captionsetup[table]{position=above,skip=6pt}
+\captionsetup[figure]{position=below,skip=6pt}
+
+\begin{document}
+
+% ------------------------------------------------------------------ cover
+\begin{titlepage}
+\centering
+{\color{covertitle}\bfseries
+IZMIR UNIVERSITY OF ECONOMICS\\[2pt]
+FACULTY OF ENGINEERING\\[2pt]
+INDUSTRIAL ENGINEERING\\[18pt]
+{\LARGE FENG 498 PROJECT REPORT}\\}
+\vspace{26pt}
+\includegraphics[width=0.42\textwidth]{ieu_logo}\\
+\vspace{30pt}
+{\large\bfseries WAREHOUSE LAYOUT OPTIMIZATION}\\[6pt]
+{\normalsize A Simulation Study of Storage Assignment Policies\\
+at the Schneider Electric Manisa Plant Warehouse}\\
+\vspace{30pt}
+\begin{tabular}{rl}
+\textbf{Authors:} & Deniz ETENSEL \quad 20220608025\\
+                  & Deniz Ege MEMETOĞLU \quad 20220608049\\
+                  & Nehir KONYAR \quad 20220608046\\
+                  & Elif BOSTANCI \quad 20210608203\\
+                  & Yiğit KAÇAR \quad 20220608036\\
+                  & Sümeyra PULÇA \quad 20210608049\\[8pt]
+\textbf{Supervisor:} & Dr. Oktay KARABAĞ\\
+\end{tabular}
+\vfill
+{June 2026}
+\end{titlepage}
+
+% ------------------------------------------------------------------ TOC
+\tableofcontents
+\newpage
+
+% ------------------------------------------------------------------ body
+\input{sections/01_abstract}
+\input{sections/02_introduction}
+\input{sections/03_literature}
+\input{sections/04_methodology_a}
+\input{sections/04_methodology_b}
+\input{sections/05_results}
+\input{sections/06_conclusions}
+\input{sections/07_references}
+\input{sections/08_appendix}
+
+\end{document}

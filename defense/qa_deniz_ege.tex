@@ -1,0 +1,183 @@
+% FENG 498 Defense -- Anticipated jury questions for the Methodology & Simulation part.
+% Deniz Ege Memetoglu.  Compile: pdflatex qa_deniz_ege.tex
+% Assumes the jury has the written report and the presentation in front of them; each
+% answer ends with a pointer (->) to the relevant report section / slide / figure.
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=2.1cm]{geometry}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{titlesec}
+
+\definecolor{navy}{HTML}{0F2747}
+\definecolor{green}{HTML}{218A3A}
+\definecolor{grey}{HTML}{5B6672}
+
+\titleformat{\section}{\color{navy}\large\bfseries}{}{0pt}{}[{\color{navy}\titlerule[1pt]}]
+\titlespacing{\section}{0pt}{12pt}{6pt}
+
+\newcommand{\q}[1]{\par\medskip\noindent{\color{navy}\bfseries Q.\ #1}\par\smallskip}
+\newcommand{\pt}[1]{\par{\color{grey}\small$\hookrightarrow$\ #1}\par}
+
+\begin{document}
+\thispagestyle{empty}
+
+\begin{center}
+  {\color{navy}\LARGE\bfseries Anticipated Jury Questions}\\[2pt]
+  {\large Methodology \& Simulation (Section 3)}\\[4pt]
+  {\color{grey} Deniz Ege Memeto\u{g}lu \,\textbullet\, FENG 498 \,\textbullet\, assumes the jury has the report and the presentation in front of them}
+\end{center}
+\medskip
+{\color{navy}\rule{\linewidth}{1.5pt}}
+
+% ───────────────────────────────────────────────
+\section{Model design}
+
+\q{Is this a trace replay of the logs, or a real model?}
+Distribution-driven, not a replay. I fit distributions (inter-batch gap, batch size, kit
+composition, service times) from the four-month ZWM92 dispatch log, 167{,}784 rows and
+40{,}804 reconstructed kit orders, and the model samples from them. It does not play
+history back. That is deliberate: because demand is generated and not fixed, I can move
+materials to new locations and re-run the same warehouse under a different policy, which
+a replay could never do. It is built in Python with SimPy.
+\pt{Report: Methodology, Simulation Model (Modelling Approach, Order Generation). Slide: the methodology flowchart and the distribution-driven logic slide.}
+
+\q{Why discrete-event simulation, and why SimPy?}
+The bottleneck is queueing for shared resources: operators waiting on a seven-truck
+reach-truck fleet, plus the cascade where one order holds its slot while it waits and
+delays the next. Static or analytic models assume average flow and miss that contention.
+SimPy is a mature, transparent discrete-event library; every resource, operators, reach
+trucks, Kardex units and pallet-position locks, is an explicit, auditable object.
+\pt{Report: Methodology, Simulation Model. Slide: the SimPy resource-model figure.}
+
+% ───────────────────────────────────────────────
+\section{Inputs and calibration}
+
+\q{Where do the pick and handling times come from?}
+From a video time-motion study of the F400 kitting line: 2{,}319 timed micro-events over
+296.6 observed minutes. Service times are lognormal, with the spread set by the measured
+coefficient of variation through \(\sigma=\sqrt{\ln(1+\mathrm{CV}^2)}\). The means are
+operator pick 0.113~min, reach-truck pick-and-place 0.110, manual-band penalty 0.102, and
+Kardex pick 0.113; the sigmas are 1.245, 1.047 and 1.279.
+\pt{Report: Methodology, Data Collection (Time and Motion Study) and Simulation Model (Travel, Picking and Service Times). Slide: the sigma formula on the logic slide.}
+
+\q{How did you validate the Kardex timing? There was no Kardex video.}
+Honest answer: there was no Kardex-specific footage, so the Kardex pick mean and CV mirror
+the F400 operator pick, with a 0.4-minute carousel turn as a book value. We disclose this
+in the assumption register. It cannot bias the comparison, because Kardex routing is
+identical across all six policies, so any timing error cancels out of the ranking.
+\pt{Report: Appendix, Model Assumption Register.}
+
+\q{F400 timing is extrapolated to nine families. What if F400 is unrepresentative?}
+F400 is about 29\% of the dispatch rows, and its timing is applied to the other eight
+families. We bound that risk with a one-at-a-time sensitivity sweep of plus or minus
+twenty percent on every timing input. Line-aware stays the best policy under every swing;
+lead time moves proportionally, but the ranking never flips. Per-line video studies are
+listed as future work.
+\pt{Report: Results, Sensitivity Analysis (tornado figure).}
+
+\q{Why model batch arrivals, and does the rate match reality?}
+Because the real log arrives in bursts: 3{,}885 same-timestamp batches, mean 4.68 kits per
+batch, with an inter-batch gap mean of 5.36 minutes and a CV of 2.04, so it is empirical,
+not Poisson. Across the full twenty-replication set the model produces about 400 orders a
+day, within 1.1\% of the real 396-per-day average.
+\pt{Report: Methodology, Simulation Model (Order Generation); Results, Verification and Validation Results (daily-volume calibration).}
+
+% ───────────────────────────────────────────────
+\section{Experiment design}
+
+\q{Why twenty replications, and why the same seeds across policies?}
+Each policy runs twenty replications; replication \(i\) uses seed \(42+i\), with separate
+random streams for arrivals and for service times. Common random numbers mean every policy
+faces exactly the same demand, so the differences are the policy, not luck. The 95\%
+confidence intervals, using the t-distribution with 19 degrees of freedom, are narrow and
+do not overlap between Line-aware and the baselines, which is why twenty runs are enough.
+\pt{Report: Methodology, Experimental Design and Statistical Analysis (replication analysis). Slide: the statistics slide.}
+
+\q{Why six policies, not only your proposed one?}
+To place the proposal against a fair spread: the real SAP placement as the operational
+baseline, a simple capacity heuristic as a control, two literature-based ABC variants, a
+pure travel-distance optimizer, and our Line-aware policy. Without those references,
+``better'' would mean nothing. The policy design itself is Nehir's section, but the
+experimental frame is shared.
+\pt{Report: Methodology, Storage Assignment Policies.}
+
+% ───────────────────────────────────────────────
+\section{Verification and validation}
+
+\q{Your chi-square is highly significant. Doesn't that mean the model is wrong?}
+No, and this is the key point. The pooled chi-square with 7 degrees of freedom is 535,
+p below 0.001, but Cramer's V is only 0.22, a small-to-moderate effect. It is significant
+precisely because the model uses its own routing logic, not a bin-for-bin replay; an exact
+match would only happen if we replayed history, which would defeat the purpose. We read the
+effect size, and we treat it as an internal-consistency check.
+\pt{Report: Results, Verification and Validation Results. Slide: the validation slide with the chi-square and Cramer's V formula.}
+
+\q{You fitted and validated on the same ZWM92 data. No holdout?}
+Correct, and we disclose it. SAP never logged waiting times or reach-truck calls, so there
+was no independent observation period to hold out. The independent grounding is the F400
+video for timing, the daily-volume calibration to within about one percent, and a 3D route
+audit in which no agent crosses a rack body. We label these as internal-consistency tests,
+not out-of-sample validation.
+\pt{Report: Methodology, Verification and Validation Approach; Results, V\&V Results.}
+
+% ───────────────────────────────────────────────
+\section{Limitations and scope}
+
+\q{Aisle congestion is not modelled. Doesn't that invalidate the results?}
+It makes the absolute lead times slightly optimistic under heavy load, but all six policies
+share the assumption symmetrically, so the comparison stays fair. If anything, adding
+congestion would widen Line-aware's lead, because the baselines saturate the reach-truck
+fleet far more, up to 44\% utilization for the travel-distance policy.
+\pt{Report: Appendix, Model Assumption Register; Conclusions, Limitations.}
+
+\q{How real is the ``Actual SAP'' baseline?}
+It is an honestly-labelled SAP-plus-heuristic hybrid. 750 materials sit at their exact
+decoded SAP rack-bay-position, 2{,}872 are Kardex-routed and policy-invariant, and the rest
+fall to a frequency heuristic. 386 multi-bin materials are not split into forward and
+reserve. We never claim a pure replay; it is the best reconstruction the decoded SAP data
+allows, and it is our validation ground truth.
+\pt{Report: Methodology, Data Collection; Conclusions, Limitations.}
+
+\q{Throughput barely changes and RT utilization is only 1.3\%. Is that believable?}
+Yes. The system is demand-limited: every policy sees the same arrival stream, so throughput
+is about 398 a day for all of them, with an ANOVA F near 0.01. The win is in lead and
+waiting time, not output. The 1.3\% reach-truck figure is picking workload only;
+replenishment is excluded for all six policies equally, so the comparison is fair, and we
+flag that the live total would be higher.
+\pt{Report: Results, Policy Comparison and Discussion; Conclusions, Limitations (replenishment caveat).}
+
+\q{What about the milk-run trains?}
+The model represents seven milk-run trains as an available delivery mode, but in the
+reported runs the operator carries the finished kit to the line, so lead time is attributed
+to operators and reach trucks only. Enabling milk-run would offload some operator walking;
+it does not touch the reach-truck queue that drives the result.
+\pt{Report: Appendix, Model Assumption Register.}
+
+% ───────────────────────────────────────────────
+\section{Layout and reproducibility}
+
+\q{Is the warehouse layout real or invented?}
+Reconstructed from the real AutoCAD drawing and eleven per-rack pallet PDFs, cross-checked
+by a blind CAD extraction. Eleven rack rows, A to J and U; 3{,}101 modelled pallet positions
+reconcile with the 3{,}203 in the drawing, the 102-gap being narrower feeder bays plus a
+cart-parking slot.
+\pt{Report: Methodology, System Description and Geometry; the top-down layout figure.}
+
+\q{Can someone reproduce your results?}
+Yes. The code is fixed-seed and deterministic given a seed; six policies times twenty
+replications is 120 runs, exported as a tidy table for Minitab. The software versions and
+reproducibility notes are in the appendix.
+\pt{Report: Appendix, Software and Reproducibility.}
+
+\vfill
+{\color{grey}\small One-line fallbacks if you blank: ``It is distribution-driven, so I can
+re-slot and re-run.'' \,\textbullet\, ``Chi-square is significant by design; read Cramer's
+V, 0.22.'' \,\textbullet\, ``1.3\% RT is picking only, and it is fair across all policies.''
+\,\textbullet\, ``Sensitivity at $\pm$20\% keeps Line-aware first.''}
+
+\end{document}

@@ -1,0 +1,17 @@
+VERIFY + FINALIZE what you just built. Don't rebuild from scratch — audit and polish. ultrathink ultracode
+
+CONTEXT (what the previous run did): assembled web/presentation.html as 6 named sections in the WhatsApp-agreed SWAPPED order (Elif <-> Sümeyra topics swapped), each teammate's docx as the baseline for their main slides, my part = Methodology & Simulation (no docx, built from report+sim code), plus a Defense/backup section with extra tests + anticipated jury questions (incl. the CRN "why same seed" one Oktay hoca flagged). A background workflow regenerated figures + fixed the sim_v2 viewer camera. Headline: paired-t vs SAP -5.46 min (d=3.10, p=3.7e-13), daily-volume rel err 1.1%, χ² pooled 535.05 df7.
+
+DO THIS:
+
+1. CONFIRM THE WORKFLOW LANDED. Verify the background workflow actually finished and its outputs exist: the new figures (docs/figures/, output/) and the sim_v2 camera/transition fixes. If anything is missing or half-applied, finish it. Report exactly which files changed.
+
+2. OPEN AND CHECK THE DECK RENDERS. Actually look at web/presentation.html — slide count, section order, no broken layout/empty SLIDES entries, no leftover placeholder text. Re-read the two WhatsApp zips (Yiğit ekon + Feng498(6)) and confirm: (a) section order matches the final swapped plan, (b) each teammate's slides stay FAITHFUL to their own docx, (c) extra tests/analyses live ONLY in backup/defense — not in anyone's main section, (d) my Methodology & Simulation part is complete and matches how I'll actually present it.
+
+3. RT + PERSON CAMERA. Re-verify the fix: agents must NOT be shown from the side staring at racks — give an upper/over-the-shoulder angle, smoother transitions, tasteful effects (not overdone). Confirm RT and operator both look right while moving along corridors, not just standing.
+
+4. NUMBERS ARE AUTHORITATIVE. Every KPI/stat on a slide must match output/policy_summary.json + policy_stats.json + kpi_by_replication.csv. No stale numbers (the old deck had a stale -4.6% volume err and a stale KPI table — kill any survivors). Headline = vs-SAP (-5.46 min) since SAP is the real current state.
+
+5. SYNC + SHARE. Run scripts/sync_docs.py so docs/ (GitHub Pages) mirrors web/. Make sure presentation_share.html is in sync with presentation.html. Confirm both open standalone.
+
+6. REPORT. Give me a tight punch-list of what was already correct, what you fixed, and anything still open or that needs my decision. No git push without asking.

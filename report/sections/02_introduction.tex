@@ -1,0 +1,95 @@
+\section{Introduction}\label{sec:intro}
+
+Warehouse order picking is usually the single most labour-intensive operation
+in a distribution or supply facility.
+Travel alone accounts for roughly half of all picking time~\cite{dekoster2007},
+so even modest reductions in walking and equipment-travel distances translate
+directly into throughput gains and lower operating cost.
+Storage location assignment---deciding which stock-keeping unit lives in which
+bin---is one of the few design levers that can improve picking efficiency
+without capital expenditure~\cite{gu2007,bartholdi2014}.
+Policies range from simple ABC frequency-of-use ranking to multi-criteria
+optimization approaches, each with different consequences for the physical
+flow of pickers and material-handling equipment.
+
+Schneider Electric's Manisa medium-voltage switchgear plant runs a
+pallet-rack warehouse that feeds several parallel production lines through
+a kitting process.
+Kitting here means assembling a complete set of components for one production
+order---a kit---before any assembly work begins; the warehouse dispatches not
+single parts but coordinated batches of components, one batch per order.
+Because every component of a kit must be collected before the kit is released
+to the line, preparation time depends directly on where each component is
+stored.
+The more scattered the bin assignments, the more the picker travels and the
+more often a reach truck (RT) must be called to retrieve pallets from upper
+levels, adding queuing time on top of travel time.
+
+\subsection{Problem Statement}
+
+The Manisa warehouse currently assigns storage bins through a combined
+ABC/FMR (fast-mover/medium-mover/rare-mover) classification tool in SAP
+that ranks each material by total consumption, with no distinction for which
+production line it feeds.
+High-frequency materials end up close to the kitting area in the aggregate,
+but materials belonging to the same kit order are often scattered across
+different rack rows and levels, forcing the picker to traverse multiple aisles
+and repeatedly call for RT assistance at upper-level bins.
+That scatter drives up walking distance, increases the number of RT
+interventions per order, and creates queuing for the seven reach trucks on
+the floor---all of which inflate kitting lead time.
+We were therefore asked to evaluate whether alternative storage assignment
+policies could reduce these inefficiencies before any physical re-slotting of
+the warehouse is undertaken.
+
+\subsection{Motivation}
+
+The warehouse processes roughly 400 kit orders every active working day---the
+SAP~ZWM92 dispatch log covering 2026-01-02 to 2026-05-18 records
+40\,804 kit orders across 103 active days, giving a mean of about 396
+orders per day.
+A one-minute reduction in average kitting lead time therefore saves the
+equivalent of more than six full working hours of aggregate delay each day,
+and that saving recurs every shift.
+Beyond lead time, every kit order filled entirely by a floor-level operator
+pick avoids an RT intervention, keeping the reach trucks free for replenishment
+and inbound put-away---tasks that cannot be deferred the way a kitting trip can.
+The economic case for improving storage assignment is clear even without
+elaborate modelling: the sheer order volume makes small per-order gains
+significant at the plant level.
+
+Physically re-slotting thousands of pallet positions is, however, expensive
+and disruptive: bins must be vacated, relabelled, and refilled, often during
+production, and a poorly chosen policy could make matters worse.
+A validated discrete-event simulation (DES) model lets us test candidate
+policies against four months of real demand data without touching a single
+pallet~\cite{negahban2014,law2015}.
+By driving the model with empirical inter-batch gaps and kit compositions
+extracted from the ZWM92 log, and running twenty independent replications per
+policy under common random numbers, the simulation produces statistically
+comparable estimates of lead time, waiting time, RT utilization, throughput,
+and walking distance---evidence that would be impractical to collect from the
+live warehouse in any reasonable timeframe.
+
+\subsection{Objectives}
+
+This project pursues four objectives:
+
+\begin{enumerate}
+  \item Build a data-driven discrete-event simulation of the Manisa
+        warehouse, parametrised from the SAP material master, the ZWM92
+        dispatch log, and an on-site F400 video time-motion study.
+  \item Validate the simulation model against the historical dispatch log
+        using chi-square goodness-of-fit and per-material pick frequency
+        comparisons, following the Sargent verification and validation
+        framework~\cite{sargent2013}.
+  \item Design and simulate six storage assignment policies---the current
+        SAP baseline, a capacity heuristic, usage-based ABC, Double
+        ABC, a travel-distance optimized assignment, and the proposed
+        Line-aware Slotting policy that groups materials by the production
+        line they serve---and compare them on the five key performance
+        indicators above.
+  \item Recommend a placement strategy with statistical evidence, drawing
+        on ANOVA, CRN paired $t$-tests, and 95\% confidence intervals
+        derived from $N = 20$ replications.
+\end{enumerate}

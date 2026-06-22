@@ -1,0 +1,5 @@
+\contentsline {figure}{\numberline {1}{\ignorespaces Top-down layout of the modelled warehouse. Rack rows are labelled A through J and U; kit corridors (about 2~m) alternate with reach-truck aisles (about 3~m) along the east-to-west sequence.}}{5}{figure.caption.5}%
+\contentsline {figure}{\numberline {2}{\ignorespaces The five-phase methodology framework for the simulation-based warehouse study.}}{9}{figure.caption.6}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Lifecycle of a single kit order in the simulation.}}{13}{figure.caption.9}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Policy comparison across four panels: average order preparation time, average reach-truck wait time, average walking distance per order, and resource utilization (reach truck and operator). All values are means over $N=20$ replications with common random numbers.}}{20}{figure.caption.17}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Tornado chart of the one-at-a-time sensitivity of mean kitting lead time to $\pm 20\%$ changes in each parameter.}}{21}{figure.caption.19}%

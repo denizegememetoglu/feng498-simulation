@@ -1,0 +1,98 @@
+{
+ "run_id": "20260610T174211Z",
+ "n_replications": 20,
+ "sim_days": 5,
+ "resources": {
+  "reach_trucks": 7,
+  "operators": 8,
+  "kardex_units": 4
+ },
+ "kpi": {
+  "Baseline (Actual SAP)": {
+   "lead": 12.368867015965824,
+   "lead_ci": 1.0706279386535065,
+   "wait": 8.454107274618478,
+   "rt_util": 0.21706590345694274,
+   "op_util": 0.40515510760443585,
+   "walk": 89.01713771012528,
+   "throughput_day": 398.5128205128205
+  },
+  "Baseline (Heuristic)": {
+   "lead": 14.712998695776127,
+   "lead_ci": 1.3280487351034755,
+   "wait": 10.404043045120252,
+   "rt_util": 0.2281839339501115,
+   "op_util": 0.4458396310941676,
+   "walk": 106.07712748374418,
+   "throughput_day": 398.37948717948717
+  },
+  "Usage-based ABC": {
+   "lead": 15.238732232530532,
+   "lead_ci": 1.4429701528446064,
+   "wait": 10.81508191167723,
+   "rt_util": 0.24404591524926492,
+   "op_util": 0.4571921543901262,
+   "walk": 108.80527174440007,
+   "throughput_day": 398.42051282051284
+  },
+  "Double ABC": {
+   "lead": 14.736027144418209,
+   "lead_ci": 1.3543655190666202,
+   "wait": 10.403594464701452,
+   "rt_util": 0.2457570642395096,
+   "op_util": 0.4481127489470413,
+   "walk": 104.62117356432708,
+   "throughput_day": 398.3897435897436
+  },
+  "Travel-distance Optimized": {
+   "lead": 24.59658551507204,
+   "lead_ci": 3.3628375346274235,
+   "wait": 19.03441635540096,
+   "rt_util": 0.4395028418113299,
+   "op_util": 0.5762709429320486,
+   "walk": 96.11185081254577,
+   "throughput_day": 396.174358974359
+  },
+  "Line-aware Slotting": {
+   "lead": 6.910370207351276,
+   "lead_ci": 0.4654169844062152,
+   "wait": 4.264637219293404,
+   "rt_util": 0.01267929260139105,
+   "op_util": 0.27500337894700494,
+   "walk": 92.4466501605353,
+   "throughput_day": 398.5846153846154
+  }
+ },
+ "anova_lead": {
+  "F": 47.07014931423422,
+  "p_value": 3.548691223904997e-26,
+  "k": 6,
+  "df_between": 5,
+  "df_within": 114
+ },
+ "validation": {
+  "chi2": 537.6796488420739,
+  "chi2_p": 4.870806036766729e-110,
+  "cramers_v": 0.2163,
+  "t_per_material": {
+   "n_materials_paired": 925,
+   "t_statistic": 8.753654208378537,
+   "p_value": 9.688237831544638e-18,
+   "mean_log_diff": 0.31625204922379724
+  },
+  "daily_volume": {
+   "status": "INFO",
+   "sim_orders_per_day": 378.0,
+   "zwm92_orders_per_active_day": 396.2,
+   "relative_error": -0.0458,
+   "note": "Single short-run estimate \u2014 informational only; the replication-CI check is the rigorous volume gate."
+  }
+ },
+ "zwm92": {
+  "total_rows": 167784,
+  "orders_built": 40804,
+  "materials_observed": 4036,
+  "iat_within_shift_mean": 5.360964668886423,
+  "timestamped_orders": 18164
+ }
+}

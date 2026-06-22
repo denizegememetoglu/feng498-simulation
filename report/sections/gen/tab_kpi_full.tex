@@ -1,0 +1,23 @@
+\begin{table}[htbp]
+\centering
+\caption{Full KPI table, mean over $N=20$ replications.}
+\label{tab:kpi_full}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{l*{6}{c}}
+\toprule
+KPI & \makecell{Current\\SAP} & \makecell{Capacity\\heuristic} & \makecell{Usage\\ABC} & \makecell{Double\\ABC} & \makecell{Travel-dist.\\opt.} & \makecell{Line-aware\\slotting} \\
+\midrule
+Lead time (min) & 12.37 & 14.71 & 15.24 & 14.74 & 24.60 & 6.91 \\
+Prep time (min) & 3.92 & 4.31 & 4.43 & 4.34 & 5.62 & 2.65 \\
+Total wait (min) & 8.45 & 10.40 & 10.82 & 10.40 & 19.03 & 4.26 \\
+P95 lead time (min) & 35.9 & 43.0 & 42.9 & 41.9 & 70.6 & 18.8 \\
+Walk distance (m) & 89.0 & 106.1 & 108.8 & 104.6 & 96.1 & 92.4 \\
+Throughput (orders/day) & 398.5 & 398.4 & 398.4 & 398.4 & 396.2 & 398.6 \\
+RT utilization & 0.217 & 0.228 & 0.244 & 0.246 & 0.440 & 0.013 \\
+Operator utilization & 0.405 & 0.446 & 0.457 & 0.448 & 0.576 & 0.275 \\
+Kardex utilization & 0.079 & 0.079 & 0.079 & 0.078 & 0.078 & 0.079 \\
+Orders completed (5 days) & 1943 & 1942 & 1942 & 1942 & 1931 & 1943 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,81 @@
+\section{Methodology}\label{sec:method}
+
+The methodology unfolds in five steps. First, we describe the physical system — rack layout, aisle structure, and resource fleet — in enough detail to justify every model parameter. Second, we collected and preprocessed four distinct data sets: the SAP material master and consumption report, the WM dispatch log (transaction ZWM92), an F400 kitting video time-and-motion study, and the AutoCAD floor plan together with rack technical drawings. Third, we built a SimPy discrete-event simulation that reproduces the warehouse's picking process, with ZWM92-fitted distributions driving demand rather than replaying a single historical trace. Fourth, we implemented six storage-assignment (slotting) policies and ran each for twenty independent replications under common random numbers. Fifth, we compared the policies on five KPIs using one-way ANOVA, Tukey HSD, and paired-by-replication $t$-tests, with raw data exported in a Minitab-ready tidy format. Throughout, we applied Sargent's~\cite{sargent2013} verification and validation framework, documenting face, conceptual, data, and operational validity checks at each stage.
+
+%------------------------------------------------------------------
+\subsection{System Description}\label{sec:system}
+%------------------------------------------------------------------
+
+\subsubsection{Facility and Storage Structure}
+
+The Schneider Electric Manisa plant warehouse supplies medium-voltage switchgear assembly lines with pre-kitted component sets. The building footprint is roughly 80~m $\times$ 50~m. Storage is arranged in eleven multi-level rack rows labelled A through J and U (Figure~\ref{fig:layout_topdown}). Ten rows run approximately south-to-north in parallel (J, I, H, G, E, F, D, C, B, A, reading east to west), while U runs east-to-west as a single horizontal row along the western side of the floor. J is a five-section polyline: a bottom arm, a main vertical run, two small detached single-bay sections (J13 and J14), and a top arm connecting to U. The rack technical drawings record a gross capacity of 3,203 euro-pallet positions. Because certain bays are narrower than the rack default — feeder bays for oversized materials, one physical gap in rack B, and a cart-parking slot in J — the simulation models 3,101 positions after applying the per-bay reductions encoded in the layout configuration. Rack heights are 9 levels for rows A through F (floor to 7.0~m), 8 levels for rows G, H, I, and J, and 7 levels for U.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.82\textwidth]{layout_topdown_with_decorations}
+  \caption{Top-down layout of the modelled warehouse. Rack rows are labelled A--J and U; kit corridors (~2~m) alternate with reach-truck aisles (~3~m) along the east-to-west sequence.}
+  \label{fig:layout_topdown}
+\end{figure}
+
+The aisle regime alternates between narrow \emph{kit corridors} — used by kitting operators on foot — and wider reach-truck (RT) aisles used for pallet replenishment. Measured CAD dimensions place kit corridors at approximately 2.0~m and RT aisles at 3.0--3.2~m, with one wider 3.2~m forklift lane between racks E and F. Operators can reach the lower three levels without a reach truck; levels four and above require one. Four Kardex vertical-carousel units hold small parts and consumables too small or fragile for pallet storage; operators walk to the nearest Kardex unit and the carousel rotates to the correct tray before each pick. Finished kits are placed on a wheeled cart, which the milkrun train collects and delivers to the relevant assembly-line kitting point. The warehouse operates one eight-hour shift per day.
+
+Resources at the time of the study were 8 kitting operators, 7 reach trucks, 4 Kardex units, and 7 milkrun trains, confirmed during site visits in May 2026.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.75\textwidth]{warehouse_material_flows}
+  \caption{Material flow families in the warehouse: inbound receiving, putaway to rack or Kardex, kit-order picking, and outbound milkrun delivery to assembly-line kitting points.}
+  \label{fig:material_flows}
+\end{figure}
+
+\subsubsection{Material Flow and Kitting}
+
+Incoming pallets arrive at the dock doors on the north wall and are staged before a reach truck putaways each pallet to its assigned rack position. On the production side, SAP releases kit orders that list every component required for one unit of a switchgear product. An operator collects a kit cart, walks the kit corridor for their assigned line, scans each component at the rack face with an RF terminal, and places items on the cart. If a component sits above the manual-reach threshold (levels 4--9), the operator calls for a reach truck, which travels from its depot, lifts the relevant pallet to floor level, and waits while the operator picks from it before returning. Kardex picks are handled at the carousel stations: the operator walks to the nearest unit, the carousel rotates, and the operator picks the item. When the kit is complete, the cart waits in the trolley-staging area until a milkrun train collects and delivers it to one of the line-side kitting points (F400, SM6-36, PREMSET, MCSET, and others). Figure~\ref{fig:material_flows} shows the overall flow families.
+
+The model captures this process end to end. Travel paths use obstacle-avoiding rectilinear routing: rack bodies act as blockers, and the router selects the shortest path along corridor safe lines. Where a clear L-bend exists, it is returned immediately without further search, since the Manhattan L-bend is a proven lower bound~\cite{bartholdi2014}.
+
+\subsubsection{Current Classification Practice and Its Limits}
+
+The warehouse assigns storage locations through a quarterly ABC/FMR (fast-mover/medium-mover/rare-mover) classification that aggregates consumption across all assembly lines. This has a well-known structural flaw: a material that moves fast for one line but slowly for all others can land in a remote position relative to the line that actually needs it, while a moderate aggregate mover may be a daily-pick item for a specific line~\cite{flores1986,frazelle2002}. In practice, the Schneider Electric team maintains a manual per-line consumption ranking as a workaround, but it is updated infrequently and not systematically applied to slot assignments. The gap between the aggregate classification and actual per-line demand is part of what motivated the Line-aware Slotting policy proposed here.
+
+%------------------------------------------------------------------
+\subsection{Data Collection and Preprocessing}\label{sec:data}
+%------------------------------------------------------------------
+
+\subsubsection{SAP Master and Movement Data}
+
+The primary SAP source is a workbook covering 2026-01-01 to 2026-03-17. It contains two sheets. The \emph{özet} (material master) sheet lists 5,941 active materials with their assigned storage bin codes and ABC classifications. The \emph{zppq11} sheet records 76 days of consumption quantities used to weight the usage-based slotting policies.
+
+Bin codes follow the convention \texttt{BR\(<\)rack\(>\)-\(<\)bay:02d\(>\)-\(<\)level:02d\(>\)} (e.g. \texttt{BRA-02-02} decodes to rack~A, bay~A2, level~02). The data loader uses a regular expression to parse both the prefixed form \texttt{BRA-02-02} and the un-prefixed form \texttt{A-02-02}, which appear interchangeably in the export. Kardex locations carry the prefix \texttt{KDX} and are handled separately from rack bins. Preprocessing results are summarized in Table~\ref{tab:preprocess}.
+
+\input{sections/gen/tab_preprocess}
+
+Of the 5,941 materials in scope, 3,804 had a storage bin recorded. Of those, 750 decoded to a specific rack, bay, and level position matching the model's eleven rack rows; 2,872 were routed to Kardex. The remaining bins were either malformed (412), carried an unknown rack letter, or had positions outside the modelled range. In the simulation, the Baseline (Actual SAP) policy uses the 750 decoded rack bins and the 2,872 Kardex assignments as given; any material whose bin could not be decoded is placed by a documented capacity-filling heuristic. We report the SAP fidelity figure openly — 750 decoded rack positions, about 12.6\% of the 5,941 active materials — so the reader can judge how closely the ``Actual SAP'' baseline mirrors the real assignment. The other five policies do not use SAP bins at all; they re-slot every material from scratch according to their own rules.
+
+\subsubsection{Warehouse-Management Dispatch Log (ZWM92)}
+
+SAP transaction ZWM92 produces a warehouse-management dispatch log. We obtained nine family-level exports covering 2026-01-02 to 2026-05-18, one file per product family: F400, MCSET (Mcset), OKKEN, SM6-36 (SM6), PREMSET, PIX/AKS\_PAK, Çekmece, DMK, and Sepam. Each row records an order number, kit number, component material code, and the dispatched quantity. Table~\ref{tab:zwm92} shows row counts per family and the totals.
+
+\input{sections/gen/tab_zwm92}
+
+Grouping rows on \texttt{(Order, KIT No)} reconstructed 40,804 distinct kit orders, each with its full as-dispatched bill of materials. This reconstruction has two uses: it is the demand source from which the simulation driver's distributions are fitted, and it is the reference against which operational validity is checked. Across the log, 4,036 distinct materials appeared and 44,757 rows resolved to Kardex picks.
+
+An important structural feature of the log is that orders arrive in bursts. Among the 18,164 timestamped orders (the three families whose exports included a time-of-day field), 3,885 same-timestamp batches exist with a mean of 4.68 kits per batch (median 2, maximum 79). Treating each batch as an atomic dispatch event, the mean inter-batch gap within a shift is 5.36~min (CV~2.04), which rules out the Exponential distribution and motivates an empirical gap distribution. At roughly 396 kit orders per active working day (40,804 orders over 103 active days), the system carries a meaningful throughput load. The simulation's batch-arrival driver samples an inter-batch gap and a batch size from empirical distributions, then samples one production line for the entire batch, matching the observed 99.9\% single-line rate for multi-kit batches. A daily-volume calibration check confirms the model produces approximately 419 simulated orders per shift, within 5.7\% of the 396-order target and inside the $\pm$10\% acceptance band.
+
+\subsubsection{Time and Motion Study}
+
+A time-and-motion study was conducted using DJI video footage of an F400 kitting cycle. Two observers independently coded 2,319 micro-events over approximately 297 observed minutes, classifying each event by activity type: operator pick from pallet, RF terminal scan, reach-truck pick or place, corridor walk, cart move, and so on. The annotated analysis workbook was parsed with a script that classifies each event by Turkish keyword matching. Summary statistics are shown in Table~\ref{tab:timing}.
+
+\input{sections/gen/tab_timing}
+
+These micro-element means feed the simulation directly. Operator pick time (0.113~min) and reach-truck pick/place time (0.110~min) are \emph{at-bin} durations — the seconds spent at the rack face scanning and handling the item — not the full travel-plus-pick cycle. Walking is modelled separately through the routing model and an explicit operator walk speed. The lognormal service-time distributions use log-$\sigma$ values derived from the observed coefficients of variation via $\sigma = \sqrt{\ln(1 + \mathrm{CV}^2)}$: operator picks yield $\sigma = 1.245$ (pooled RF-scan and manual-pick, $n = 900$, CV~1.93), reach-truck picks $\sigma = 1.047$ (CV~1.41), and corridor-walk events $\sigma = 1.279$ (CV~2.03).
+
+One honest limitation: the F400 line accounts for about 29\% of ZWM92 dispatch rows and is the largest of the nine families. We extrapolated the F400 timing constants to the other eight families without per-line video evidence. The sensitivity analysis in Section~\ref{sec:results} sweeps each timing constant $\pm$20\%, so the extrapolation risk is bounded quantitatively rather than left as a qualitative concern.
+
+\subsubsection{Geometry}
+
+The rack geometry was established from three sources: the eleven per-rack technical PDF drawings, the AutoCAD floor plan (\texttt{.dwg}), and two site visits. Each rack PDF carries level heights, bay widths, and pallet capacities as dimension stamps; the PDF-derived capacity totals to 3,203 positions (the ``3203 PALET KAPASİTE'' stamp on the U-rack drawing). The DWG file provided corridor widths and the exact positions of racks, kitting zones, Kardex stations, and structural columns. Where the PDF stamps and DWG measurements agreed we treated the DWG dimension as authoritative; where they conflicted, we noted the discrepancy in the modelling assumptions and used the more conservative figure.
+
+The resulting layout assigns each rack row a start and end coordinate, a level-height profile, a default bay width, per-bay overrides for feeder bays and physical gaps, and a flag indicating which corridor side faces kitting operators versus reach trucks. Kitting-point coordinates for the four largest lines (F400, SM6-36, PREMSET, MCSET, covering about 76\% of ZWM92 pick volume) were derived from the CAD kitting-cell labels and snapped to the nearest corridor safe line. The remaining lines fall back to the central kitting centroid, because their CAD labels could not be confidently matched without an additional site visit.
+
+To validate the geometry visually, we built a three-dimensional viewer in which each rack appears as a realistic structure with uprights, beams, and pallet positions, and operators, reach trucks, and milkrun trains animate along the corridor network. This face-validity step~\cite{sargent2013} was central to discovering and correcting several earlier geometry inconsistencies — in particular, the kit-corridor assignment for rack E, which had been recorded on the wrong face relative to the F400 kitting-point evidence.

@@ -478,8 +478,8 @@ body.theme-light .val { color: #0f172a; }
     <button data-tab="validation">Validation</button>
     <button data-tab="sensitivity">Sensitivity</button>
     <button data-tab="heatmap">Heatmap</button>
-    <button data-tab="driver">Driver</button>
-    <button data-tab="timing">Timing</button>
+    <button data-tab="driver" style="display:none">Driver</button>
+    <button data-tab="timing" style="display:none">Timing</button>
     <button data-tab="data">Data</button>
     <button data-tab="defense">Defense</button>
   </div>
@@ -2978,7 +2978,7 @@ function renderSensitivity() {
   });
 }
 
-let _heatmapPolicyKey = 'baseline_actual_sap';
+let _heatmapPolicyKey = 'line_aware_slotting';
 async function renderHeatmap() {
   const sel = document.getElementById('heat-policy');
   sel.innerHTML = '';

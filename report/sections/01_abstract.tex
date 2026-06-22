@@ -1,0 +1,54 @@
+\section{Abstract}\label{sec:abstract}
+
+We built a discrete-event simulation of the medium-voltage switchgear
+warehouse at the Schneider Electric Manisa plant and used it to compare
+six storage-assignment policies on kitting lead time, queue waiting time,
+reach-truck (RT) utilization, throughput, and operator walking distance.
+The model was driven by four months of real SAP dispatch data (the
+ZWM92 transaction log, about 41,000 kit orders from nine product families)
+and calibrated against a video time-motion study of 2,319 micro-events
+recorded on the F400 production line.
+
+The warehouse currently assigns bins through a capacity-based heuristic
+with no systematic regard for production-line location. Standard
+frequency-of-use (ABC and Double ABC) slotting rules do not
+account for which line a material kits to, so high-frequency items can
+end up scattered across corridors served by different milkrun (tow-train) delivery routes.
+The practical result is that operators frequently need a reach truck
+to access upper-level bins for materials that belong on the kit path of
+a specific line --- generating queues at the RT fleet rather than at
+walking distance. We wanted simulation evidence before committing to
+any physical re-slotting effort.
+
+We implemented the model in SimPy. Order arrivals were drawn from
+distributions fitted to the ZWM92 log (empirical inter-batch gaps,
+empirical batch sizes, categorical line and material weights); service
+times came from lognormal distributions parameterised from the F400
+video study. We ran 20 paired replications under common random numbers
+for each of six policies: the existing SAP placement, a capacity
+heuristic, usage-based ABC, Double ABC, a travel-distance
+optimizer, and our proposed Line-aware Slotting policy. Differences in
+lead time and waiting time across policies were tested with one-way
+ANOVA and common-random-numbers paired $t$-tests.
+
+Line-aware Slotting reduced mean kitting lead time from 12.37 minutes
+per order (the SAP baseline) to 6.91 minutes, a reduction of about 44\%
+($p < 0.001$, ANOVA $F = 47.1$, $df = 5/114$). The mechanism is
+straightforward: placing fast-moving materials at hand-reachable levels
+in the corridor closest to their destination line removes nearly
+all reach-truck calls from the kit path. RT utilization fell from 21.7\%
+to 1.3\%, and operator queue-waiting time --- which accounts for most
+of the lead time --- dropped from 8.45 to 4.26 minutes per order.
+Walking distance increased slightly, from 89.0 to 92.4 metres per order,
+because bins are no longer globally sorted by proximity to the central
+kitting point.
+
+In a kitting warehouse where operators and reach trucks share the same
+aisles, slotting should target the queueing mechanism, not just travel
+distance. A policy that minimizes walking without controlling where
+materials sit relative to production lines can inadvertently concentrate
+reach-truck demand and double the effective lead time --- as the
+travel-distance optimizer in this study demonstrated. Re-slotting the
+fast-mover fraction that drives the roughly 400 kit orders dispatched
+daily could reduce kit preparation time by about five and a half minutes
+per order under the conditions modelled here.

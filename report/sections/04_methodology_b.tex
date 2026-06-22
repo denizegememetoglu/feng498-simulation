@@ -1,0 +1,421 @@
+% Section 4 (Methodology) continued — Simulation Model through Experimental Design
+% Sources: src/simulation.py, src/slotting.py, src/config.py, src/kpi.py,
+%          src/validate.py, src/analyze.py, ASSUMPTIONS.md §15/21/23/24,
+%          report/sections/gen/facts.json
+
+\subsection{Simulation Model}\label{sec:simmodel}
+
+\subsubsection{Modelling Approach}
+
+We built the simulation using Python's SimPy~\cite{simpy} library, following
+the process-interaction world-view described in Banks et~al.~\cite{banks2010}
+and Law~\cite{law2015}. In process-interaction discrete-event simulation each
+entity moves through a sequence of activities and queues; the simulation clock
+advances only to the next scheduled event, so idle time costs nothing
+computationally.
+
+The primary entity is a \emph{kit order}: a release of $n$ distinct component
+materials that must be picked from the warehouse and assembled at a production
+line's kitting point. Each order enters a queue for an \emph{operator}
+resource (capacity~8), and the operator then walks to each pick location in
+turn. When a pick location is at level~3 or above --- level~3 is the first shelf
+not reachable by an operator on foot from the kit corridor (\texttt{FAST\_MOVER\_MAX\_LEVEL\,=\,3},
+the three lowest levels are kit-accessible) --- the operator must also request a
+\emph{reach truck} (RT, capacity~7). Picks from the automated Kardex carousel
+system are handled by a separate Kardex resource pool (capacity~4). A
+per-position SimPy resource lock (capacity~1) prevents two operators from
+attempting the same pallet slot simultaneously, which would be physically
+impossible.
+
+After delivering the last item to the kitting point, the RT returns to its
+depot as a detached SimPy process that keeps the truck resource busy until it
+arrives --- so the operator is released at drop-off but the truck is not
+available for the next request until the return leg completes. This detail
+matters: without it the model understates RT utilization.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.82\textwidth]{sim_flowchart_simple.png}
+  \caption{Overview of the life-cycle of one kit order in the simulation.
+           The full expanded flowchart with branching conditions is given
+           in Appendix~\ref{fig:flow_detailed}.}
+  \label{fig:simflow}
+\end{figure}
+
+Figure~\ref{fig:simflow} shows the order life-cycle at a summary level.
+The model is \emph{terminating}~\cite{law2015}: each run covers five
+eight-hour working days, matching the ZWM92 dispatch profile. A 30-minute
+warmup and 30-minute cooldown window trim edge transients from the KPI
+window, so no steady-state warm-up analysis is needed.
+
+\subsubsection{Order Generation}
+
+The simulation uses a \emph{distribution-driven} input model in the
+Arena~\cite{law2015} tradition: distributions are fitted once to four
+months of ZWM92 warehouse management dispatch data (167,784 rows, 40,804
+kit-orders across nine product families, January through May~2026) and each
+replication draws independent samples. The raw trace is not replayed.
+
+When we analyzed the ZWM92 log, we found that kit-orders are not independent
+arrivals. Among the 18,164 timestamped orders, 3,885 share an identical
+timestamp, forming batches with a mean of about 4.68~kits (median~2,
+maximum~79). Each batch corresponds to a single production order releasing
+all its kits at once. Treating the Exp(5.36~min) fitted inter-batch gap as
+a per-order inter-arrival time would have under-loaded the model by roughly
+4.5$\times$, producing about 87~simulated orders per day instead of the
+real average of about 396~orders per active working day (40,804 orders over
+103 active calendar days). We therefore switched to a batch arrival model:
+one arrival event generates one batch, not one kit.
+
+Inter-batch gaps are drawn from an empirical pool of 3,604 within-shift
+positive gaps; the coefficient of variation of 2.04 rules out an exponential
+fit, so we kept the empirical pool. Batch size is drawn from the 3,885
+observed run lengths. The production line is drawn once per batch from a
+categorical distribution over the nine ZWM92 family weights --- 99.9\% of
+multi-kit batches in the log are single-line, which makes this a safe
+simplification. Each kit in the batch draws its item count from the empirical
+distribution of distinct components per kit (mean~4.0, clipped at~50), and
+each item is drawn from the material-weight distribution for that line.
+
+Calibration: the batch driver's theoretical expected output is approximately
+419~orders per day ($480\,\text{min} \div 5.36\,\text{min/batch} \times 4.68\,\text{kits/batch}$),
+against the ZWM92 target of about 396 orders per active day --- a $+5.7\%$
+difference, inside the $\pm$10\% acceptance band. The validation module
+checks this automatically on every run and writes a
+\texttt{daily\_volume\_check} result to the output.
+
+\subsubsection{Travel, Picking and Service Times}
+
+\paragraph{Routing.}
+All travel in the simulation is \emph{corridor-aware rectilinear}: rack
+bodies are treated as blockers, candidate paths snap to a grid of safe lines
+derived from rack edges plus a 60-cm clearance margin, and the shortest
+obstruction-free path wins. Because a Manhattan L-bend is a proven lower
+bound, any clear L-path is returned immediately without further search. Path
+results are cached at the class level (keyed to a geometry fingerprint), so
+the routing cost is paid only once per layout~\cite{bartholdi2014}. Operators
+walk at 50~m/min; RTs travel at 100~m/min.
+
+\paragraph{Operator picks.}
+When a material's slot is in the three lowest levels and the rack has a kit
+corridor, the operator picks directly from the kit-corridor face. At level~3 or above
+the operator must wait for an RT. A fallback manual pick is allowed at
+level~2 or below from the RT-aisle face (no truck needed), but carries a time
+penalty modelled as the corridor-traversal mean from the F400 video study
+(0.102~min per pick --- a conservative upper-bound proxy that overstates the
+true marginal penalty by roughly 30\%; see ASSUMPTIONS~\S19). Picks are
+assigned in a greedy nearest-first sequence over routed distances; for
+materials that occupy multiple SAP bins, the simulation picks from the
+nearest available slot.
+
+\paragraph{Reach-truck picks.}
+The RT travels from its depot (south-west of the rack block) to the pick
+face, lifts at 0.25~min per level, and executes the pick/place (mean
+0.11~min) before carrying the pallet to the kitting point. The operator is
+released at drop-off; the truck then returns to the depot under its own
+process, holding the RT resource until it arrives back.
+
+\paragraph{Kardex picks.}
+All materials classified as Kardex items in the SAP master (2,872~materials
+in the model) bypass the pallet rack entirely. The simulation requests the
+Kardex resource, pays one carousel rotation (0.4~min, book value), then
+executes per-item pick time (0.113~min per item, mirroring the operator
+pick constant) inside a single resource hold. The four Kardex units share one
+SimPy resource pool with capacity~4.
+
+\paragraph{Stochastic variability.}
+All pick and travel times are stochastic when \texttt{STOCHASTIC\_PICK\_TIMES}
+is enabled. Each duration is drawn from a lognormal distribution whose mean
+matches the F400-measured constant and whose log-scale standard deviation
+$\sigma = \sqrt{\ln(1 + \mathrm{CV}^2)}$ is moment-matched from the observed
+coefficient of variation in the video study: operator pick $\sigma = 1.245$
+(pooled rf\_scan + manual\_pick, $\mathrm{CV} = 1.93$, $n = 900$); RT
+pick/place $\sigma = 1.047$ ($\mathrm{CV} = 1.41$, $n = 69$); manual-pick
+penalty $\sigma = 1.279$ ($\mathrm{CV} = 2.03$, $n = 157$); Kardex pick
+$\sigma = 1.245$ (mirrors operator; no Kardex video available).
+
+\subsubsection{Model Assumptions}\label{sec:assumptions_condensed}
+
+The key assumptions are listed below; a complete register appears in
+Appendix~\ref{sec:app_assumptions}.
+
+\begin{enumerate}
+  \item \textbf{Single position per material.} Each material is placed at
+        one pallet slot (or at all its decoded SAP bins when multi-bin). The
+        model does not simulate replenishment: pallets never deplete and no
+        replenishment picks occur. Because this holds for all six policies,
+        the comparison is internally fair.
+  \item \textbf{F400 timing extrapolated.} The video time-motion study
+        covers only the F400 production line, which accounts for about 48,000
+        of the 167,784 ZWM92 dispatch rows. F400-measured constants are
+        applied to all nine families. The sensitivity analysis bounds the
+        risk of this assumption.
+  \item \textbf{No aisle congestion between agents.} Operators and reach
+        trucks do not block each other in shared corridors; each queues for
+        the resource and then travels at full speed. Congestion effects are
+        listed as a model limitation.
+  \item \textbf{Single-shift operation.} ZWM92 shows orders in a
+        07:00--16:00 window. The model runs as a continuous flow (no
+        overnight gap, no within-day breaks) with warmup and cooldown trim.
+        Multi-shift dynamics are out of scope.
+  \item \textbf{Distribution-driven, not trace-replay.} Each replication
+        draws independent samples from fitted distributions; the raw ZWM92
+        sequence is not replayed. This is the standard Arena-style
+        approach~\cite{law2015}.
+  \item \textbf{Fit and validation share the same log.} Distributions were
+        fitted to, and the chi-square validation expected vectors were drawn
+        from, the same ZWM92 dataset. These tests are therefore
+        internal-consistency checks rather than holdout tests. External
+        corroboration comes from the F400 video timing, the daily-volume
+        calibration, and face-validity checks against site photos and the
+        AutoCAD floor plan.
+\end{enumerate}
+
+
+\subsection{Storage Assignment Policies}\label{sec:policies}
+
+Six storage assignment policies are compared. All six place the same 5,941
+active materials in the same physical warehouse and are exposed to the same
+demand process. The only difference between experiments is where each
+material sits.
+
+Our initial proposal focused on classifying materials by demand recency,
+which naturally led us to the frequency-ranked approaches first --- the
+usage-based and travel-distance policies below. As we developed the model
+and identified the congestion mechanism described in Section~\ref{sec:vv},
+the proposed policy evolved into the line-aware variant.
+
+\paragraph{Policy~1: Current SAP placement (Baseline -- Actual SAP).}
+The ground-truth baseline. Storage bin codes are read directly from the SAP
+\texttt{özet} material master (\texttt{BRA-02-02} $\to$ rack~A, bay~2,
+position~2). Materials whose bins decode to a free pallet slot are placed
+there; Kardex-flagged materials are routed to the Kardex resource; the
+remaining materials without a decodable SAP rack bin fall back to an
+FMR-heuristic pool. Of 5,941 active materials: 750 are placed at their
+exact SAP rack bin, 2,872 are Kardex-routed (policy-invariant across all
+policies), and the rest fall back to the heuristic pool. This baseline is
+the company-relevant comparator and the primary contrast partner for
+hypothesis testing.
+
+\paragraph{Policy~2: Capacity heuristic (Baseline -- Heuristic).}
+Materials are sorted by the existing SAP FMR class (F~= fast, M~= medium,
+R/D~= rare/dead) and filled into position pools in that order: fast movers
+to the lower-level pool, medium movers to mid-level, and rare/dead movers to
+upper levels. No actual demand data are used. This policy fills capacity
+without considering per-material frequency; any data-driven policy should
+outperform it, and it is the heuristic-pool fallback for Policies~1 and~6.
+
+\paragraph{Policy~3: Usage-based ABC.}
+Materials are reclassified using ZWM92 pick counts rather than the SAP FMR
+flag: class~A (top 80\% of cumulative picks) goes to the fast-mover
+positions, class~B (80--95\%) to mid-level, and class~C (bottom 5\%) to
+upper levels. The thresholds follow the Pareto principle
+applied to real warehouse demand~\cite{frazelle2002, dekoster2007}.
+
+\paragraph{Policy~4: Double ABC.}
+This cross-tabulates the SAP FMR class (frequency axis) against the
+usage-based ABC class (volume axis), yielding twelve combined classes (AF,
+BF, AM, \ldots, CR). Materials are sorted by a fixed priority list --- AF and
+BF take the best positions first, followed by AM, CF, BM, AR, CM, BR, and
+CR --- and filled into the level pools in that order~\cite{flores1986}. The
+intent is to balance volume and frequency jointly.
+
+\paragraph{Policy~5: Travel-distance Optimized.}
+Materials are ranked by their ZWM92 pick count (falling back to the SAP
+consumption column when the ZWM92 cache is unavailable) and then assigned
+greedily: the highest-frequency material gets the position closest (by
+routed distance) to the central kitting centroid, the next highest gets the
+next closest, and so on. This is a standard nearest-to-dock heuristic in the
+warehousing literature~\cite{hausman1976, bartholdi2014}. As we show in
+Section~\ref{sec:results}, it produces the worst lead times of all six
+policies under realistic load, because it routes all high-frequency
+materials to positions near the central kitting point regardless of level ---
+and those positions are predominantly RT-served, so every pick queues a reach
+truck.
+
+\paragraph{Policy~6: Line-aware Slotting (proposed).}
+This policy directly addresses the RT-congestion problem exposed by Policy~5.
+Materials are sorted by ZWM92 pick frequency and assigned in three passes.
+
+First, each material's \emph{origin} is set to the kitting point of its
+dominant production line, read from the \texttt{production\_lines} array in
+the warehouse layout. Four lines --- F400, SM6-36, PREMSET, MCSET --- have
+confirmed kitting points covering about 76\% of ZWM92 pick volume; the
+remaining lines fall back to the central centroid. Every warehouse position
+is pre-scored by its routed distance from that origin. Among free positions,
+the policy selects those that do \emph{not} require a reach truck: slots in
+the lower three levels of a rack with a kit corridor, or at a
+manually-reachable level in an RT aisle. Fast-moving materials therefore land
+on hand-reachable levels, largely bypassing the RT queue. Because each
+line's demand is drawn to its own corridor, load spreads across multiple
+corridors rather than concentrating on one.
+
+Second, if the no-RT space for a line is exhausted, the policy falls back to
+the nearest RT-served position from the same line origin.
+
+Third, zero-pick materials (those absent from ZWM92 entirely) are placed last,
+in upper-level reserve positions, so prime slots stay available for active
+SKUs.
+
+Why this outperforms the other policies is discussed in
+Section~\ref{sec:results}.
+
+% --------------------------------------------------------------------------
+\subsection{Performance Measures}\label{sec:kpis}
+
+We report seven performance measures. The four primary KPIs --- kitting lead
+time, total waiting time, reach-truck utilization, and daily throughput ---
+were set together with our supervisor; walking distance and the remaining
+measures support the causal explanation.
+
+\emph{Kitting lead time} (minutes per order) runs from the moment the kit
+order joins the operator queue to the moment the last item is delivered to the
+kitting point. It is the end-to-end measure the warehouse manager cares about
+most: a longer lead time means the production line waits longer for its parts.
+
+\emph{Waiting time} (minutes per order) is the combined time an order spends
+in the operator queue and the RT queue. It isolates resource contention from
+the picking activity itself, so it helps explain why lead times differ across
+policies.
+
+\emph{Reach-truck utilization} is the fraction of cumulative RT-resource
+capacity consumed over the full simulation window. Very high utilization
+signals a congestion bottleneck; it is the causal variable we use to explain
+Policy~5's poor lead time.
+
+\emph{Throughput} (kit-orders per simulated day) measures overall output rate.
+Under the experimental conditions here, all policies achieved similar
+throughput, which means lead-time differences are driven by waiting, not by
+capacity shortage.
+
+\emph{Walking distance per order} (metres) is the total rectilinear path
+length the operator walks during one kit order. As the results show, reducing
+walk distance in isolation is not sufficient to improve lead time when doing so
+shifts picks to RT-served positions.
+
+\emph{Preparation time} (minutes per order) is the operator-active duration
+after the resource is granted: walk plus pick time, excluding queue wait. It
+complements lead time by showing how much of the delay is active effort versus
+idle waiting.
+
+\emph{Operator utilization} is defined analogously to RT utilization:
+cumulative operator-busy time divided by total operator capacity over the
+simulation window.
+
+
+% --------------------------------------------------------------------------
+\subsection{Verification and Validation Approach}\label{sec:vv}
+
+We follow Sargent's framework~\cite{sargent2013}, which distinguishes
+\emph{verification} (does the program correctly implement the conceptual
+model?) from \emph{validation} (is the model an accurate enough
+representation of the real system for our purpose?).
+
+\paragraph{Verification.}
+Code-level tests cover the SAP bin decoder, Kardex routing logic, and
+resource-accounting identities. A ten-question sanity gate
+checks that total pallet capacity equals
+the PDF-stamp value of 3,203; every placed material has a valid position;
+pick counts sum correctly; the CRN seed pair produces identical arrival
+sequences across policies at the same replication index; and several other
+internal consistency conditions. The 3,203-position canary must pass before
+any run is reported. Deterministic seed replays confirm bit-identical output
+across Python sessions.
+
+\paragraph{Face validation.}
+Layout and material flow were validated against the physical facility through
+a 3D interactive viewer we developed (available via the project web page),
+walkthroughs with site photographs, and two supervisor meetings. Floor
+dimensions, rack positions, corridor widths, and the kit-corridor/RT-aisle
+alternation pattern were confirmed against the AutoCAD floor plan and eleven
+rack-layout PDFs. Kit-corridor widths of 2~m and RT aisle widths of
+300--320~cm were measured directly from the CAD dimension annotations.
+
+\paragraph{Operational validation.}
+We compare the SAP-baseline simulation's per-rack pick distribution against
+ZWM92 actual pick counts using a chi-square goodness-of-fit test, and run a
+per-material paired $t$-test comparing simulated daily pick rates against
+observed ZWM92 rates for the 925~materials that could be paired. Both tests
+are run by an automated validation script; results are summarized in
+Table~\ref{tab:validation} and discussed in Section~\ref{sec:results}.
+
+Both tests reject the null hypothesis, as we expected. The chi-square asks
+whether the simulation reproduces SAP's \emph{exact} bin assignments; it
+cannot, because each policy rebuilds placements from scratch and no policy
+can reconstruct the bin decisions that SAP accumulated over years of manual
+and semi-automated putaway. The relevant measure is therefore Cram\'{e}r's
+$V$, which quantifies effect size rather than significance~\cite{sargent2013}.
+The headline $V = 0.22$ (restricted test: both the simulated picks and the
+expected vector are scoped to the 750 materials with decoded SAP rack bins,
+giving an apples-to-apples comparison). The per-material $t$-test also
+rejects, but the mean log-ratio of 0.32 --- simulated daily rates about 37\%
+above ZWM92 actuals --- is consistent with the batch model slightly
+overshooting its calibration target. Both the scope mismatch and the
+overshoot are disclosed as limitations.
+
+A daily-volume check verifies that the batch driver stays within
+$\pm$10\% of the ZWM92 target (about 396~orders per active day); the
+single-run validation produced about 378~orders per day, a $-4.6\%$ error,
+inside the acceptance band. A replication CI check confirms that the 95\%
+confidence interval on throughput across 20~replications is consistent with
+the target volume. Both checks are logged automatically on every run.
+
+Because the ZWM92 log was used both to fit the input distributions and to
+build the validation expected vectors, the chi-square and $t$-tests are
+internal-consistency checks, not holdout tests. External corroboration comes
+from the F400 video timing, the daily-volume calibration, and the face-validity
+checks described above. All numerical outcomes are reported in
+Section~\ref{sec:results} (Table~\ref{tab:validation}).
+
+
+% --------------------------------------------------------------------------
+\subsection{Experimental Design and Statistical Analysis}\label{sec:doe}
+
+\paragraph{Replications.}
+Each policy was run for $N = 20$ independent replications, each covering five
+simulated working days (480~minutes per day). Twenty replications exceeds the
+advisor's minimum criterion and gives enough degrees of freedom for the ANOVA
+and pairwise $t$-tests.
+
+\paragraph{Common random numbers.}
+Across policies, replication $i$ uses seed $42 + i$ for the arrival stream
+and seed $(42 + i) + 1{,}000{,}003$ for the service-time stream. Because the
+seed depends only on the replication index, every policy sees exactly the
+same arrival trajectory at the same replication, implementing common random
+numbers (CRN)~\cite{law2015}. CRN reduces the variance of policy-difference
+estimators by cancelling demand-side noise; all six policies are exposed to
+the same sequence of kit orders within each replication.
+
+The two-stream design (arrival RNG and service RNG separated by a large
+offset) is important: a single shared stream would let a policy that makes
+one extra service-time draw shift every subsequent inter-arrival time, silently
+breaking CRN. With separate streams, the demand trajectory is identical
+across policies regardless of how many service draws they make.
+
+\paragraph{KPI export.}
+Each replication appends one row to a tidy results table (policy,
+replication index, and every KPI as columns), giving $6 \times 20 = 120$
+rows in the format Minitab expects, which we used for cross-checking.
+
+\paragraph{Hypothesis tests.}
+Three layers of inference are applied.
+
+\emph{One-way ANOVA} tests whether all six policy means are equal for each
+KPI, with rejection at the $\alpha = 0.05$ significance level. For lead time the $F$-statistic is $F(5, 114) = 47.07$ with
+$p < 10^{-25}$, so the null is clearly rejected.
+
+\emph{Tukey HSD post-hoc tests} provide 95\% family-wise confidence intervals
+and adjusted $p$-values for all $\binom{6}{2} = 15$ policy pairs, identifying
+which specific differences are significant while controlling the family-wise
+error rate.
+
+\emph{CRN-paired $t$-tests} compare each alternative policy against the SAP
+baseline by pairing replication~$i$ of the alternative against replication~$i$
+of SAP. Pairing on replication index removes demand-side variance and gives
+tighter confidence intervals than an unpaired test~\cite{law2015}. The 95\%
+CI half-width uses the $t(19)$ critical value. Mean differences, 95\% CIs,
+and $p$-values are reported in Section~\ref{sec:results}
+(Table~\ref{tab:paired_t}).
+
+All numerical results and the full ANOVA, Tukey, and paired-$t$ tables are
+presented in Section~\ref{sec:results}.

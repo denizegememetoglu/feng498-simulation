@@ -1,0 +1,17 @@
+\begin{table}[htbp]
+\centering
+\caption{Operational validation of the simulation against the four-month
+WM dispatch log.}
+\label{tab:validation}
+\small
+\begin{tabular}{llll}
+\toprule
+Check & Statistic & Value & Note \\
+\midrule
+Pick share per rack row & $\chi^2$ (d.f.\ 9) & 537.7 & $p = 4.9 \times 10^{-110}$ \\
+\quad effect size & Cram\'er's $V$ & 0.216 & small deviation \\
+Per-material pick counts & paired $t$ ($n=925$) & 8.75 & $p = 9.7 \times 10^{-18}$ \\
+Daily order volume & sim vs.\ actual & 378 vs.\ 396.2 orders/day & -4.6\% rel.\ error \\
+\bottomrule
+\end{tabular}
+\end{table}

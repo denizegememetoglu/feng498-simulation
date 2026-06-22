@@ -1,0 +1,248 @@
+\section{Appendix}\label{sec:appendix}
+
+% ─────────────────────────────────────────────────────────
+\subsection{Detailed Simulation Flow Chart}\label{sec:app_flow}
+
+Figure~\ref{fig:flow_detailed} expands the high-level process diagram
+from the Methodology section to show every resource request, branching
+decision, and stochastic sampling step in the model.
+Starting from a kit order's arrival, the chart follows operator assignment,
+per-item pick routing (Kardex picks, manual hand-reach picks, and
+reach-truck-required picks), resource queuing for both the operator pool
+and the RT fleet, the RT return-to-depot leg, and final lead-time recording.
+Shift-break logic and the batch-arrival driver are also shown.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{sim_flowchart_detailed}
+  \caption{Detailed simulation flow chart.  The diagram expands
+    Figure~\ref{fig:simflow} in the Methodology with all resource-request nodes,
+    stochastic-sampling symbols (order inter-batch gap, batch size,
+    items per kit, lognormal pick durations), and the reach-truck
+    return leg that keeps the RT resource busy until the truck is
+    back at the depot.}
+  \label{fig:flow_detailed}
+\end{figure}
+
+% ─────────────────────────────────────────────────────────
+\subsection{Full KPI Table}\label{sec:app_kpi_full}
+
+\input{sections/gen/tab_kpi_full.tex}
+
+Table~\ref{tab:kpi_full} reports the mean of all ten tracked KPIs over
+$N = 20$ paired replications for each policy.
+Lead time, total waiting time, RT utilization, and throughput are the
+primary comparison metrics discussed in the Results section.
+The remaining rows --- prep time, P95 lead time, walking distance,
+operator utilization, Kardex utilization, and orders completed over the
+five-day run --- are included for completeness and to let readers
+cross-check the results in Minitab using the per-replication export
+(\texttt{kpi\_by\_replication.csv}).
+
+% ─────────────────────────────────────────────────────────
+\subsection{Model Assumption Register}\label{sec:app_assumptions}
+
+Table~\ref{tab:assumptions} lists the twelve modelling assumptions that
+most affect the headline KPIs, with the evidence basis for each and the
+direction of risk if the assumption proves wrong.
+A fuller treatment of each item --- including when assumptions were
+revised during the project --- is recorded in \texttt{ASSUMPTIONS.md}
+in the project repository.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Key modelling assumptions, their evidence basis, and the
+    direction of error if the assumption is violated.}
+  \label{tab:assumptions}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{p{4.8cm} p{4.8cm} p{4.8cm}}
+    \toprule
+    \textbf{Assumption} & \textbf{Basis} & \textbf{Risk if wrong} \\
+    \midrule
+    One storage bin per material.  SAP records multiple bins for some
+    SKUs; the model assigns each material to a single best-fit slot.
+    &
+    SAP \texttt{özet} sheet decoded 802 rack bins and 2,872 Kardex
+    assignments; for multi-bin materials the nearest bin is used.
+    &
+    Understates real-warehouse flexibility slightly; the SAP baseline's
+    advantage could be marginally lower than reported. \\[4pt]
+
+    Fast-mover manual band: the three lowest rack levels (
+    up to $\approx 206$ cm) are reachable without a reach truck.
+    &
+    Site visit (``first three levels reachable by hand''); corroborated
+    by F400 video footage and rack PDF level-height stamps.
+    &
+    If the real threshold is two levels, manual-band placements are
+    over-counted and RT utilization is understated across all policies. \\[4pt]
+
+    F400 timing constants extrapolated to all nine product families.
+    Operator pick: 0.113 min; RT pick/place: 0.110 min;
+    manual-penalty: 0.102 min; Kardex pick: 0.113 min.
+    &
+    F400 video time-motion study, 2,319 micro-events, 296.6 min of footage
+    (source: \texttt{F400 Kit Cansu Nehir.xlsx}).
+    &
+    Families with different bin heights or heavier parts may have
+    different rates; sensitivity analysis bounds the effect at roughly
+    $\pm$15\% on lead time. \\[4pt]
+
+    Service times are lognormal with means from the F400 study and
+    log-$\sigma$ moment-matched from the measured CVs
+    (operator 1.245, RT 1.047, manual-penalty 1.279, Kardex 1.245).
+    &
+    F400 CVs: operator pooled CV = 1.93 ($n = 900$); RT CV = 1.41
+    ($n = 69$).
+    &
+    Lognormal may underfit very heavy service tails; if the true
+    tail is heavier, RT queue lengths are understated under all
+    congestion-prone policies. \\[4pt]
+
+    Batch arrivals: empirical inter-batch gaps and batch sizes sampled
+    from the timestamped ZWM92 subset (Okken, AKS\_PAK, F400;
+    18,164 orders, 3,885 batches).
+    &
+    ZWM92 dispatch log; mean batch size 4.68, CV 2.04 (rules out
+    Exponential); calibrated at 419 orders/day vs.\ actual 396/day
+    ($+5.7\%$, within the $\pm 10\%$ acceptance band).
+    &
+    Batch sizes are extrapolated from three families to all eight lines;
+    if other lines have larger batches, the system is slightly
+    under-loaded. \\[4pt]
+
+    Corridor-aware rectilinear routing: travel follows rack-edge safe
+    lines; a clear Manhattan L-path is returned immediately; rack
+    bodies are treated as obstacles.
+    &
+    Floor plan from AutoCAD DWG; measured corridor widths: kit 200 cm,
+    RT aisles 300--320 cm, perimeter aisles 280--429 cm.
+    &
+    One-way aisle flow and agent-to-agent congestion are not modelled;
+    walk distances are slightly underestimated in high-load scenarios. \\[4pt]
+
+    RT return-to-depot leg: after delivering a pallet the reach truck
+    drives back to the depot as a detached process that holds the RT
+    resource until arrival.
+    &
+    DWG floor plan for depot location; standard RT operating procedure
+    confirmed at site visit.
+    &
+    If trucks park near the last delivery point rather than returning to
+    depot, RT queue-wait is somewhat overstated; the directional error
+    favours Line-aware Slotting (lower RT demand). \\[4pt]
+
+    Kardex single carousel rotation per kit: one rotation is charged
+    per kit order regardless of how many Kardex picks that order
+    contains; picks inside the rotation are sequential.
+    &
+    H1 code-audit fix (May 2026); operational semantics of vertical
+    carousels confirmed with warehouse staff.
+    &
+    If each pick triggers an independent rotation, Kardex utilization
+    is understated by roughly $3\times$ for kits with multiple Kardex
+    items. \\[4pt]
+
+    Single-shift model: ZWM92's four-month dispatch log is compressed
+    into an independent 480-minute working day (07:00--16:00 profile).
+    Warmup and cooldown windows of 30 min each trim edge effects.
+    &
+    ZWM92 timestamps span a single shift window; multi-shift dispatch
+    patterns were not observed in the log.
+    &
+    If the real plant runs double shifts, steady-state queue lengths
+    could be higher; the model cannot replicate end-of-shift catch-up
+    dynamics. \\[4pt]
+
+    Capacity-heuristic placement for undecoded materials (approximately
+    2,319 rack materials without a decoded SAP bin): assigned to the
+    first free slot in the rack with available capacity.
+    &
+    750 materials have fully decoded SAP bins; 2,872 are Kardex-routed
+    (policy-invariant); the remaining positions use the heuristic.
+    &
+    The SAP baseline is in practice a SAP+heuristic hybrid; pure SAP
+    fidelity is 12.6\% of all active materials (750/5\,941).  Disclosed in the Results
+    section. \\[4pt]
+
+    Distribution-driven order arrivals (not trace replay): each
+    replication draws fresh samples from fitted distributions with a
+    replication-specific seed ($42 + \text{rep}$) and independent
+    arrival and service RNG streams.
+    &
+    Arena-style design per advisor guidance; CRN across policies
+    enforced by stream separation.
+    &
+    Training and validation use the same four-month dataset, so
+    the chi-square and volume checks are internal-consistency tests,
+    not holdout validation.  Supporting evidence comes from F400 timing,
+    daily-volume calibration, and face validity checks in the 3D viewer. \\[4pt]
+
+    Model scope is order picking only; putaway and replenishment are
+    out of scope (pallet positions do not deplete).
+    &
+    Scope agreed with the project supervisor; replenishment scheduling
+    was not visible in the ZWM92 dispatch log.
+    &
+    Line-aware Slotting places fast movers at low (no-RT) levels, which
+    would require periodic replenishment in practice.  The policy
+    comparison is internally fair --- scope is identical for all six
+    policies --- but the RT utilization figures cover picking only. \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ─────────────────────────────────────────────────────────
+\subsection{Software and Reproducibility}\label{sec:app_software}
+
+We wrote the simulation in Python~3 using the SimPy discrete-event
+library \cite{simpy}.  The model spans 17 source modules in the
+\texttt{src/} directory: data loading and SAP bin decoding,
+warehouse geometry and routing, slotting policies, SimPy process logic,
+KPI recording, statistical analysis, validation, and sensitivity sweeping.
+
+All statistics in this report are recomputed by script from the
+per-replication output files.  Running \texttt{src/main.py} executes the six
+policies across 20 replications with common random numbers and writes a
+tidy CSV (\texttt{kpi\_by\_replication.csv}) where each row is one
+policy--replication pair.  We imported that file directly into Minitab
+for the ANOVA and paired $t$-tests in the Results section;
+\texttt{src/analyze.py} runs the same tests as a cross-check.
+The sensitivity sweeps in \texttt{src/sensitivity.py} apply
+one-at-a-time perturbations to each timing constant and produce
+the tornado charts in Appendix~\ref{sec:app_sensitivity}.
+
+For face validation we built an interactive 3D warehouse viewer in Three.js.
+It renders rack geometry from the AutoCAD DWG and the eleven rack PDF
+drawings, animates agent trajectories from the simulation recorder output,
+and shows the per-policy KPI comparison panel we used in our project
+presentations.
+
+% ─────────────────────────────────────────────────────────
+\subsection{Additional Sensitivity Charts}\label{sec:app_sensitivity}
+
+Figure~\ref{fig:sensitivity_2x2} gives OAT tornado charts for three
+additional KPIs --- average walking distance, orders completed, and RT
+utilization --- alongside the pick-density heatmap for the Usage-based ABC
+policy.  The lead-time tornado chart appears in the main Results section.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tabular}{cc}
+    \includegraphics[width=0.47\textwidth]{sensitivity_tornado_avg_walk_distance} &
+    \includegraphics[width=0.47\textwidth]{sensitivity_tornado_orders_completed} \\[6pt]
+    \includegraphics[width=0.47\textwidth]{sensitivity_tornado_reach_truck_utilization} &
+    \includegraphics[width=0.47\textwidth]{heatmap_usage-based_abc} \\
+  \end{tabular}
+  \caption{Top row: OAT tornado charts for average walking distance per
+    order (left) and orders completed over the five-day run (right).
+    Bottom left: OAT tornado chart for reach-truck utilization, showing
+    that the arrival rate and RT lift time are the dominant
+    drivers of RT queue load.
+    Bottom right: pick-density heatmap for the Usage-based ABC policy,
+    showing how that policy distributes frequent picks across the rack
+    array; the concentration in the central racks contrasts with the
+    line-corridor grouping achieved by Line-aware Slotting.}
+  \label{fig:sensitivity_2x2}
+\end{figure}

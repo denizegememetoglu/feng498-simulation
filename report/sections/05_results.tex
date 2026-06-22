@@ -1,0 +1,348 @@
+% ============================================================
+%  Section 5 — Results and Discussion
+% ============================================================
+
+\section{Results and Discussion}\label{sec:results}
+
+% -----------------------------------------------------------
+\subsection{Current System Performance}\label{sec:results:current}
+% -----------------------------------------------------------
+
+We first ran the simulation under the real SAP placement ---
+the ``Baseline (Actual SAP)'' policy --- to characterize the warehouse
+as it operates today before evaluating any alternative.  Over 20
+independent replications the model yielded a mean kitting lead time of
+$12.37 \pm 1.07$~min per kit order (95\% CI half-width), of which
+8.45~min is time spent waiting for a shared resource.  Operators walk
+an average of 89.0~m per order, the seven reach trucks (RTs) run at
+21.7\% utilization, and the system completes roughly 399 kit orders
+per working day.
+
+The most striking feature of these numbers is how much of that lead
+time is pure wait.  At 8.45 out of 12.37~min --- about 68\% --- the
+dominant cost is not the physical picking work; it is time spent
+queuing for an RT or for an available operator.  Actual
+pick-and-prepare work accounts for only about 3.92~min per order.
+Put differently, roughly two-thirds of every kit's life in the system
+is spent in a queue, not in productive motion.  This finding shaped the
+focus of our proposed policy: rather than minimizing the distance an
+operator walks, we ask whether a smarter slotting can reduce demand on
+shared resources in the first place.
+
+% -----------------------------------------------------------
+\subsection{Verification and Validation Results}\label{sec:results:vv}
+% -----------------------------------------------------------
+
+\input{sections/gen/tab_validation.tex}
+
+\input{sections/gen/tab_rack_share.tex}
+
+The $\chi^{2}$ test (Table~\ref{tab:validation}) rejects the null
+hypothesis that the simulated and real rack-share distributions are
+identical ($\chi^{2} = 537.7$, $p = 4.9 \times 10^{-110}$).  We
+expected this, and it does not mean the model is wrong.  The test
+compares pick counts across rack rows; because the simulation assigns
+materials via slotting policies rather than replicating the exact SAP
+bin-to-bin placement, systematic shape differences are inevitable.
+Three structural reasons account for most of the gap.  Only 750 of
+roughly 5,900 active materials carry a decoded SAP rack position; the
+rest are assigned by the heuristic fallback, shifting volume away from
+the racks where SAP actually stores them.  The ZWM92 dispatch log ---
+which both provides the expected pick vector and was used to fit the
+driver distributions --- means the test measures internal consistency
+rather than out-of-sample predictive validity.  Finally, the I and J
+rack rows hold almost exclusively dead stock (zero picks over the
+entire four-month log), so their expected cell counts are effectively
+zero and Cochran's rule is violated for the unpooled test; the pooled
+headline $\chi^{2}$ that merges these low-count cells satisfies
+Cochran's rule and gives a similar statistic of 535.1.
+
+A better way to assess model fidelity is Cram\'er's $V = 0.216$, which
+places the deviation in the ``small to medium'' range~\cite{bartholdi2014}.
+Rack row E is the busiest in both the log (37.5\%) and the simulation
+(20.4\%, still the second most active), and G is second-busiest in
+the log (19.9\%) while topping the simulation (37.3\%).  The ordering
+is imperfect, but the model does not invent activity at rows that are
+genuinely quiet (Table~\ref{tab:rack_share}).  The per-material paired
+$t$-test on log pick counts ($n = 925$ materials common to both
+datasets, $t = 8.75$, $p = 9.7 \times 10^{-18}$) indicates a positive
+bias: on average the simulation slightly over-counts picks at materials
+the heuristic was forced to place, because the fallback assigns them to
+positions closer to Kardex or to production lines and those positions
+are therefore more likely to be drawn under the simulation's
+distance-weighted pick logic.
+
+The daily order volume confirms the batch-arrival calibration:
+simulated arrivals per day are within 1.1\% of the ZWM92 actual of
+396~orders/day across all 20 replications, and the short two-day
+validation run yields 378~orders/day ($-4.6\%$ relative error), well
+inside the $\pm 10\%$ acceptance band.
+
+Our supervisor asked us to be direct about what this means for the
+policy comparison.  All six policies run under the same model, the same
+demand trajectory, and the same structural biases.  If the simulation
+slightly over-counts picks at fallback-assigned positions, it does so
+equally for every policy --- no slotting policy gains a systematic
+advantage.  The ranking in Section~\ref{sec:results:comparison}
+reflects genuine differences in how each policy allocates materials
+relative to the corridor structure and resource constraints, not
+artefacts of the validation gap.
+
+% -----------------------------------------------------------
+\subsection{Policy Comparison}\label{sec:results:comparison}
+% -----------------------------------------------------------
+
+\input{sections/gen/tab_kpi_summary.tex}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{policy_comparison.png}
+  \caption{Policy comparison across four panels (left to right, top to bottom):
+    average order preparation time; average RT waiting time; average walk distance
+    per order; and resource utilization (RT utilization and operator utilization).
+    All results are means over $N=20$ replications with common random numbers;
+    error bars show 95\% CI half-widths.}
+  \label{fig:policy_comparison}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{prep_time_boxplot.png}
+  \caption{Distribution of average preparation time across 20 replications
+    for each policy.  The tight spread confirms that replication variance
+    is low for this KPI.}
+  \label{fig:prep_time_boxplot}
+\end{figure}
+
+Table~\ref{tab:kpi_summary} and Figure~\ref{fig:policy_comparison}
+present the five KPIs for all six policies.
+
+\paragraph{Line-aware Slotting (proposed policy).}
+The proposed policy achieves a mean lead time of $6.91 \pm 0.47$~min,
+a reduction of about 44\% relative to the current SAP placement and
+the best result across all five KPIs where lower is better.
+Each material's storage bin is placed as close as possible to the
+specific production line where that material is most frequently
+demanded, and the assignment prefers shelf levels that operators can
+reach by hand so that RT calls are avoided during normal picks.  With
+this placement, the seven reach trucks sit idle 98.7\% of the time
+(RT utilization 1.3\%), and the queueing bottleneck that inflates lead
+time under other policies essentially disappears.  Waiting time falls
+to 4.26~min, and the tighter confidence interval ($\pm 0.47$~min
+vs.\ $\pm 1.07$~min for SAP) reflects a much more stable and
+predictable system.  Walking distance is 92.4~m per order, marginally
+higher than the current SAP baseline (89.0~m) --- an entirely
+acceptable trade-off given the halved lead time.  Throughput at
+398.6~orders per day is indistinguishable from the other well-performing
+policies.
+
+\paragraph{Current SAP placement.}
+The real placement, built up over years of daily operations, turns out
+to be remarkably good on walking distance: 89.0~m per order is the
+best result in the study, better than every algorithmic alternative.
+Real logistics planners evidently did place popular materials near the
+production lines over time.  The problem is RT utilization at 21.7\%.
+Because the SAP placement ignores level heights, high-turnover
+materials are frequently located above the no-RT threshold, and every
+such pick blocks an RT from serving another order.  The resulting
+waiting time of 8.45~min makes up the majority of the 12.37~min lead
+time.
+
+\paragraph{Capacity heuristic and ABC variants (Usage-based and Double ABC).}
+These three policies all produce lead times in the range of 14.7--15.2~min,
+statistically indistinguishable from each other (Tukey HSD, all
+$p > 0.15$) and significantly worse than the current SAP placement.
+Usage-based and Double ABC aim to move fast-moving materials to
+lower-numbered rack positions, but without any awareness of which
+production line needs which material.  They cluster the highest-volume
+items together in a few aisles, so RT demand actually increases
+(utilization rises to 24\%) and operator queues lengthen.  Walking
+distance worsens too --- 104.6--108.8~m versus 89.0~m for SAP ---
+because a pure frequency sort does not match the spatial structure of
+the warehouse the way years of accumulated SAP placement does.  The
+capacity heuristic performs similarly for the same reason: it spreads
+materials without line awareness and ends up at 106.1~m and 22.8\% RT
+utilization.
+
+\paragraph{Travel-distance Optimized.}
+This policy produces the worst outcomes in the study by a wide margin.
+Mean lead time is 24.60~min ($\pm 3.36$~min), more than double the
+current SAP baseline.  RT utilization reaches 44.0\%, and average
+waiting time is 19.03~min.  Two effects combine to cause this.  The
+optimization measures routed distance to a single central kitting
+centroid, yet 77\% of kit demand originates at per-line corridor
+points; concentrating materials at positions close to the geometric
+centre of the warehouse is therefore the wrong objective.  The
+optimizer also ignores storage levels, placing high-frequency materials
+at upper-shelf positions that require RT service.  RT utilization
+climbs to 44\%, creating a cascade: an operator waiting for an RT
+holds the order slot, which delays the next operator, and so on.  The
+confidence interval ($\pm 3.36$~min) is the widest of any policy,
+confirming that the system is operating in an unstable congestion
+regime.  Walking distance is 96.1~m --- better than most alternatives
+on distance alone --- but this metric barely matters when every sixth
+minute of an order's life is spent in a queue.
+
+\paragraph{The dominant lever is queueing, not steps.}
+Across all six policies, walking distance varies from 89.0 to
+108.8~m --- a span of under 20~m --- while lead time ranges from
+6.91 to 24.60~min, a span of nearly 18~min.  A slotting policy that
+halves lead time but adds 3~m of walking is an unambiguous improvement.
+The central lesson from this experiment is that in a shared-resource
+kitting environment, the path to shorter order fulfilment runs
+through the queue, not through the aisle.
+
+% -----------------------------------------------------------
+\subsection{Statistical Tests}\label{sec:results:stats}
+% -----------------------------------------------------------
+
+\input{sections/gen/tab_anova.tex}
+
+\input{sections/gen/tab_paired_t.tex}
+
+The one-way ANOVA (Table~\ref{tab:anova}) rejects equality of means
+for four of the five KPIs at $p < 10^{-8}$; the single exception is
+throughput ($F = 0.01$, $p \approx 1.0$), which confirms that the
+system is not bottlenecked to the point of dropping orders under any
+policy --- the warehouse completes roughly 396--399 kit orders per day
+regardless of slotting.
+
+The replication-paired $t$-tests against the current SAP placement
+(Table~\ref{tab:paired_t}; common random numbers, $N = 20$ pairs) give
+the clearest picture of what each policy actually delivers.
+Line-aware Slotting is $5.46$~min faster per order on average
+($t = -17.47$, $p = 3.68 \times 10^{-13}$), and the two-sided CI
+does not approach zero.  Every other alternative is significantly
+\emph{slower} than the current state: the three frequency-based
+policies add roughly 2.3--2.9~min per order, and the travel-distance
+optimized policy adds 12.23~min.
+
+Tukey HSD post-hoc comparisons on lead time confirm this structure.
+Line-aware Slotting is significantly better than all other policies
+(all pairwise $p < 0.0002$), the three middle-tier policies are
+statistically equivalent to each other (all pairwise $p > 0.15$),
+and the travel-distance policy is significantly worse than all others
+(all pairwise $p < 10^{-10}$).  Welch's independent-samples tests
+show the same ordering under relaxed equal-variance assumptions.  We
+also ran the paired comparison in Minitab using the
+per-replication KPI export; the Minitab output matched
+the Python paired-$t$ results to three significant figures on every
+comparison.
+
+% -----------------------------------------------------------
+\subsection{Sensitivity Analysis}\label{sec:results:sensitivity}
+% -----------------------------------------------------------
+
+\input{sections/gen/tab_sensitivity.tex}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.88\textwidth]{sensitivity_tornado_avg_lead_time.png}
+  \caption{Tornado chart: one-at-a-time sensitivity of mean kitting lead
+    time to $\pm 20$\% perturbations of each timing and arrival-rate
+    parameter (baseline lead time 14.00~min under the Heuristic policy
+    used as the sensitivity reference run).}
+  \label{fig:tornado}
+\end{figure}
+
+Figure~\ref{fig:tornado} and the numerical ranges in
+Table~\ref{tab:sensitivity} show two distinct groups of parameters.
+The two load-related parameters --- operator walking speed (range
+5.37~min) and order inter-arrival time (range 5.24~min) --- effectively
+tie at the top of the tornado and together dominate the picture;
+everything else moves lead time by at most 2.6~min.  Both act through
+the same mechanism: each raises the demand placed on shared resources.
+A slower operator consumes more service time per order, raising
+resource utilization and lengthening queues; a shorter mean
+inter-arrival gap brings more orders into the system per unit time,
+creating the same pressure.  The RT-related parameters have a moderate
+effect: lift time per level produces a range of 2.6~min, travel speed
+0.9~min, and pick time only 0.2~min.  Individual Kardex and operator
+element times barely move the needle, consistent with Kardex being used
+predominantly for a fixed fraction of the material mix.
+
+This matters most for the main modelling risk we identified in our data
+limitations: the F400 video timing study was conducted for a single
+product family (F400 switchgear) and extrapolated to all nine families.
+Because pick-time parameters produce lead-time shifts of at most
+$\pm 1.5$~min --- well below the 5.46~min advantage of Line-aware
+Slotting --- even a moderately incorrect extrapolation would not
+overturn the ranking.  The same logic applies to the manual pick
+penalty, whose range is the smallest of all parameters at 0.07~min.
+
+The perturbations apply uniformly to all policies, since each run
+changes the same global parameter value.  Even if the true timing
+constants lie at the extreme of our perturbation range, the policy
+ordering does not change.
+
+% -----------------------------------------------------------
+\subsection{Discussion}\label{sec:results:discussion}
+% -----------------------------------------------------------
+
+Storage assignment research has consistently found that well-designed
+slotting can reduce order-picking travel by 10--30\% relative to
+random or class-based baselines~\cite{dekoster2007,petersen2004}.  Our
+findings are consistent in magnitude --- Line-aware Slotting walks
+92.4~m versus 106.1~m for the capacity heuristic, a 13\% reduction in
+travel --- but they add a dimension the warehouse-layout literature
+seldom highlights: in a kitting environment with shared reach trucks,
+the dominant benefit of slotting is the reduction of \emph{resource
+contention}, not the reduction of travel.
+
+The kitting context matters here.  A kit order bundles many different
+materials from across the warehouse into a single assembly set.  Limere
+et al.~\cite{limere2012} showed that the economics of kitting versus
+line stocking hinge on handling cost and distance; our experiment shows
+that when reach trucks are a shared resource rather than dedicated
+lifts, the handling cost is mostly queueing time.  A slotting policy
+that ignores this transforms a resource that is idle 78\% of the time
+under SAP placement into one saturated at 44\% under the
+travel-distance policy.  Simulation methods are particularly suited to
+expose this kind of non-linear behaviour, as Negahban and
+Smith~\cite{negahban2014} and Amorim-Lopes et al.~\cite{amorim2021}
+have noted in manufacturing and retail warehouse contexts respectively.
+
+Three features of Line-aware Slotting drive its advantage.  The
+line-origin distance metric places each material close to the
+production line it serves most, not to the geometric centre of the
+warehouse; since 77\% of kit demand originates at line-specific
+corridor points, this single change concentrates most picks in a small
+neighbourhood around each line's corridor.  The no-RT level preference
+keeps materials at heights operators can reach without a truck (the
+lower three levels in our model's hand-reach band), so the RT fleet is reserved for
+true high-level retrieval rather than being drawn into routine kitting
+cycles.  And because the assignment distributes materials across
+multiple corridor segments rather than clustering them in one zone, it
+avoids the local congestion that cripples the travel-distance policy.
+
+Usage-based and Double ABC both embody the textbook recommendation to
+place fast movers closest to the output point~\cite{hausman1976,
+heskett1963}.  In a conventional single-picker warehouse this is sound
+advice~\cite{frazelle2002}, but here the ``closest point'' is not a
+single dispatch dock: each production line has its own spatially
+distinct kitting corridor.  Collapsing that structure to a single
+distance metric creates the same congestion problem as the
+travel-distance policy, just to a lesser degree.  The
+travel-distance optimized policy is the extreme case: it perfectly
+optimizes for the wrong objective function, and its lead time is
+roughly double that of the current state.
+
+For the Manisa plant the practical implication is direct: re-slot
+fast-moving materials line-by-line, prioritizing the levels that
+operators can reach by hand.  At the current order volume of roughly
+400 kits per day, our model estimates a mean reduction of 5.46~min per
+kit order.  Across a full shift that is a substantial capacity gain
+without adding any equipment or headcount.  One caveat on the RT
+utilization figure for Line-aware Slotting (1.3\%): this is the
+\emph{picking-only} figure.  Putaway and forward-slot replenishment,
+which would inevitably increase after re-slotting high-turnover items
+to low levels, fall outside the scope of this model.  Quantifying that
+trade-off requires replenishment scheduling data we did not have access
+to; we list it as future work.
+
+The comparison is internally fair in all important respects.  Every
+policy faces the same demand trajectory within each replication (common
+random numbers), the same resource pool, and the same model biases.
+The validation gap discussed in Section~\ref{sec:results:vv} does not
+favour any one policy, and we therefore treat the ranking as a reliable
+basis for the recommendation in Section~\ref{sec:conclusions}.

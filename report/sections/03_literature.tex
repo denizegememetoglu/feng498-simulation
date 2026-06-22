@@ -1,0 +1,346 @@
+% ============================================================
+% Section 3 — Literature Review
+% FENG 498 Graduation Project
+% Izmir University of Economics
+% ============================================================
+
+\section{Literature Review}\label{sec:lit}
+
+We searched the literature along four threads: storage location assignment
+methods (especially class-based and turnover-driven approaches), ABC and
+multi-criteria classification schemes, discrete-event simulation (DES)
+applied to warehousing, and kitting together with in-plant logistics.
+For each study we describe what was done, what KPIs were measured, and
+where the scope or method differs from the present work.
+The section closes with the research gap that motivated our line-aware
+slotting policy.
+
+% ------------------------------------------------------------
+\subsection{Storage Location Assignment}\label{subsec:sla}
+% ------------------------------------------------------------
+
+The question of \emph{where} to put each stock-keeping unit in a warehouse
+has been studied for more than six decades, and the core trade-offs were
+already visible in the earliest analytical work.
+
+\medskip
+\noindent\textbf{Class-based versus dedicated versus random assignment.}
+Hausman, Schwarz, and Graves~\cite{hausman1976} analyzed an automated
+warehouse and compared three pure strategies: dedicated (each item assigned
+one fixed location), random (locations chosen uniformly at random), and
+class-based (items partitioned into classes by turnover, each class
+occupying a zone).
+Their key result is that a three-class policy captures most of the travel
+savings of full dedicated assignment while requiring far less location space
+and no re-slotting as demand mix shifts.
+We work in a manual rack warehouse rather than an automated system, but the
+same three-way taxonomy organizes our six policy variants.
+The Baseline (Actual~SAP) policy is a historically evolved dedicated
+assignment; the Heuristic policy is a rule-of-thumb dedicated assignment;
+Usage-based~ABC and Double~ABC are class-based; and Line-aware Slotting
+is a structured dedicated assignment that replaces the turnover criterion
+with a line-proximity criterion.
+
+\medskip
+\noindent\textbf{The cube-per-order index.}
+Heskett~\cite{heskett1963} proposed ordering items by the ratio of storage
+volume to order frequency — the cube-per-order index (COI) — and placing
+low-COI items nearest the input/output point.
+Items that move often in small packages should occupy the slots with the
+shortest travel path.
+Our Travel-distance Optimized policy is the direct descendant of COI: it
+sorts materials by pick frequency and assigns the most-picked materials to
+the lowest-travel-cost bins.
+As we discuss in Section~\ref{sec:results}, this strategy \emph{degrades}
+lead time in our setting because assigning all high-frequency materials to
+the same zone concentrates reach-truck demand spatially and creates a
+queueing bottleneck that the COI analysis ignores.
+
+\medskip
+\noindent\textbf{Interactions between storage and routing policy.}
+Petersen and Aase~\cite{petersen2004} used simulation to evaluate how
+storage assignment and travel-routing (traversal, return, combined,
+largest-gap, midpoint) interact in a manual warehouse.
+They found that the best combination depends heavily on aisle structure and
+that no assignment policy dominates across all routing algorithms.
+Our warehouse has a different topology — a main kit corridor between
+production-line-facing rack faces rather than a classical single-block
+layout with dedicated pick aisles — but the lesson holds: the slotting
+decision cannot be decoupled from the physical direction of kit travel
+(East-facing versus West-facing bays, hand-reachable levels versus
+reach-truck-only upper levels).
+
+\medskip
+\noindent\textbf{Practical principles: golden zone and fast-mover proximity.}
+Frazelle~\cite{frazelle2002} and Bartholdi and Hackman~\cite{bartholdi2014}
+both document the golden-zone heuristic: the body-height band of a rack
+(roughly levels~3 through~5) should hold the fastest-moving items because
+it minimizes operator bending and eliminates the need for powered equipment.
+Bartholdi and Hackman further note that demand-weighted travel distance,
+not mere frequency rank, governs the savings.
+Our Line-aware Slotting policy puts this directly into practice: items
+consumed by nearby production lines go into levels~2 through~5 of the
+closest rack bay so that a standing operator can pick without calling a
+reach truck.
+The simulation results confirm the golden-zone logic — reach-truck
+utilization under Line-aware Slotting falls to about \SI{1.3}{\percent},
+compared to \SI{21.7}{\percent} under the current SAP baseline.
+
+\medskip
+\noindent\textbf{Travel time as the dominant cost.}
+De Koster, Le-Duc, and Roodbergen~\cite{dekoster2007} surveyed order-picking
+literature and reported that travel accounts for roughly half to two-thirds
+of total picking time in most manual warehouses.
+Our video time-motion study (the F400 study) found similar proportions for
+this facility and supplied the per-activity timing distributions we used in
+the simulation model.
+De Koster et al.\ also identify shared-resource contention as an
+under-studied cost driver in warehouse models — which is exactly the gap we
+address by modelling reach trucks and operators as finite, competing
+resources.
+
+% ------------------------------------------------------------
+\subsection{ABC Classification and Multi-Criteria Variants}\label{subsec:abc}
+% ------------------------------------------------------------
+
+ABC classification assigns items to priority classes — A, B, or C —
+based on a single ranked criterion, most commonly annual consumption value
+following the Pareto principle.
+Class-A items, which are few but account for most of the throughput, go into
+the most accessible locations.
+In a warehouse context the access criterion shifts from value to pick
+frequency or pick volume.
+
+\medskip
+\noindent\textbf{Single-criterion limits.}
+Flores and Whybark~\cite{flores1986} pointed out that ranking by a single
+criterion conflates items that are simultaneously high-volume \emph{and}
+high-value with items that are one but not the other.
+They proposed a two-dimensional matrix (a $3 \times 3$ or $5 \times 5$
+grid of frequency versus value classes) to produce more differentiated
+assignment priorities.
+We put this idea into practice as our Double~ABC policy: materials are
+ranked by an order-frequency class on one axis and a pick-volume class on
+the other, and the resulting nine cells are collapsed to three priority
+tiers that drive slot assignment.
+In our simulation, Double~ABC yields a mean kitting lead time of about
+\SI{14.7}{\minute} — essentially the same as the plain Heuristic policy
+(\SI{14.7}{\minute}) and materially worse than Line-aware Slotting
+(\SI{6.9}{\minute}).
+We return to why multi-criteria ABC alone is insufficient in
+Section~\ref{sec:results}; briefly, frequency and volume are still
+aggregate measures that say nothing about which production line consumes a
+given material, so they cannot prevent the cross-warehouse travel that is
+the main cost in our floor plan.
+
+\medskip
+\noindent\textbf{The plant's current ABC/FMR tool.}
+The Schneider Electric Manisa facility uses an SAP-based FMR (Fast/Medium/
+Rare) classification that sorts materials by aggregate consumption across
+all nine product families.
+A component consumed heavily by Line~F400 but rarely by any other line still
+receives a high FMR rank and lands in a general fast-mover zone that may be
+distant from Line~F400's kitting table.
+Our ZWM92 dispatch log contains about 40,800 kit orders across four months
+and resolves per-line consumption at the component level, which makes it
+possible to build a line-aware assignment that the plant's existing tool
+cannot produce from its aggregated FMR scores.
+
+% ------------------------------------------------------------
+\subsection{Simulation-Based Warehouse Studies}\label{subsec:sim}
+% ------------------------------------------------------------
+
+Simulation has become the standard evaluation tool for warehouse design
+decisions because analytical models cannot capture the stochastic
+interactions among arrivals, routing, and resource sharing that dominate
+real performance.
+
+\medskip
+\noindent\textbf{Scope of the literature.}
+Negahban and Smith~\cite{negahban2014} reviewed simulation studies of
+manufacturing systems and warehouses published over roughly two decades.
+They noted a steady shift from queuing-analytic models toward DES and
+agent-based models as computing costs fell, and identified resource
+contention — shared equipment, shared aisles — as the most common reason
+that analytic approaches under-predict congestion.
+Our study sits squarely in the DES strand they describe: we used SimPy to
+model arrivals as a fitted batch-arrival process, shared reach trucks and
+operators as finite-capacity resources, and replicated the experiment twenty
+times to obtain confidence intervals.
+
+\medskip
+\noindent\textbf{DES methodology.}
+Banks et al.~\cite{banks2010} and Law~\cite{law2015} are the standard
+methodology references for DES studies.
+Both texts prescribe fitting input distributions from real data, using
+common random numbers (CRN) across scenarios to reduce variance in
+comparisons, and running enough replications for interval estimates.
+We followed these prescriptions: arrival inter-batch gaps and batch sizes
+are drawn from empirical distributions fitted to the ZWM92 timestamped
+records, service times use lognormal distributions whose parameters come
+from the F400 video study, and all six policies share the same 20~CRN
+replication seeds.
+
+\medskip
+\noindent\textbf{Slotting evaluated by DES.}
+Ardiansyah et al.~\cite{ardiansyah2024} applied DES in ProModel to evaluate
+warehouse layout and picking efficiency improvements in an electronics
+distribution centre, finding travel-time reductions of several percentage
+points when items were regrouped by pick frequency.
+Our study differs in three respects: we model an \emph{inbound kitting}
+process rather than outbound order picking, our batched arrival stream comes
+directly from four months of SAP dispatch records rather than synthetic
+input, and we evaluate six policies with paired-replication $t$-tests
+rather than a single before-and-after comparison.
+Hapsari, Arlianto, and Santoso~\cite{hapsari2025} used DES to improve layout
+and inventory control in a pharmaceutical warehouse, showing that simulation
+can surface bottlenecks invisible in static ABC analysis.
+We make a similar point, but our scenario adds shared mechanical handling
+resources whose contention is the dominant lead-time driver.
+
+\medskip
+\noindent\textbf{Hybrid simulation and optimization.}
+Amorim-Lopes et al.~\cite{amorim2021} combined probabilistic modelling,
+mathematical optimization, and DES in sequence to improve picking at a large
+retailer warehouse, using the DES stage to validate the optimizer's plan
+under realistic congestion.
+Their architecture is more elaborate than ours; we chose a pure simulation
+approach because the six policies are structurally distinct enough to
+evaluate by experiment, and the real SAP data provide a direct validation
+target — the current SAP baseline replicates the observed throughput of
+about 396~orders per active day within \SI{5}{\percent}.
+Kokroko, Kobi, and Yeboah~\cite{kokroko2025} combined simulation with
+optimization algorithms to maximize storage efficiency and minimize travel
+distances, reporting improvements in both KPIs simultaneously.
+Their objective function does not include downstream resource queueing; in
+our warehouse the Travel-distance Optimized policy achieves the
+third-shortest walk distance yet produces the longest lead time
+(\SI{24.6}{\minute}) because it floods the reach trucks.
+
+\medskip
+\noindent\textbf{Analytical and bi-level optimization.}
+Moghadam et al.~\cite{moghadam2025} proposed a bi-level optimization model
+that integrates warehouse design, storage location assignment, and order
+picking into a single mathematical programme.
+The upper level selects storage locations; the lower level minimizes travel
+on those locations.
+This is a clean analytical complement to our simulation-based approach.
+The limitation of such formulations is that they typically assume
+deterministic or steady-state demands and do not model the stochastic
+arrivals, resource contention, or shift breaks that generate the queueing
+we observe.
+
+\medskip
+\noindent\textbf{Automated storage and retrieval — Kardex.}
+Roodbergen and Vis~\cite{roodbergen2009} surveyed automated storage and
+retrieval systems (AS/RS), including horizontal and vertical carousels of
+the kind our Kardex units represent.
+They report that carousel throughput is sensitive to dwell-point strategy
+(where the carousel parks between requests) and that batching requests
+within one cycle increases throughput substantially.
+We modelled our four Kardex units as a shared resource with a single
+carousel-rotation overhead per visit and multiple picks within one hold,
+which is the batching strategy Roodbergen and Vis recommend.
+Validation showed that Kardex utilization remains below
+\SI{10}{\percent} across all policies because the approximately 2,870
+Kardex-assigned materials face relatively modest aggregate demand.
+
+% ------------------------------------------------------------
+\subsection{Kitting and In-Plant Logistics}\label{subsec:kitting}
+% ------------------------------------------------------------
+
+Our warehouse does not perform outbound distribution; it feeds nine
+production lines by assembling component kits and delivering them by
+milkrun train.
+The kitting and line-stocking literature is therefore directly relevant.
+
+\medskip
+\noindent\textbf{Kitting time efficiency.}
+Hanson and Medbo~\cite{hanson2012} studied manual assembly kitting at
+Swedish manufacturing plants and found that kit preparation time is
+dominated by walking and searching rather than the physical act of picking,
+and that grouping components by line reduces total kit assembly time
+materially.
+This matches what we observed: the F400 video study shows that an
+operator's non-value-added travel between bays during a single kit pick is
+the dominant activity.
+Line-aware Slotting targets this directly by assigning a production line's
+highest-demand components to the rack bays facing that line's kitting
+table, so that most picks in a kit are completed without leaving a short
+corridor segment.
+
+\medskip
+\noindent\textbf{Kitting versus line stocking.}
+Limere et al.~\cite{limere2012} built a cost model for the choice between
+kitting (components collected into a kit before delivery to the line) and
+line stocking (components stored directly at the line) in automotive
+assembly.
+Their model shows that kitting is preferred when components are shared
+across multiple products, when line-side storage space is scarce, and when
+order volumes vary.
+The Manisa medium-voltage switchgear warehouse operates under exactly those
+conditions: components are shared across nine product families, the
+production floor has no significant line-side storage, and order volumes
+follow a batch-arrival pattern with high inter-batch variability — the
+ZWM92 data show a coefficient of variation of about 2.0 for inter-batch
+gaps within a shift.
+Kitting is therefore not a design choice we evaluate here; it is the fixed
+operational context within which we optimize slot assignments.
+
+\medskip
+\noindent\textbf{Milkrun scheduling.}
+Emde and Boysen~\cite{emde2012} studied routing and scheduling of tow-train
+(milkrun) deliveries for just-in-time supply of mixed-model assembly lines.
+They showed that the sequence and timing of milkrun routes interact with
+kit-assembly completion times: a milkrun that arrives before a kit is ready
+either waits or makes a redundant loop.
+In our model the milkrun trains are the downstream customers of the kitting
+process; we model them as a resource pool whose members ferry completed kits
+to the lines.
+We do not optimize milkrun routes in this study — routes are fixed by the
+floor plan — but the Emde-Boysen framing clarifies why lead time is the
+right primary KPI: it measures the interval from kit-order release to kit
+delivery at the line, which is exactly the quantity that drives line-side
+buffer requirements.
+
+% ------------------------------------------------------------
+\subsection{Research Gap}\label{subsec:gap}
+% ------------------------------------------------------------
+
+The storage-assignment literature, from the early COI work of
+Heskett~\cite{heskett1963} through the modern simulation studies reviewed
+above, optimizes for some form of aggregate travel distance or throughput.
+Even the multi-criteria ABC extension of Flores and
+Whybark~\cite{flores1986} retains a single demand-weighted score per item:
+it does not distinguish \emph{which demand} drives the score.
+In a plant warehouse that feeds multiple distinct production lines, this
+aggregation matters.
+Assigning a component to the nearest-to-depot slot minimizes average travel
+across all orders but may force a long detour for orders from the line at
+the far end of the warehouse.
+
+The coupling between slotting and shared handling equipment is equally
+overlooked.
+The Travel-distance Optimized policy in our study illustrates the problem:
+by packing all high-demand items into the lowest-travel-cost zone, it
+creates a reach-truck hotspot that nearly doubles lead time relative to the
+SAP baseline, despite a shorter average walk.
+Analytical and optimization-based methods~\cite{moghadam2025,kokroko2025}
+typically assume uncapacitated or single-resource travel; the queueing
+effect only appears when a DES model captures concurrent orders competing
+for the same reach truck at the same moment.
+
+So the gap is this: no study we found explicitly co-optimizes slot
+assignment with (a)~the identity of the production line that will consume
+each kit, and (b)~the contention for shared mechanical handling resources,
+evaluated on a multi-month company dispatch log with paired statistical
+testing.
+Our Line-aware Slotting policy and the supporting DES model are designed
+to fill that gap.
+The policy assigns each material to the rack face nearest its primary
+consuming line and to a manually reachable level wherever possible, so that
+reach-truck demand is minimized by design.
+Across twenty replications, it achieves a mean kitting lead time of about
+\SI{6.9}{\minute} — about \SI{44}{\percent} below the \SI{12.4}{\minute}
+recorded under the current SAP placement — while holding throughput
+constant at about 399 orders per day.

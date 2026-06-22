@@ -333,10 +333,10 @@ The May 20 site visit produced an F400 Kit video time-motion study
 (`F400 Kit Cansu Nehir.xlsx`, 2,319 micro-events across 296.6 min of DJI
 footage with CNVA/FNVA/NVA classification). Extractor at
 `src/timing_study.py` parses the four sheets, classifies each row via Turkish
-keyword regex, and writes `output/timing_study_f400.json`. The simulation
+keyword regex, and writes `the time-study output`. The simulation
 now uses these constants instead of the pre-visit placeholders:
 
-| Constant | Old (placeholder) | New (F400 video) | Sample |
+| Constant | Old (placeholder) | New (the time-motion study) | Sample |
 |----------|------------------:|-----------------:|-------:|
 | `OPERATOR_PICK_TIME`         | 0.30 min | **0.113 min** | n=900 (rf_scan + manual_pick) |
 | `MANUAL_PICK_TIME_PENALTY`   | 0.50 min | **0.102 min** | n=157 (walk_corridor) |
@@ -443,7 +443,7 @@ shares directly.
 
 **2026-05-26 code-audit fixes:**
 
-- **H2 (IAT calendar mean):** `output/zwm92_summary.json` now reports
+- **H2 (IAT calendar mean):** `the dispatch summary` now reports
   two means side-by-side — `iat_within_shift_mean` (consecutive-order
   gaps under a 60-min cap, the within-shift cadence) and
   `iat_calendar_mean` (`(last_dt − first_dt) / (n_orders − 1)`, the
@@ -472,7 +472,7 @@ shares directly.
   completion count with no-op orders, biasing throughput up by ~0.2%.
 - **C3 (TravelDistance sort key):** `TravelDistancePolicy` now sorts
   by *real* per-material pick frequency from `picks_by_material`
-  (cached in `zwm92_summary.json`) when available, falling back to
+  (cached in `the dispatch summary`) when available, falling back to
   the SAP `consumption` proxy only when the cache is missing. Result:
   Travel-distance no longer beats the heuristic on walk distance once
   the sort uses real picks rather than the consumption-weighted proxy
@@ -507,7 +507,7 @@ shares directly.
 
 `NUM_REACH_TRUCKS = 7`, `NUM_OPERATORS = 8`, `NUM_MILKRUN_TRAINS = 7`,
 `NUM_KARDEX_UNITS = 4`. Source: verbal report from the May 20 site
-visit, recorded in CLAUDE.md and confirmed in the F400 video footage
+visit, recorded in CLAUDE.md and confirmed in the the time-motion study footage
 (7 distinct reach-truck driver IDs across 296.6 min). These are
 treated as static for the headline run. Sensitivity sweeps the timing
 constants but not the fleet sizes — a fleet-sweep is in the
@@ -657,7 +657,7 @@ the Kardex zone; the operator walks to the routed-nearest unit.
 - Honesty note added to the report: the χ²/t-test "expected" vectors
   derive from the SAME ZWM92 dataset the driver was fitted on — these
   are internal-consistency checks, not holdout validation. Independent
-  evidence: F400 video timing, daily-volume calibration, face validity.
+  evidence: the time-motion study timing, daily-volume calibration, face validity.
 - "Baseline (Actual SAP)" fidelity is disclosed: 750 materials at true
   SAP rack bins, 2,872 Kardex-routed (policy-invariant), 2,319 via
   heuristic fallback — i.e. the baseline is a SAP+FMR hybrid, and the
@@ -778,7 +778,7 @@ bölüşümü tahminîdir (rack toplamları damgalarla bire bir).
 | özet (SAP master, 5941 malzeme) | `data_loader.load_storage_bins/abc` — bin decode, ABC | Sim envanteri + RealBaseline join (802 bin) |
 | zppq11 (76 gün tüketim) | ABC/Usage politikaları ağırlıkları | Politika karşılaştırması |
 | ZWM92 (9 aile, 40 804 kit) | Driver dağılımları (IAT/batch/n_items/line/material); validation actuals; **hat×raf tüketim çapraz tablosu (yeni — layout harf doğrulaması)** | Driver + χ²/paired-t + layout kanıtı |
-| F400 video etüdü (2 319 olay) | Timing sabitleri + lognormal CV'ler | Süreç süreleri |
+| the time-motion study etüdü (2 319 olay) | Timing sabitleri + lognormal CV'ler | Süreç süreleri |
 | 11 raf PDF'i | **Fable5: damgalar (3203/137/306/1894), seviye zincirleri, per-bay profiller, ÖN/ARKA, KÜÇÜK RF'ler** | Layout + kapasite + V&V face validity |
 | DWG (AutoCAD) | **Fable5: tam entity envanteri + ölçüler (koridorlar!) + portallar + satır analitiği** | Layout geometrisi |
 | Fabrika fotoğrafları (9 yer) | **Fable5: harf plakaları (B/C, E/F, J/G), FORKLIFT YOLU, hat tabelaları** | Layout harf kanıtı + viewer paleti |

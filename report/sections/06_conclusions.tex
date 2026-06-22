@@ -1,0 +1,110 @@
+\section{Conclusions}\label{sec:conclusions}
+
+We built a SimPy discrete-event model of the medium-voltage switchgear
+warehouse at Schneider Electric's Manisa plant, drove it with four months of ZWM92
+dispatch data, and compared six storage-assignment policies over 20
+paired replications. The proposed Line-aware Slotting policy reduced
+mean kitting lead time from 12.37 minutes per order under the current
+SAP placement to 6.91 minutes --- a 44\% reduction --- and brought
+reach-truck utilization from 21.7\% down to 1.3\%
+(Table~\ref{tab:kpi_summary}). One-way ANOVA across the six policies is
+strongly significant ($F = 47.1$, $p < 10^{-25}$), and the paired
+$t$-test under common random numbers between Line-aware Slotting and
+the current SAP baseline gives $p < 0.001$. The improvement did
+not come from shorter walking paths --- average walk distance is about
+92 metres per order under Line-aware Slotting versus 89 metres under the
+SAP baseline. It came from removing reach-truck calls from the kit path,
+which collapsed the operator queue that accounts for most of the lead
+time.
+
+\subsection*{Managerial implications}
+
+For fast-moving materials --- those with meaningful pick frequency in the
+ZWM92 log --- the model estimates that phasing in Line-aware Slotting
+could cut kit preparation time by roughly 5.5 minutes per order. At
+roughly 400 kit orders per working day, that translates to a substantial
+daily saving in operator and reach-truck idle time, though the actual
+gain in any given week depends on demand mix and fleet availability,
+neither of which the model predicts. We recommend starting with a single
+production line: identify the 50 to 100 materials that kit most
+frequently to that line, move them to hand-reachable levels (the lower
+three shelf levels, accessible without a truck) in the corridor that
+serves the line, and leave the rest of the warehouse alone. The cost is
+modest --- a one-time repallet of a small fraction of stock --- and if
+the model reflects reality, the improvement should show up in lead-time
+measurements within the first few weeks. The remaining five lines can
+then be phased in as confidence grows.
+
+\subsection*{Limitations}
+
+Several modelling choices limit how directly the numbers should be read.
+All element times come from a video time-motion study of the F400 kitting
+line (2,319 micro-events) and were then extrapolated to the other eight
+product families without per-line verification. Sensitivity analysis
+shows that a $\pm$20\% change in operator pick time shifts lead time by
+roughly the same proportion, so if F400 is not representative of a
+slower or faster line the estimates will be off by that amount.
+
+When a material appears in SAP at more than one bin, the model places it
+at all decoded locations and the operator picks the nearest; 386
+materials in the data have multiple bins, but the simulation does not
+distinguish between forward and reserve assignments, so the interaction
+between multi-bin splits and RT demand is only partially captured.
+
+The simulation was also fitted and validated against the same ZWM92
+dataset: the $\chi^2$ goodness-of-fit and the paired-$t$ volume checks
+are internal-consistency tests, not holdout validation. The daily
+dispatch rate gives some independent grounding --- the model generates
+about 378 orders per simulated day against ZWM92's 396 active-day
+average, a $-4.6$\% gap --- and the F400 video provides the timing
+anchor, but no separate observation period was available.
+
+Two further structural limits are worth stating plainly. Operator
+congestion in shared aisles is not modelled: agents pass through each
+other freely, so the model slightly under-estimates lead time under
+high-load policies. And the scope is order picking only. Line-aware
+Slotting concentrates fast movers at low levels, which will increase
+replenishment frequency for those positions; reach-truck time spent on
+replenishment is entirely outside the model. The reported RT utilization
+figure of 1.3\% for Line-aware Slotting is therefore a picking-only
+number, and total RT workload in a live deployment would be higher. For
+completeness, only 750 of the active materials have fully decoded SAP
+rack-bay-position codes; the remainder are either Kardex-routed or
+placed by heuristic fallback, so the SAP baseline is best understood as
+a SAP-plus-heuristic hybrid rather than a pure replay of the existing
+layout.
+
+\subsection*{Future work}
+
+Four extensions would strengthen a follow-up study. Per-line video time
+studies for SM6-36, Premset, MCSET, and the other families would replace
+the F400-extrapolated constants with line-specific values and sharpen the
+sensitivity bounds. A kit-aware co-location policy --- placing materials
+that consistently appear in the same kit order near each other, using the
+reconstructed BOMs from the ZWM92 grouping --- would complement
+line-aware slotting and could reduce intra-order travel as well as
+queueing. A physical pilot on one rack row, with lead-time measurements
+before and after re-slotting, would provide holdout validation that the
+simulation alone cannot supply. Finally, once more months of ZWM92 data
+accumulate, a proper train/test split would allow a genuine out-of-sample
+volume and frequency check, which is currently the study's main
+evidential gap.
+
+\subsection*{Sustainable development}
+
+This project connects to three of the United Nations Sustainable
+Development Goals \cite{sdgs}. SDG~9 (Industry, Innovation and
+Infrastructure) is the most direct fit: replacing intuition-driven bin
+assignment with a data-driven simulation analysis is evidence-based
+industrial practice at essentially no capital cost --- no new equipment,
+no expansion. SDG~12 (Responsible Consumption and Production) applies
+because the proposed slotting makes better use of the storage positions
+and handling equipment that already exist; less reach-truck idle time
+means less energy consumed per kit order, and avoiding unnecessary
+building expansion preserves materials and land. SDG~8 (Decent Work and
+Economic Growth) matters on the operator side: fewer high-level picks
+means fewer minutes standing idle waiting for a truck, and the
+lower-level hand picks that replace them are ergonomically less demanding
+than mast-elevated retrieval. None of these are transformative claims.
+They are modest, honest improvements that follow directly from what the
+model found.

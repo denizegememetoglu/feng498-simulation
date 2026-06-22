@@ -1,0 +1,18 @@
+\begin{table}[htbp]
+\centering
+\caption{Replication-paired $t$-tests on kitting lead time against the current SAP
+placement (common random numbers, $N=20$ pairs). Negative differences favour the
+alternative policy.}
+\label{tab:paired_t}
+\begin{tabular}{lcccc}
+\toprule
+Policy vs.\ current placement & Mean diff.\ (min) & $t$ & $p$-value & Significant? \\
+\midrule
+Capacity heuristic & +2.34 & 11.27 & $7.47 \times 10^{-10}$ & Yes \\
+Usage-based ABC & +2.87 & 9.97 & $5.50 \times 10^{-09}$ & Yes \\
+Double ABC & +2.37 & 10.05 & $4.85 \times 10^{-09}$ & Yes \\
+Travel-distance opt. & +12.23 & 10.06 & $4.82 \times 10^{-09}$ & Yes \\
+Line-aware slotting & -5.46 & -17.47 & $3.68 \times 10^{-13}$ & Yes \\
+\bottomrule
+\end{tabular}
+\end{table}
