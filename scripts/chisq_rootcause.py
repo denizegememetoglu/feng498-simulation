@@ -293,7 +293,7 @@ first_key = sample_keys[0]
 print(f"  First material obs entries: {zwm92_obs[first_key][:3]}")
 
 # The observed bins file may or may not have KDX entries; load zwm92 summary for kdx info
-print(f"\n  Loading from ZWM92 summary for KDX dispatch analysis...")
+print("\n  Loading from ZWM92 summary for KDX dispatch analysis...")
 kdx_picks_by_mat = zwm92_summary.get("kdx_picks_by_material", {})
 print(f"  kdx_picks_by_material entries in summary: {len(kdx_picks_by_mat)}")
 
@@ -412,7 +412,7 @@ print("SUMMARY OF FINDINGS")
 print("="*60)
 print(f"Q1: {n_decoded_materials} ozet-decoded materials; {n_in_zwm92} appear in ZWM92 observed")
 print(f"    STALE: {n_stale}/{n_in_zwm92} ({100*n_stale/max(1,n_in_zwm92):.1f}%) have dominant ZWM92 rack != ozet rack")
-print(f"Q2: I/J/U: zero picks = materials in those racks either absent from ZWM92 or dominated by multi-bin nearer alternatives")
+print("Q2: I/J/U: zero picks = materials in those racks either absent from ZWM92 or dominated by multi-bin nearer alternatives")
 print(f"Q3: Rack A sim picks = {sim_a_picks_total}; expected ~53; ZWM92 primary rack for A-decoded mats shown above")
 print(f"Q4a: ZWM92 materials with valid observed bin: {n_decodable_zwm92} / {n_total_zwm92_mats}")
 print(f"Q4b: Pick coverage: {100*share:.1f}%")

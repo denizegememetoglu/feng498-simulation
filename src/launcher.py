@@ -9,7 +9,6 @@ PyInstaller bundles this module as the entry point; see Schneider-Sim.spec.
 from __future__ import annotations
 
 import argparse
-import os
 import socket
 import sys
 import threading

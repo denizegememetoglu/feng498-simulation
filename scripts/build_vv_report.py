@@ -12,7 +12,6 @@ import os
 from datetime import date
 
 from docx import Document
-from docx.enum.table import WD_ALIGN_VERTICAL
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Cm, Pt, RGBColor
 
@@ -115,10 +114,10 @@ def main():
         f"Operational validity: per-rack chi-square against {expected_source} "
         f"yielded χ²={_fmt(chi_v, '', 1)} (p={_fmt(chi_p, '', 4)}); paired t-test on "
         f"log-daily picks per material yielded p={_fmt(t_p, '', 4)}.",
-        f"Conceptual model: synthetic Poisson generator retired in favour of "
-        f"Arena-style fitted distributions (src/simulation.py:ZWM92DistributionDriver). "
-        f"Per advisor instruction the seed is fixed across all replications so "
-        f"experimental contrasts between policies are not confounded by Monte-Carlo noise.",
+        "Conceptual model: synthetic Poisson generator retired in favour of "
+        "Arena-style fitted distributions (src/simulation.py:ZWM92DistributionDriver). "
+        "Per advisor instruction the seed is fixed across all replications so "
+        "experimental contrasts between policies are not confounded by Monte-Carlo noise.",
         f"Timing: F400 video time-motion study (n={timing.get('total_observations', '—')} "
         f"micro-events) replaces the pre-visit placeholders for at-bin pick / "
         f"penalty / RT-pick durations; Lognormal noise added per category CV.",

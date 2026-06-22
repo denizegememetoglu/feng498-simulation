@@ -12,11 +12,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 WEB = ROOT / "web"
 DOCS = ROOT / "docs"
+FIGURES = ROOT / "report" / "figures"
 
 ROOT_FILES = (
-    "index.html", "sim_v2.html",
+    "index.html", "sim_v2.html", "presentation.html", "presentation_share.html",
     "dwg_codex_geometry.json", "viewer_layout_v1.json", "layout.json", "route_debug.json",
 )
+
+# presentation.html references these from report/figures/ (mirrored to docs/figures/)
+FIGURE_EXTS = {".png", ".jpg", ".jpeg"}
 
 
 def _sync(src: Path, dst: Path) -> bool:
@@ -40,6 +44,10 @@ def main() -> None:
         for src in sorted(src_dir.iterdir()):
             if src.suffix in exts and _sync(src, DOCS / sub / src.name):
                 changed.append(f"{sub}/{src.name}")
+    if FIGURES.is_dir():
+        for src in sorted(FIGURES.iterdir()):
+            if src.suffix.lower() in FIGURE_EXTS and _sync(src, DOCS / "figures" / src.name):
+                changed.append(f"figures/{src.name}")
     if changed:
         print(f"[sync_docs] {len(changed)} file(s) updated:")
         for f in changed:

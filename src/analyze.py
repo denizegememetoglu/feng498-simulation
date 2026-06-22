@@ -27,9 +27,7 @@ import json
 import math
 import os
 import statistics
-from typing import Iterable
 
-import numpy as np
 from scipy import stats
 
 

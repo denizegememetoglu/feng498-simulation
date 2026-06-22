@@ -27,7 +27,6 @@ import argparse
 import json
 import os
 import statistics
-from collections import defaultdict
 from dataclasses import asdict, dataclass
 
 import ezdxf
@@ -919,7 +918,6 @@ def build_layout_from_dwg(
 
     transform = mapping["transform"]
     dwg_rows = {r["row_id"]: r for r in extracted["rack_rows_horizontal"]}
-    dwg_cols = {v["col_id"]: v for v in extracted["rack_columns_vertical"]}
 
     # Build SAP-rack → (dwg_row, segment_id) lookups.
     row_by_sap: dict[tuple[str, str], dict] = {}

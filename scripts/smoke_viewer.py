@@ -9,7 +9,6 @@ import os
 import sys
 import json
 import time
-import signal
 
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 os.environ.setdefault('QTWEBENGINE_CHROMIUM_FLAGS', '--no-sandbox --disable-gpu')
@@ -17,8 +16,7 @@ os.environ.setdefault('QTWEBENGINE_CHROMIUM_FLAGS', '--no-sandbox --disable-gpu'
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineSettings
-from PyQt6.QtCore import QUrl, QTimer, pyqtSlot
-from PyQt6.QtGui import QImage
+from PyQt6.QtCore import QUrl, QTimer
 
 OUT_DIR = '/home/dege/feng498-simulation/Reports/viewer_smoke_20260610'
 os.makedirs(OUT_DIR, exist_ok=True)
@@ -147,14 +145,13 @@ def check_nan_in_body():
         if tok in text:
             # Filter out code snippets that contain these as keywords
             # Look for them in rendered KPI values or visible numbers
-            import re
             # Find instances that look like they're in numeric display positions
             count = text.count(tok)
             issues.append({
                 'severity': 'HIGH',
                 'what': f"String '{tok}' found in document.body.innerText ({count} occurrences)",
                 'where': f"body text scan / context={current_context()}",
-                'fix': f"Check all .toFixed() / .toLocaleString() calls for null inputs"
+                'fix': "Check all .toFixed() / .toLocaleString() calls for null inputs"
             })
             print(f'  [NAN_CHECK] "{tok}" x{count} in body text', flush=True)
     return text
@@ -262,7 +259,6 @@ def test_seek_and_refresh(key):
         err_before = sum(1 for e in console_log if e['level'] == 'ERROR')
         js(f"try {{ window.player.seek({t}); }} catch(e) {{ console.error('seek_crash: ' + e.message); }}")
         wait(200)
-        err_after = sum(1 for e in console_log if e['level'] == 'ERROR')
         new_errs = [e for e in console_log[err_before:] if e['level'] == 'ERROR']
         for e in new_errs:
             if 'seek_crash' in e['msg'] or 'refreshEntityPositions' in e['msg'] or 'TypeError' in e['msg']:
@@ -485,7 +481,7 @@ def run_smoke():
                         'severity': 'HIGH',
                         'what': f"Panel [{tab}] rendered text contains '{bad}' at {len(occurrences)} location(s): {context_snippets}",
                         'where': f"[data-panel=\"{tab}\"] innerText",
-                        'fix': f"Audit renderXxx() for division-by-zero or null .toFixed() calls"
+                        'fix': "Audit renderXxx() for division-by-zero or null .toFixed() calls"
                     })
 
     # ── Console error summary ────────────────────────────────────────────────
@@ -554,7 +550,6 @@ def run_smoke():
 
 
 if __name__ == '__main__':
-    import threading
     # Run smoke test after slight delay to let Qt init
     QTimer.singleShot(100, run_smoke)
 
